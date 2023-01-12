@@ -1,0 +1,94 @@
+<launch>
+  <arg name="camera"                	      default="camera"/>
+  <arg name="manager"             	      default="realsense2_camera_manager"/>
+  <arg name="align_depth"         	      default="true"/>
+  <arg name="rgb"                             default="color" />
+  <arg name="depth"                           default="depth" />
+  <arg name="depth_registered"                default="aligned_depth_to_color" />
+  <arg name="projector"                       default="projector" />
+  <arg name="bond"                            default="false" />
+  <arg name="respawn"                         default="$(arg bond)" />
+  <arg name="rgb_processing"                  default="true"/>
+  <arg name="disparity_processing"            default="false"/>
+  <arg name="disparity_registered_processing" default="false"/>
+  <arg name="hw_registered_processing"        default="$(arg align_depth)" />
+
+  <group ns="$(arg camera)">
+    <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
+      <arg name="depth_width"       value="640"/>
+      <arg name="depth_height"      value="480"/>
+      <arg name="depth_fps"         value="30"/>
+      <arg name="color_width"       value="640"/>
+      <arg name="color_height"      value="480"/>
+      <arg name="color_fps"         value="30"/>
+      <arg name="enable_fisheye"    value="false"/>
+      <arg name="enable_pointcloud" value="false"/>
+      <arg name="enable_sync"       value="true"/>
+      <arg name="tf_prefix"         value="$(arg camera)"/>
+      <arg name="align_depth"              value="$(arg align_depth)"/>
+    </include>
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find realsense2_camera)/rviz/pointcloud.rviz" required="true" />
+    <include if="$(arg rgb_processing)"
+             file="$(find rgbd_launch)/launch/includes/rgb.launch.xml">
+      <arg name="manager"                       value="$(arg manager)" />
+      <arg name="respawn"                       value="$(arg respawn)" />
+      <arg name="rgb"                           value="$(arg rgb)" />
+    </include>
+
+      <node pkg="nodelet" type="nodelet" name="points_xyzrgb_hw_registered"
+            args="load depth_image_proc/point_cloud_xyzrgb $(arg manager) $(arg bond)" respawn="$(arg respawn)">
+        <remap from="rgb/image_rect_color"        to="$(arg rgb)/image_rect_color" />
+        <remap from="rgb/camera_info"             to="$(arg rgb)/camera_info" />
+        <remap from="depth_registered/image_rect" to="$(arg depth_registered)/image_raw" />
+        <remap from="depth_registered/points"     to="/camera/depth/color/points" />
+      </node>
+
+	<node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
+		<param name="resolution" value="0.05" />
+		<param name="frame_id" type="string" value="camera_odom_frame" />
+		<param name="sensor_model/max_range" value="5.0" />
+		<remap from="cloud_in" to="/camera/depth/color/points" />
+
+        	<remap from="rgb/image_rect_color"        to="$(arg rgb)/image_rect_color" />
+        	<remap from="rgb/camera_info"             to="$(arg rgb)/camera_info" />
+        	<remap from="depth_registered/image_rect" to="$(arg depth_registered)/image_raw" />
+        	<remap from="depth_registered/points"     to="/camera/depth/color/points" />
+	</node>
+
+    <group ns="$(arg camera)">
+      <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
+        <arg name="tf_prefix"                value="$(arg camera)"/>
+        <arg name="device_type"              value="t265"/>
+        <arg name="json_file_path"           value=""/>
+        <arg name="enable_sync"              value="false"/>
+
+        <arg name="fisheye_fps"              value="30"/>
+        <arg name="enable_gyro"              value="true"/>
+        <arg name="enable_accel"             value="true"/>
+        <arg name="enable_pose"              value="true"/>
+
+        <arg name="linear_accel_cov"         value=".01"/>
+        <arg name="initial_reset"            value="false"/>
+        <arg name="reconnect_timeout"        value="6.0"/>
+        <arg name="unite_imu_method"         value="linear_interpolation"/>
+        <arg name="publish_odom_tf"          value="true"/>
+      </include>
+    </group>
+  </group>
+  
+  <node name="find_object_3d" pkg="find_object_2d" type="find_object_2d" output="screen">
+		<param name="settings_path" value="~/.ros/find_object_2d.ini" type="str"/>
+		<param name="subscribe_depth" value="true" type="bool"/>
+		<param name="session_path" value="$(find object_detection_with_intel_d455)/sessions/qr.bin" type="str"/>
+				
+		<remap from="rgb/image_rect_color" to="/camera/color/image_raw"/>
+		<remap from="depth_registered/image_raw" to="/camera/depth/image_rect_raw"/>
+		<remap from="depth_registered/camera_info" to="/camera/depth/camera_info"/>
+	</node>
+	
+	<node name="tf_example" pkg="find_object_2d" type="tf_example" output="screen">
+	    <param name="map_frame_id" value="/camera" type="str"/>
+		<param name="object_prefix" value="object" type="str"/>
+	</node>
+</launch>
