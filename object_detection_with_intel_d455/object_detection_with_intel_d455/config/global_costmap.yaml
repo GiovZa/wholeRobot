@@ -1,0 +1,11 @@
+# Look at: http://library.isr.ist.utl.pt/docs/roswiki/costmap_2d.html for parameter list
+# Global frame must be map, which is a stagnant position in empty space
+global_frame: map
+
+# We don't want it to track unknown space because otherwise it will assume the space immediately in
+# front of the robot that the cameras can't see must contain an obstacle and immobilizes bot
+track_unknown_space: false
+
+# Plugin found in common_costmap.yaml
+plugins:
+  - {name: static_layer,                  type: "costmap_2d::StaticLayer"}

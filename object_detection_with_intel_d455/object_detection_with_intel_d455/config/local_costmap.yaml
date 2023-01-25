@@ -1,0 +1,20 @@
+# Look at: http://library.isr.ist.utl.pt/docs/roswiki/costmap_2d.html for parameter list
+# Global frame for local_costmap MUST be odom frame (camera_odom_frame) but there is a current
+# error in my code so I put this as a temporary fix. MUST RESOLVE ASAP. I think AMCL or transform
+# tolerance is the solution, will double check
+
+global_frame: map
+
+# Rolling window set to true means the frame will follow the robot
+rolling_window: true
+
+# Static map set to false means obstacles get updated
+static_map: false
+
+# Dimensions of local_costmap map
+width: 3
+height: 3
+
+# Takes in obstacle_layer from common_costmap.yaml
+plugins:
+  - {name: obstacle_layer,           type: "costmap_2d::ObstacleLayer"}
