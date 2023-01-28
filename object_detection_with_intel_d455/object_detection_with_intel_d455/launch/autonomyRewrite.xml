@@ -37,8 +37,7 @@
   out recently that we might have to open rviz on a network configured device rather than ssh
   because the graphics for a jetson don't match with normal vm or dual boot devices --> 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find realsense2_camera)/rviz/pointcloud.rviz" required="true" />
-    <include if="$(arg rgb_processing)"
-             file="$(find rgbd_launch)/launch/includes/rgb.launch.xml">
+    <include file="$(find object_detection_with_intel_d455)launch/rgbd.launch.xml">
       <arg name="manager"                       value="$(arg manager)" />
       <arg name="respawn"                       value="$(arg respawn)" />
       <arg name="rgb"                           value="$(arg rgb)" />
@@ -122,7 +121,7 @@
   Check out: http://wiki.ros.org/move_base for parameters -->
 <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen"> 
 	
-	<param name="controller_frequency" value="10.0" type="double"/>
+    <param name="controller_frequency" value="10.0" type="double"/>
 
 <!-- Sets common_costmap parameters in config folder to both local and global costmaps -->
     <rosparam file="$(find object_detection_with_intel_d455)/config/common_costmap.yaml" command="load" ns="global_costmap" />

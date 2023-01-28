@@ -17,7 +17,7 @@ catkin_package(
 	CATKIN_DEPENDS roscpp rospy std_msgs std_srvs geometry_msgs # Message types list
 	LIBRARIES lib # Set library path
 )
- 
+
 # Set path of where to find header files
 include_directories(
 include
@@ -67,5 +67,12 @@ target_link_libraries(listenerMotorAuto
   Threads::Threads
 )
 
- set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -std=c++17 -lstdc++fs")
+# Makes C++ script that holds mining functions
+
+add_executable(mine src/mine.cpp)
+target_link_libraries(mine 
+  CTRE_Phoenix
+  ${catkin_LIBRARIES}
+  Threads::Threads
+)
 

@@ -18,24 +18,24 @@ using namespace ctre::phoenix::motorcontrol::can;
 
 std::string interface = "can0";
 
-TalonFX talLeft(22, interface); 
-TalonFX talRght(21);
+TalonFX leftWheel(22, interface); 
+TalonFX rightWheel(21);
 
 void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
 	double x = msg->linear.x;
 	double z = msg->angular.z;
 	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-	talRght.SetInverted(true);
-	talRght.Set(ControlMode::PercentOutput, (-x + z)/2);
-	talLeft.Set(ControlMode::PercentOutput, (-x - z)/2);
+	rightWheel.SetInverted(true);
+	rightWheel.Set(ControlMode::PercentOutput, (-x + z)/2);
+	leftWheel.Set(ControlMode::PercentOutput, (-x - z)/2);
 }
 
 int main(int argc, char **argv) 
 {	
 	// Only difference between this and listenerMotor.cpp is the topic it is subscribed to
 	// Other one talks with controller publisher, this one with move_base / auto publisher
-	ros::init(argc, argv, "motors");
+	ros::init(argc, argv, "wheels");
 	ros::NodeHandle n;
 	ros::Subscriber sub = n.subscribe("cmd_vel", 10000, chatterCallback);
 

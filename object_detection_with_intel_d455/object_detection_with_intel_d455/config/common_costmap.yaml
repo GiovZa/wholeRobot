@@ -24,7 +24,8 @@ inflation_radius: 0.16
 
 #layer definitions
 static:
-    map_topic: /map
+# Setting map to camera_odom_frame which will be static relative to camera_pose_frame
+    map_topic: /camera_odom_frame
 
 obstacle_layer:
   enabled: true

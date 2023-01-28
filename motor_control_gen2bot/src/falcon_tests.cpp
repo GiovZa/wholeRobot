@@ -49,23 +49,31 @@ int main()
 	// FeedEnable(setTime) tells motors to run for setTime amount of miliseconds
 	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(10000);
 
+	std::cout << talLeft.GetSelectedSensorPosition() << std::endl;
+
 	// Sets the left motor to spin for a velocity input of 5, thus making right spin at -5
 	talLeft.Set(ControlMode::Velocity, 5);
 	
 	// Print statement
-	std::cout << "Running motor for 10 seconds" << std::endl;
+	std::cout << "Running motor for 5 seconds" << std::endl;
 
 	// Wait 10 seconds
-	sleepApp(10000);
+	sleepApp(5000);
+
+	std::cout << talLeft.GetSelectedSensorPosition() << std::endl;
 
 	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(10000);
 
 	// Sets left motor to spin at 30% of maximum output
 	talLeft.Set(ControlMode::PercentOutput, .3);
 
+	std::cout << talLeft.GetSelectedSensorPosition() << std::endl;
+
 	std::cout << "Running motor 2x for 10 seconds" << std::endl;
-	sleepApp(100000);
+	sleepApp(5000);
 	talLeft.Set(ControlMode::PercentOutput, 0);
+
+	std::cout << talLeft.GetSelectedSensorPosition() << std::endl;
 	std::cout << "Motor off" << std::endl;
 
 	// Return 0 to close program

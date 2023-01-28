@@ -1,6 +1,7 @@
 # Look at: http://library.isr.ist.utl.pt/docs/roswiki/costmap_2d.html for parameter list
-# Global frame must be map, which is a stagnant position in empty space
-global_frame: map
+# Global frame must be a static map, which is a stagnant position in empty space and have 
+# published tf from base_link which is robot, odom is synced with pose which is static to base_link
+global_frame: camera_odom_frame
 
 # We don't want it to track unknown space because otherwise it will assume the space immediately in
 # front of the robot that the cameras can't see must contain an obstacle and immobilizes bot
