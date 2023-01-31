@@ -1,0 +1,33 @@
+<package format="2">
+  <name>gen2bot</name>
+  <version>1.2.4</version>
+  
+  <description> This package provides everything for COD's 2023 Lunabot. </description>
+  
+  <maintainer email="zavalzagiovanni@gmail.com">Giovanni, tho will abandon after May 2023</maintainer>
+  
+  <license> Nivangio's </license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>roscpp</build_depend>
+    <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+    <build_depend>std_srvs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  
+  <build_export_depend>cv_bridge</build_export_depend>
+  <build_export_depend>roscpp</build_export_depend>
+    <build_export_depend>rospy</build_export_depend>
+  <build_export_depend>std_msgs</build_export_depend>
+    <build_export_depend>std_srvs</build_export_depend>
+  <build_export_depend>geometry_export_msgs</build_export_depend>
+
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>roscpp</exec_depend>
+    <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+    <exec_depend>std_srvs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+</package>

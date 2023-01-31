@@ -1,5 +1,5 @@
 // Script that runs mining operation
-#include <motor_control_gen2bot/gen2bot.h>
+#include <motor_control_gen2bot/gen2botPractice.h>
 #include <iostream>
 
 void mine(gen2bot robot, int time, double output)

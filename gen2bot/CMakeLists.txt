@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(motor_control_gen2bot)
+project(gen2bot)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp 
@@ -21,7 +21,7 @@ catkin_package(
 # Set path of where to find header files
 include_directories(
 include
-"${CMAKE_CURRENT_LIST_DIR}/include/motor_control_gen2bot"
+"${CMAKE_CURRENT_LIST_DIR}/include/gen2bot"
 ${catkin_INCLUDE_DIRS}
 )
 
@@ -44,22 +44,22 @@ add_library(CTRE_Phoenix SHARED IMPORTED)
 set_target_properties(CTRE_Phoenix PROPERTIES IMPORTED_LOCATION ${PHOENIX_LIBS_DIR}/libCTRE_Phoenix.so)
 
 # Makes the C++ script executable with "rosrun motor_control_gen2bot falcon_tets" command
-add_executable(falcon_tests src/falcon_tests.cpp)
-target_link_libraries(falcon_tests
+add_executable(falcon_tests_final src/falcon_tests.cpp)
+target_link_libraries(falcon_tests_final
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
 
 # Makes the C++ script executable with "rosrun motor_control_gen2bot listenerMotor" command
-add_executable(listenerMotor src/listenerMotor.cpp)
-target_link_libraries(listenerMotor 
+add_executable(listenerMotorFinal src/listenerMotor.cpp)
+target_link_libraries(listenerMotorFinal 
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
 
 # Makes the C++ script executable with "rosrun motor_control_gen2bot listenerMotorAuto" command
-add_executable(listenerMotorAuto src/listenerMotorAuto.cpp)
-target_link_libraries(listenerMotorAuto 
+add_executable(listenerMotorAutoFinal src/listenerMotorAuto.cpp)
+target_link_libraries(listenerMotorAutoFinal 
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
@@ -73,28 +73,28 @@ target_link_libraries(listenerMotorAuto
 # add_executable( <name of executable> $PATH_TO_FILE1/File1.cpp $PATH_TO_FILE2/File2.h etc...> )
 # To run all 3 files in ros, do "rosrun motor_control_gen2bot minePractice"
 add_executable(
-minePractice
+minePracticeFinal
  
 src/minePractice.cpp 
 src/gen2botPractice.cpp 
-include/motor_control_gen2bot/gen2botPractice.h
+include/gen2bot/gen2botPractice.h
 )
 
 # Now to link the DLLs with minePractice, we need CTRE DLL and default catkin DLLs:
-target_link_libraries(minePractice 
+target_link_libraries(minePracticeFinal 
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
 
 add_executable(
-mine 
+mineFinal 
 
 src/mine.cpp 
 src/gen2bot.cpp 
-include/motor_control_gen2bot/gen2bot.h
+include/gen2bot/gen2bot.h
 )
 
-target_link_libraries(mine
+target_link_libraries(mineFinal
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )

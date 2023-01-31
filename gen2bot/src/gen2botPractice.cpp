@@ -1,14 +1,10 @@
-#include "gen2bot.h"
+#include <gen2bot/gen2botPractice.h>
 
 #define Phoenix_No_WPI // remove WPI dependencies
 #include "ctre/Phoenix.h"
 #include "ctre/phoenix/platform/Platform.h"
 #include "ctre/phoenix/unmanaged/Unmanaged.h"
 #include "ctre/phoenix/cci/Unmanaged_CCI.h"
-
-
-#include "ros/ros.h"
-#include "geometry_msgs/Twist.h"
 
 using namespace ctre::phoenix;
 using namespace ctre::phoenix::platform;

@@ -1,0 +1,31 @@
+wheel_cfg:
+  closedloopRamp: 1
+  slot0: {
+    kP: 0.1,
+    kI: 0.002,
+    kD: 5.0,
+    kF: 0.035,
+    maxIntegralAccumulator: 16000
+  }
+
+bscrew_cfg:
+  closedloopRamp: 1
+    motionCruiseVelocity: 25000
+    motionAcceleration: 100000
+    motionCurveStrength: 0
+    clearPositionOnLimitF: true
+  slot0: {
+    kP: 0.005,
+    kI: 0.0002,
+    maxIntegralAccumulator: 50000
+  }
+
+linact_cfg:
+  closedloopRamp: 1
+    motionCruiseVelocity: 4
+    motionAcceleration: 10
+    motionCurveStrength: 0
+    clearPositionOnLimitF: true
+  slot0: {
+    kP: 45
+  }

@@ -1,3 +1,5 @@
+#include <motor_control_gen2bot/gen2botPractice.h>
+
 #define Phoenix_No_WPI // remove WPI dependencies
 #include "ctre/Phoenix.h"
 #include "ctre/phoenix/platform/Platform.h"
@@ -16,54 +18,48 @@ TalonSRX linAct(31, interface);
 TalonFX ballScrew(32);
 TalonFX auger(41);
 
-class gen2bot
-{
+gen2bot::gen2bot()
+	:	ms(1000),
+		percOut(.2)
+{}
 
-public:
-	gen2bot();
-
-	void sleepApp(int ms)
+	void gen2bot::sleepApp(int ms)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 	}
 
-	void spin(int ms, double percOut)
+	void gen2bot::spin(int ms, double percOut)
 	{
 		auger.Set(ControlMode::PercentOutput, percOut);
 		sleepApp(ms);
 	}
 
-	void unspin(int ms, double percOut)
+	void gen2bot::unspin(int ms, double percOut)
 	{
 		auger.Set(ControlMode::PercentOutput, -percOut);
 		sleepApp(ms);
 	}
 
-	void extend(int ms, double percOut)
+	void gen2bot::extend(int ms, double percOut)
 	{
 		ballScrew.Set(ControlMode::PercentOutput, percOut);
 		spin(ms, percOut);
 	}
 
-	void deextend(int ms, double percOut)
+	void gen2bot::deextend(int ms, double percOut)
 	{
 		ballScrew.Set(ControlMode::PercentOutput, -percOut);
 		sleepApp(ms);
 	}
 
-	void goDown(int ms, double percOut) 
+	void gen2bot::goDown(int ms, double percOut) 
 	{
 		linAct.Set(ControlMode::PercentOutput, percOut);
 		sleepApp(ms);
 	}
 
-	void goUp(int ms, double percOut) 
+	void gen2bot::goUp(int ms, double percOut) 
 	{
 		linAct.Set(ControlMode::PercentOutput, -percOut);
 		sleepApp(ms);
 	}
-	
-	int ms = 1000;
-	double percOut = .2;
-
-};
