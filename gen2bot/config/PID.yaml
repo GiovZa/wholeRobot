@@ -10,10 +10,10 @@ wheel_cfg:
 
 bscrew_cfg:
   closedloopRamp: 1
-    motionCruiseVelocity: 25000
-    motionAcceleration: 100000
-    motionCurveStrength: 0
-    clearPositionOnLimitF: true
+  motionCruiseVelocity: 25000
+  motionAcceleration: 100000
+  motionCurveStrength: 0
+  clearPositionOnLimitF: true
   slot0: {
     kP: 0.005,
     kI: 0.0002,
@@ -22,10 +22,10 @@ bscrew_cfg:
 
 linact_cfg:
   closedloopRamp: 1
-    motionCruiseVelocity: 4
-    motionAcceleration: 10
-    motionCurveStrength: 0
-    clearPositionOnLimitF: true
+  motionCruiseVelocity: 4
+  motionAcceleration: 10
+  motionCurveStrength: 0
+  clearPositionOnLimitF: true
   slot0: {
     kP: 45
   }

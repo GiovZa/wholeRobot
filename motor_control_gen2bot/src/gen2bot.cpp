@@ -6,6 +6,8 @@
 #include "ctre/phoenix/unmanaged/Unmanaged.h"
 #include "ctre/phoenix/cci/Unmanaged_CCI.h"
 
+#include "ros/ros.h"
+
 using namespace ctre::phoenix;
 using namespace ctre::phoenix::platform;
 using namespace ctre::phoenix::motorcontrol;

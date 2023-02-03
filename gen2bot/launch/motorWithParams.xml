@@ -2,11 +2,11 @@
 
 <!-- Launches my listenerMotorAuto.cpp file to initialize a base controller 
   that move_base communicates with to send motor inputs. This links autonomy to motors -->
-<node pkg="motor_control_gen2bot" type="mineFinal" name="motorRuns">
+<node pkg="gen2bot" type="mineFinal" name="motorRuns" output="screen">
 
     <param name="wheel_multiplier" value="1.1" type="double"/>
 
-    <rosparam file="$(find gen2bot)/config/PID.yaml" command="load" ns="PID" /> 
+    <rosparam file="$(find gen2bot)/config/PID.yaml" command="load"/> 
 </node>
 
 </launch>

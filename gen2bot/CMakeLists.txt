@@ -89,9 +89,9 @@ target_link_libraries(minePracticeFinal
 add_executable(
 mineFinal 
 
-src/mine.cpp 
-src/gen2bot.cpp 
-include/gen2bot/gen2bot.h
+src/mine1.cpp 
+src/gen2bot1.cpp 
+include/gen2bot/gen2bot1.h
 )
 
 target_link_libraries(mineFinal
