@@ -134,6 +134,9 @@
 
 <!-- Launches my listenerMotorAuto.cpp file to initialize a base controller 
   that move_base communicates with to send motor inputs. This links autonomy to motors -->
-<node pkg="motor_control_gen2bot" type="listenerMotorAuto" name="motorRuns"/>
+<node pkg="gen2bot" type="listenerMotorAuto" name="motorRuns" >
+    <param name="initalOutput" value="0.2" type="double"/>
+    <param name="isInitialState" value="true" type="bool"/>
+</node>
 
 </launch>

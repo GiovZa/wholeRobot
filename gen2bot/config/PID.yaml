@@ -9,6 +9,9 @@ wheel_cfg:
   }
 
 bscrew_cfg:
+  drivePosition: 0
+  depositPosition: -10
+  digPosition: -4000000
   closedloopRamp: 1
   motionCruiseVelocity: 25000
   motionAcceleration: 100000
@@ -21,6 +24,9 @@ bscrew_cfg:
   }
 
 linact_cfg:
+  drivePosition: -18
+  depositPosition: -10
+  digPosition: -40
   closedloopRamp: 1
   motionCruiseVelocity: 4
   motionAcceleration: 10

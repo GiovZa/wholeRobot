@@ -15,8 +15,9 @@ public:
 
 	void getPos();
 	
-	int assign;
 	double drivePosition;
+	double depositPosition;
+	double digPosition;
 	int seconds;
 };
 
@@ -33,7 +34,9 @@ public:
 
 	void getPos();
 	
-	int assign;
 	double drivePosition;
+	double depositPosition;
+	double digPosition;
+
 	int seconds;
 };

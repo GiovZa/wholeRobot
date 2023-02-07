@@ -7,6 +7,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   std_srvs
   geometry_msgs
+  sensor_msgs
+  cv_bridge
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
@@ -44,22 +46,22 @@ add_library(CTRE_Phoenix SHARED IMPORTED)
 set_target_properties(CTRE_Phoenix PROPERTIES IMPORTED_LOCATION ${PHOENIX_LIBS_DIR}/libCTRE_Phoenix.so)
 
 # Makes the C++ script executable with "rosrun motor_control_gen2bot falcon_tets" command
-add_executable(falcon_tests_final src/falcon_tests.cpp)
-target_link_libraries(falcon_tests_final
+add_executable(falcon_tests src/falcon_tests.cpp)
+target_link_libraries(falcon_tests
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
 
 # Makes the C++ script executable with "rosrun motor_control_gen2bot listenerMotor" command
-add_executable(listenerMotorFinal src/listenerMotor.cpp)
-target_link_libraries(listenerMotorFinal 
+add_executable(listenerMotor src/listenerMotor.cpp)
+target_link_libraries(listenerMotor 
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
 
 # Makes the C++ script executable with "rosrun motor_control_gen2bot listenerMotorAuto" command
-add_executable(listenerMotorAutoFinal src/listenerMotorAuto.cpp)
-target_link_libraries(listenerMotorAutoFinal 
+add_executable(listenerMotorAuto src/listenerMotorAuto.cpp)
+target_link_libraries(listenerMotorAuto
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
@@ -72,29 +74,19 @@ target_link_libraries(listenerMotorAutoFinal
 # The first argument is the name of what you put to call on a file to run ex.
 # add_executable( <name of executable> $PATH_TO_FILE1/File1.cpp $PATH_TO_FILE2/File2.h etc...> )
 # To run all 3 files in ros, do "rosrun motor_control_gen2bot minePractice"
-add_executable(
-minePracticeFinal
- 
-src/minePractice.cpp 
-src/gen2botPractice.cpp 
-include/gen2bot/gen2botPractice.h
-)
 
 # Now to link the DLLs with minePractice, we need CTRE DLL and default catkin DLLs:
-target_link_libraries(minePracticeFinal 
-  CTRE_Phoenix
-  ${catkin_LIBRARIES}
-)
+
 
 add_executable(
-mineFinal 
+mine
 
 src/mine1.cpp 
 src/gen2bot1.cpp 
 include/gen2bot/gen2bot1.h
 )
 
-target_link_libraries(mineFinal
+target_link_libraries(mine
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
