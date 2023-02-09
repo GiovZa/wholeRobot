@@ -90,3 +90,16 @@ target_link_libraries(mine
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
+
+add_executable(
+PIDTester
+
+src/PIDTester.cpp 
+src/gen2bot1.cpp 
+include/gen2bot/gen2bot1.h
+)
+
+target_link_libraries(PIDTester
+  CTRE_Phoenix
+  ${catkin_LIBRARIES}
+)

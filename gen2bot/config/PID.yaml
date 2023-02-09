@@ -10,23 +10,25 @@ wheel_cfg:
 
 bscrew_cfg:
   drivePosition: 0
-  depositPosition: -10
+  depositPosition: -2000000
   digPosition: -4000000
+  miliseconds: 1000
   closedloopRamp: 1
   motionCruiseVelocity: 25000
   motionAcceleration: 100000
   motionCurveStrength: 0
   clearPositionOnLimitF: true
   slot0: {
-    kP: 0.005,
-    kI: 0.0002,
+    kP: 0.5,
+    kI: 0.002,
     maxIntegralAccumulator: 50000
   }
 
 linact_cfg:
-  drivePosition: -18
-  depositPosition: -10
-  digPosition: -40
+  drivePosition: -16
+  depositPosition: -5
+  digPosition: -75
+  miliseconds: 1000
   closedloopRamp: 1
   motionCruiseVelocity: 4
   motionAcceleration: 10

@@ -17,20 +17,28 @@ int main(int argc, char** argv)
 	bScrewClass ballS(nh);
 
 	actuator.driveMode();
+	actuator.getPos();
 
 	actuator.depositMode();
+	actuator.getPos();
 
 	actuator.digMode();
+	actuator.getPos();
 
 	actuator.driveMode();
+	actuator.getPos();
 
 	ballS.driveMode();
+	ballS.getPos();
 
 	ballS.depositMode();
+	ballS.getPos();
 
 	ballS.digMode();
+	ballS.getPos();
 
 	ballS.driveMode();
+	ballS.getPos();
 
 	std::cout << "Script has now ended: " << std::endl;
 	return 0;

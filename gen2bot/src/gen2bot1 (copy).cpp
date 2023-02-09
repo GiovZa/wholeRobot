@@ -28,7 +28,7 @@ linActClass::linActClass(ros::NodeHandle nh)
 	: drivePosition(0),
 	  depositPosition(0),
 	  digPosition(0),
-	  seconds(1000)
+	  seconds(15000)
 {
 
 	linActMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonSRXFeedbackDevice::Analog;
@@ -42,22 +42,13 @@ linActClass::linActClass(ros::NodeHandle nh)
 	nh.getParam("/motorRuns/linact_cfg/drivePosition", drivePosition);
 	nh.getParam("/motorRuns/linact_cfg/depositPosition", depositPosition);
 	nh.getParam("/motorRuns/linact_cfg/digPosition", digPosition);
-	nh.getParam("/motorRuns/linact_cfg/miliseconds", seconds);
 
 	//Zero position
 	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-	linAct.Set(ControlMode::Velocity, 400);
-	sleepApp(seconds);
-	std::cout << "Starting zero with Velocity: " << linAct.GetSelectedSensorVelocity() << std::endl;
-	while(linAct.GetSelectedSensorVelocity() != 0.0)
-	{
-		sleepApp(seconds);
-		std::cout << "Zeroing LA with Velocity at: " << linAct.GetSelectedSensorVelocity() << std::endl;
-	}
-	sleepApp(seconds);
+	linAct.Set(ControlMode::PercentOutput, .40);
+	std::this_thread::sleep_for(std::chrono::milliseconds(seconds));
 	linAct.SetSelectedSensorPosition(0.0);
 	getPos();
-	std::cout << "Zeroing for LA complete: " << std::endl;
 }
 
 	void linActClass::sleepApp(int ms)
@@ -67,7 +58,9 @@ linActClass::linActClass(ros::NodeHandle nh)
 
 	void linActClass::getPos() 
 	{
-		std::cout << "LA Position: " << linAct.GetSelectedSensorPosition() << std::endl;
+		std::cout << "LA Position: " << linAct.GetSelectedSensorPosition(0) << std::endl;
+		std::this_thread::sleep_for(std::chrono::milliseconds(15000));
+		std::cout << "LA Position after 15 seconds: " << linAct.GetSelectedSensorPosition(0) << std::endl;
 	}
 
 	void linActClass::driveMode()
@@ -75,14 +68,7 @@ linActClass::linActClass(ros::NodeHandle nh)
 		std::cout << "Beginning LA driveMode(): " << std::endl;
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 		linAct.Set(ControlMode::Position, drivePosition);
-		while(linAct.GetSelectedSensorPosition() != drivePosition)
-		{
-			sleepApp(seconds);
-			getPos();
-		}
 		std::cout << "Exiting LA driveMode(): " << std::endl;
-		sleepApp(seconds);
-		getPos();
 	}
 
 	void linActClass::depositMode()
@@ -90,14 +76,7 @@ linActClass::linActClass(ros::NodeHandle nh)
 		std::cout << "Beginning LA depositMode(): " << std::endl;
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 		linAct.Set(ControlMode::Position, depositPosition);
-		while(linAct.GetSelectedSensorPosition() != depositPosition)
-		{
-			sleepApp(seconds);
-			getPos();
-		}
 		std::cout << "Exiting LA depositMode(): " << std::endl;
-		sleepApp(seconds);
-		getPos();
 	}
 
 	void linActClass::digMode()
@@ -105,16 +84,8 @@ linActClass::linActClass(ros::NodeHandle nh)
 		std::cout << "Beginning LA digMode(): " << std::endl;
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 		linAct.Set(ControlMode::Position, digPosition);
-		while(linAct.GetSelectedSensorPosition() != digPosition)
-		{
-			sleepApp(seconds);
-			getPos();
-		}
 		std::cout << "Exiting LA digMode(): " << std::endl;
-		sleepApp(seconds);
-		getPos();
 	}
-
 
 
 
@@ -122,7 +93,7 @@ bScrewClass::bScrewClass(ros::NodeHandle nh)
 	: drivePosition(0),
 	  depositPosition(0),
 	  digPosition(0),
-	  seconds(1000)
+	  seconds(15000)
 {
 
 	bScrewMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
@@ -136,14 +107,12 @@ bScrewClass::bScrewClass(ros::NodeHandle nh)
 	nh.getParam("/motorRuns/bscrew_cfg/drivePosition", drivePosition);
 	nh.getParam("/motorRuns/bscrew_cfg/depositPosition", depositPosition);
 	nh.getParam("/motorRuns/bscrew_cfg/digPosition", digPosition);
-	nh.getParam("/motorRuns/bscrew_cfg/miliseconds", seconds);
 
 	//Zero position
 	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+	bScrew.Set(ControlMode::PercentOutput, .40);
+	std::this_thread::sleep_for(std::chrono::milliseconds(seconds));
 	bScrew.SetSelectedSensorPosition(0.0);
-	sleepApp(seconds);
-	getPos();
-	std::cout << "Zeroing for BS complete: " << std::endl;
 }
 
 	void bScrewClass::sleepApp(int ms)
@@ -154,6 +123,8 @@ bScrewClass::bScrewClass(ros::NodeHandle nh)
 	void bScrewClass::getPos() 
 	{
 		std::cout << "BS Position: " << bScrew.GetSelectedSensorPosition(0) << std::endl;
+		std::this_thread::sleep_for(std::chrono::milliseconds(15000));
+		std::cout << "BS Position after 15 seconds: " << bScrew.GetSelectedSensorPosition(0) << std::endl;
 	}
 
 	void bScrewClass::driveMode()
@@ -161,14 +132,7 @@ bScrewClass::bScrewClass(ros::NodeHandle nh)
 		std::cout << "Beginning BS driveMode(): " << std::endl;
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 		bScrew.Set(ControlMode::Position, drivePosition);
-		while(bScrew.GetSelectedSensorPosition() != drivePosition)
-		{
-			sleepApp(seconds);
-			getPos();
-		}
 		std::cout << "Exiting BS driveMode(): " << std::endl;
-		sleepApp(seconds);
-		getPos();
 	}
 
 	void bScrewClass::depositMode()
@@ -176,14 +140,7 @@ bScrewClass::bScrewClass(ros::NodeHandle nh)
 		std::cout << "Beginning BS depositMode(): " << std::endl;
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 		bScrew.Set(ControlMode::Position, depositPosition);
-		while(bScrew.GetSelectedSensorPosition() != depositPosition)
-		{
-			sleepApp(seconds);
-			getPos();
-		}
 		std::cout << "Exiting BS depositMode(): " << std::endl;
-		sleepApp(seconds);
-		getPos();
 	}
 
 	void bScrewClass::digMode()
@@ -191,12 +148,5 @@ bScrewClass::bScrewClass(ros::NodeHandle nh)
 		std::cout << "Beginning BS digMode(): " << std::endl;
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 		bScrew.Set(ControlMode::Position, digPosition);
-		while(bScrew.GetSelectedSensorPosition() != digPosition)
-		{
-			sleepApp(seconds);
-			getPos();
-		}
 		std::cout << "Exiting BS digMode(): " << std::endl;
-		sleepApp(seconds);
-		getPos();
 	}
