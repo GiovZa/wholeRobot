@@ -6,15 +6,39 @@
 
 #include "ros/ros.h"
 
+//void diggingPhase(linActClass act, bScrewClass bS)
+
+//void drivingPhase(linActClass act, bScrewClass bS)
+
+//void depositingPhase(linActClass act, bScrewClass bS)
+
+void diggingPhase(linActClass act, bScrewClass bS)
+{
+	act.digMode();
+	bS.digMode();
+}
+
+void drivingPhase(linActClass act, bScrewClass bS)
+{
+	act.driveMode();
+	bS.driveMode();
+}
+
+void depositingPhase(linActClass act, bScrewClass bS)
+{
+	act.depositMode();
+	bS.depositMode();
+}
+
 int main(int argc, char** argv) 
 {	
 
-    	ros::init(argc, argv, "motorRuns");
+    ros::init(argc, argv, "motorRuns");
 
 	ros::NodeHandle nh;
 
+	bScrewClass ballS(nh);	
 	linActClass actuator(nh);
-	bScrewClass ballS(nh);
 
 	actuator.driveMode();
 
@@ -22,7 +46,7 @@ int main(int argc, char** argv)
 
 	actuator.digMode();
 
-	actuator.driveMode();
+	actuator.driveMode(); 
 
 	ballS.driveMode();
 
@@ -30,8 +54,9 @@ int main(int argc, char** argv)
 
 	ballS.digMode();
 
-	ballS.driveMode();
+	ballS.driveMode(); 
 
 	std::cout << "Script has now ended: " << std::endl;
 	return 0;
 }
+

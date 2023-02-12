@@ -92,14 +92,14 @@ target_link_libraries(mine
 )
 
 add_executable(
-PIDTester
+notDT
 
-src/PIDTester.cpp 
-src/gen2bot1.cpp 
-include/gen2bot/gen2bot1.h
+src/notDT.cpp 
+src/ProcessManager.cpp 
+include/gen2bot/ProcessManager.h
 )
 
-target_link_libraries(PIDTester
+target_link_libraries(notDT
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )

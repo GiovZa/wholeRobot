@@ -47,12 +47,13 @@ int main(int argc, char **argv)
 	{
 		n.getParam("/wheels/isInitialState", isInitialState);
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(10000);
-		rightWheel.Set(ControlMode::PercentOutput, initialPO);
+		rightWheel.Set(ControlMode::PercentOutput, -initialPO);
 		leftWheel.Set(ControlMode::PercentOutput, initialPO);
 		std::cout << "Spinning for 1 second at: " << initialPO << "%" << "for 1 second" << std::endl;
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		rightWheel.Set(ControlMode::PercentOutput, 0);
 		leftWheel.Set(ControlMode::PercentOutput, 0);
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		std::cout << "Stagnant for 1 second" << std::endl;
 	}
 

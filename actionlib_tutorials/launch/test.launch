@@ -1,0 +1,6 @@
+<launch>
+    <param name="nav_to_mine" type="int" value="1" />
+    <param name="mine" type="int" value="1" />
+    <node pkg="actionlib_tutorials" name="client" type="client.py" output="screen"> 
+    </node>
+</launch>

@@ -37,7 +37,7 @@
   out recently that we might have to open rviz on a network configured device rather than ssh
   because the graphics for a jetson don't match with normal vm or dual boot devices --> 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find realsense2_camera)/rviz/pointcloud.rviz" required="true" />
-    <include file="$(find gen2bot)/launch/rgbd.launch.xml">
+    <include file="$(find gen2bot)launch/rgbd.launch.xml">
       <arg name="manager"                       value="$(arg manager)" />
       <arg name="respawn"                       value="$(arg respawn)" />
       <arg name="rgb"                           value="$(arg rgb)" />
@@ -98,7 +98,7 @@
   of QR code relative to camera sensor // curently commented out to focus on move_base algorithm: 
   Check out: https://github.com/bandasaikrishna/object_detection_and_3d_pose_estimation --> 
 
-<node name="find_object_3d" pkg="find_object_2d" type="find_object_2d" output="screen">
+<!--  <node name="find_object_3d" pkg="find_object_2d" type="find_object_2d" output="screen">
 		<param name="settings_path" value="~/.ros/find_object_2d.ini" type="str"/>
 		<param name="subscribe_depth" value="true" type="bool"/>
 		<param name="session_path" value="$(find gen2bot)/sessions/qr.bin" type="str"/>
@@ -106,12 +106,12 @@
 		<remap from="rgb/image_rect_color" to="/camera/color/image_raw"/>
 		<remap from="depth_registered/image_raw" to="/camera/depth/image_rect_raw"/>
 		<remap from="depth_registered/camera_info" to="/camera/depth/camera_info"/>
-</node>
+	</node>
 	
-<node name="tf_example" pkg="find_object_2d" type="tf_example" output="screen">
-	<param name="map_frame_id" value="/camera" type="str"/>
-	<param name="object_prefix" value="object" type="str"/>
-</node>
+	<node name="tf_example" pkg="find_object_2d" type="tf_example" output="screen">
+	    <param name="map_frame_id" value="/camera" type="str"/>
+		<param name="object_prefix" value="object" type="str"/>
+	</node> -->
 
 <!-- Static tranform between tracking camera and robot. Arguments are position for x, y, and z
   followed by orientation for x, y, and z -->
@@ -130,6 +130,13 @@
 <!-- Sets local and global parameters in config folder to both local and global costmaps -->
     <rosparam file="$(find gen2bot)/config/local_costmap.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find gen2bot)/config/global_costmap.yaml" command="load" ns="global_costmap" /> 
+</node>
+
+<!-- Launches my listenerMotorAuto.cpp file to initialize a base controller 
+  that move_base communicates with to send motor inputs. This links autonomy to motors -->
+<node pkg="gen2bot" type="listenerMotorAuto" name="motorRuns" >
+    <param name="initalOutput" value="0.2" type="double"/>
+    <param name="isInitialState" value="true" type="bool"/>
 </node>
 
 </launch>
