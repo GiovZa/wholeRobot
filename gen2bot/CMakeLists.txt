@@ -30,6 +30,7 @@ ${catkin_INCLUDE_DIRS}
 # Makes the python script executable with "rosrun motor_control_gen2bot motorTalker.py" command
  catkin_install_python(PROGRAMS
    scripts/motorTalker.py
+   scripts/notDTTalker.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
@@ -97,6 +98,8 @@ notDT
 src/notDT.cpp 
 src/ProcessManager.cpp 
 include/gen2bot/ProcessManager.h
+src/NotDTClass.cpp 
+include/gen2bot/NotDTClass.h
 )
 
 target_link_libraries(notDT

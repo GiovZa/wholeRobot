@@ -31,14 +31,14 @@ bScrewClass::bScrewClass(ros::NodeHandle nh)
 {
 
 	bScrewMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
-    	nh.getParam("/motorRuns/bscrew_cfg/motionCruiseVelocity", bScrewMM.motionCruiseVelocity);
-    	nh.getParam("/motorRuns/bscrew_cfg/motionAcceleration", bScrewMM.motionAcceleration);
-    	nh.getParam("/motorRuns/bscrew_cfg/motionCurveStrength", bScrewMM.motionCurveStrength);
+    nh.getParam("/motorRuns/bscrew_cfg/motionCruiseVelocity", bScrewMM.motionCruiseVelocity);
+    nh.getParam("/motorRuns/bscrew_cfg/motionAcceleration", bScrewMM.motionAcceleration);
+    nh.getParam("/motorRuns/bscrew_cfg/motionCurveStrength", bScrewMM.motionCurveStrength);
 
-    	nh.getParam("/motorRuns/bscrew_cfg/clearPositionOnLimitF", bScrewMM.clearPositionOnLimitF);
+    nh.getParam("/motorRuns/bscrew_cfg/clearPositionOnLimitF", bScrewMM.clearPositionOnLimitF);
 
-    	nh.getParam("/motorRuns/bscrew_cfg/slot0/kI", bScrewMM.slot0.kI);
-    	nh.getParam("/motorRuns/bscrew_cfg/slot0/kP", bScrewMM.slot0.kP);
+    nh.getParam("/motorRuns/bscrew_cfg/slot0/kI", bScrewMM.slot0.kI);
+    nh.getParam("/motorRuns/bscrew_cfg/slot0/kP", bScrewMM.slot0.kP);
 
 	bScrew.ConfigAllSettings(bScrewMM);
 

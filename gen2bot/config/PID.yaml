@@ -10,8 +10,8 @@ wheel_cfg:
 
 bscrew_cfg:
   drivePosition: 0
-  depositPosition: -2000000
-  digPosition: -4000000
+  depositPosition: -4000000
+  digPosition: -1000000
   miliseconds: 1000
 
   motionCruiseVelocity: 25000
@@ -26,9 +26,9 @@ bscrew_cfg:
   }
 
 linact_cfg:
-  drivePosition: -16 # 0
+  drivePosition: -14 # 0
   depositPosition: 0 # 10
-  digPosition: -30 # -60
+  digPosition: -80 # -60
   miliseconds: 1000
 
   motionCruiseVelocity: 4
@@ -37,6 +37,6 @@ linact_cfg:
 
   slot0: {
     kP: 42, #45
-    kI: 0.001 # 0.0001
+    kI: 0.0 #0.001 # 0.0001
   }
 

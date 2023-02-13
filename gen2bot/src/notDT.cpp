@@ -1,5 +1,5 @@
 // Script that runs mining operation
-#include <gen2bot/gen2bot1.h>
+#include <gen2bot/NotDTClass.h>
 #include <gen2bot/ProcessManager.h>
 #include <iostream>
 #include <chrono> 
@@ -9,35 +9,62 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 
+#include <iostream>
+
 std::mutex data_mutex;
 
 int data;
 
-
-//void diggingPhase(linActClass act, bScrewClass bS)
-
-//void drivingPhase(linActClass act, bScrewClass bS)
-
-//void depositingPhase(linActClass act, bScrewClass bS)
-
-void goToNeutral(int& p_cmd)
+void goToDrive(int& p_cmd, NotDTClass notDT, ros::NodeHandle nh)
 {
 	int sentinel = p_cmd;
-	ROS_INFO("goToNeutral");
+	ROS_INFO("goToDrive");
 	while(p_cmd == sentinel)
 	{
-		ROS_INFO("Sentinel: %d", sentinel);
-		ROS_INFO("P_cmd: %d", p_cmd);
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		ROS_INFO("goToNeutral %d", p_cmd);
+		notDT.driveMode(p_cmd, nh);
+		p_cmd = 0;
+	}
+}
+
+void deposit(int& p_cmd, NotDTClass notDT, ros::NodeHandle nh)
+{
+	int sentinel = p_cmd;
+	ROS_INFO("goToDeposit");
+	while(p_cmd == sentinel)
+	{
+		notDT.deposit(p_cmd, nh);
+		p_cmd = 0;
+	}
+}
+
+void dig(int& p_cmd, NotDTClass notDT, ros::NodeHandle nh)
+{
+	int sentinel = p_cmd;
+	ROS_INFO("goToDig");
+	while(p_cmd == sentinel)
+	{
+		notDT.dig(p_cmd, nh);
+		p_cmd = 0;
+	}
+}
+
+void zero(int& p_cmd, NotDTClass notDT, ros::NodeHandle nh)
+{
+	int sentinel = p_cmd;
+	ROS_INFO("zero");
+	while(p_cmd == sentinel)
+	{
+		notDT.zero(p_cmd, nh);
+		std::cout << "Exit notDT.zero with sentinel, notDTsentinel, z " << 
+		" and p_cmd: " << sentinel << " " << notDT.sentinel << " " << p_cmd << std::endl;
+		p_cmd = 0;
 	}
 
 }
 
-void deposit(int& p_cmd)
+void config(NotDTClass notDT, ros::NodeHandle nh)
 {
-	int sentinel = p_cmd;
-	std::cout << "deposit() ran" << std::endl;
+	notDT.config(nh);
 }
 
 void updateProcess(const int& msg)
@@ -55,16 +82,18 @@ int getData()
 int main(int argc, char** argv) 
 {	
 
-    ros::init(argc, argv, "notDT");
+    ros::init(argc, argv, "notDTNode");
 
 	ros::NodeHandle nh;
+
+	NotDTClass notDT(nh);
 
 	int p_cmd = 0;
 	int* ptr = &p_cmd;
 
 	ProcessManager proMan(ptr);
 
-  	ros::Rate loop_rate(10);
+  	ros::Rate loop_rate(6);
 
 	ros::Subscriber sub = nh.subscribe("robot_process", 0, &ProcessManager::callback, &proMan);
 	
@@ -77,13 +106,26 @@ int main(int argc, char** argv)
 		switch (p_cmd)
 		{
 		case 0:
-			goToNeutral(p_cmd);
 			break;
 		case 1:
-			deposit(p_cmd);
+			goToDrive(p_cmd, notDT, nh);
+			p_cmd = 0;
 			break;
-
-		
+		case 2:
+			dig(p_cmd, notDT, nh);
+			p_cmd = 0;
+			break;
+		case 3:
+			deposit(p_cmd, notDT, nh);
+			p_cmd = 0;
+			break;
+		case 4:
+			zero(p_cmd, notDT, nh);
+			p_cmd = 0;
+			break;
+		case 5:
+			config(notDT, nh);
+			break;
 		default:
 			break;
 		}
@@ -91,6 +133,9 @@ int main(int argc, char** argv)
 		loop_rate.sleep();
 
 	}
+
+	notDT.stop();
+	std::cout << "LinAct and BallS are now still: " << std::endl;
 
 	std::cout << "Script has now ended: " << std::endl;
 	return 0;
