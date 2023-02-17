@@ -6,9 +6,13 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   std_srvs
+  actionlib_msgs
+  message_generation
   geometry_msgs
   sensor_msgs
   cv_bridge
+  actionlib
+  move_base_msgs
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
@@ -16,7 +20,7 @@ find_package(Threads REQUIRED)
 
 catkin_package(
 	INCLUDE_DIRS include # Set include path
-	CATKIN_DEPENDS roscpp rospy std_msgs std_srvs geometry_msgs # Message types list
+	CATKIN_DEPENDS roscpp rospy std_msgs std_srvs geometry_msgs actionlib_msgs message_generation sensor_msgs cv_bridge actionlib move_base_msgs# Message types list
 	LIBRARIES lib # Set library path
 )
 
@@ -31,6 +35,7 @@ ${catkin_INCLUDE_DIRS}
  catkin_install_python(PROGRAMS
    scripts/motorTalker.py
    scripts/notDTTalker.py
+   scripts/move_base_client.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 

@@ -108,7 +108,7 @@ void NotDTClass::isSafe(int& p_cmd)
 				}
 				ctre::phoenix::unmanaged::Unmanaged::FeedEnable(2000);
 				bScrew.Set(ControlMode::Position, 0);
-				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+				std::this_thread::sleep_for(std::chrono::milliseconds(500));
 			}
 		}
 }
@@ -133,7 +133,7 @@ void NotDTClass::zero(int& p_cmd, ros::NodeHandle  nh)
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
 		if (sentinel == p_cmd)
-			linAct.Set(ControlMode::PercentOutput, .5);
+			linAct.Set(ControlMode::PercentOutput, .7);
 
 		for ( int i = 0; i < 10; i++)
 			{
@@ -206,6 +206,7 @@ void NotDTClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 			std::cout << "BalLS and linAct pos: " << bScrew.GetSelectedSensorPosition() << linAct.GetSelectedSensorPosition() << std::endl;
 			if(linAct.GetSelectedSensorPosition() > -40)
 				bScrew.Set(ControlMode::Position, bsDepositPosition);
+			else(isSafe(p_cmd));
 			if(bScrew.GetSelectedSensorPosition() < (bsDrivePosition + 250) || bScrew.GetSelectedSensorPosition() > (bsDrivePosition - 250))
 				linAct.Set(ControlMode::Position, laDepositPosition);
 			if (sentinel != p_cmd)

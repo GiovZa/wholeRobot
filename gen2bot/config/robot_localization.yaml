@@ -1,0 +1,32 @@
+frequency: 30
+two_d_mode: false
+
+map_frame: map
+odom_frame: camera_pose_frame
+base_link_frame: base_link
+
+imu0: /camera/camera/imu
+imu0_config: [true, true, true,
+               true, true, true,
+               true, true, true,
+               true, true, true,
+               true, true, true]
+imu0_differential: false
+imu0_relative: true
+
+
+odom0: /camera/camera/odom/sample
+odom0_config: [true, true, true,
+               true, true, true,
+               true, true, true,
+               true, true, true,
+               true, true, true]
+odom0_differential: false
+odom0_relative: true
+
+point_cloud: /camera/depth/color/points
+point_cloud_differential: false
+point_cloud_relative: true
+
+publish_tf: true
+tf_tolerance: 0

@@ -17,6 +17,9 @@
   <build_depend>std_srvs</build_depend>
   <build_depend>geometry_msgs</build_depend>
   <build_depend>sensor_msgs</build_depend>
+  <build_depend>actionlib</build_depend>
+  <build_depend>actionlib_msgs</build_depend>
+  <build_depend>message_generation</build_depend>
   
   <build_export_depend>cv_bridge</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
@@ -25,6 +28,13 @@
   <build_export_depend>std_srvs</build_export_depend>
   <build_export_depend>geometry_export_msgs</build_export_depend>
   <build_export_depend>sensor_msgs</build_export_depend>
+  <build_export_depend>actionlib</build_export_depend>
+  <build_export_depend>actionlib_msgs</build_export_depend>
+  <build_export_depend>message_generation</build_export_depend>
+
+  <build_depend>move_base_msgs</build_depend>
+  <build_export_depend>move_base_msgs</build_export_depend>
+  <exec_depend>move_base_msgs</exec_depend>
 
   <exec_depend>cv_bridge</exec_depend>
   <exec_depend>roscpp</exec_depend>
@@ -33,4 +43,8 @@
   <exec_depend>std_srvs</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>actionlib</exec_depend>
+  <exec_depend>actionlib_msgs</exec_depend>
+  <exec_depend>message_generation</exec_depend>
+
 </package>

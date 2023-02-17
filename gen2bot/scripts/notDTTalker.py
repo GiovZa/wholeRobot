@@ -21,18 +21,26 @@ class JoystickPublisher:
         # CONFIRMED DRIVETRAIN PUB
 
 	# twist() now can take in linear and angular values set by twist
-        Int8 = 0
+        
         if(message.buttons[6] == 1 and message.buttons[7] == 1 and message.axes[7] == 1.0):
                 if(message.buttons[0] == 1):
                         Int8 = 3
+                        self.pub.publish(Int8)
                 elif(message.buttons[1] == 1):
                         Int8 = 2
+                        self.pub.publish(Int8)
                 elif(message.buttons[3] == 1):
                         Int8 = 1
+                        self.pub.publish(Int8)
                 elif(message.buttons[4] == 1):
                         Int8 = 4
+                        self.pub.publish(Int8)
                 elif(message.buttons[12] == 1):
                         Int8 = 5
+                        self.pub.publish(Int8)
+        if(message.axes[7] == -1):
+                Int8 = 0
+                self.pub.publish(Int8)
                 
         # a = message.buttons[0]
         # b = message.buttons[1]
@@ -44,7 +52,6 @@ class JoystickPublisher:
         # menu = message.buttons[10]
         # start = message.buttons[11]
         # Xbox = message.buttons[12]
-        self.pub.publish(Int8)
 
 class JoystickPublisherWheel:
     def __init__(self, Publisher):

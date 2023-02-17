@@ -22,7 +22,7 @@ TalonFX rightWheel(21);
 void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
 	double x = msg->linear.x;
-	double z = msg->angular.z;
+	double z = (msg->angular.z / 4);
 	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
 	rightWheel.Set(ControlMode::PercentOutput, (-x + z)/2);
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 	rightWheel.SetInverted(true);
 
 
-	while(isInitialState)
+	/* while(isInitialState)
 	{
 		n.getParam("/wheels/isInitialState", isInitialState);
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(10000);
@@ -53,13 +53,11 @@ int main(int argc, char **argv)
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		rightWheel.Set(ControlMode::PercentOutput, 0);
 		leftWheel.Set(ControlMode::PercentOutput, 0);
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		std::cout << "Stagnant for 1 second" << std::endl;
-	}
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	} */
 
 	ros::Subscriber sub = n.subscribe("cmd_vel", 10000, chatterCallback);
-
-	std::cout << "Spinning at: " << "1" << " output" << std::endl;
 
   	ros::spin();
 

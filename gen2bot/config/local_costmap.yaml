@@ -12,9 +12,10 @@ rolling_window: true
 static_map: false
 
 # Dimensions of local_costmap map
-width: 3
-height: 3
+width: 5
+height: 5
 
 # Takes in obstacle_layer from common_costmap.yaml
 plugins:
   - {name: obstacle_layer,           type: "costmap_2d::ObstacleLayer"}
+  - {name: inflation_layer,          type: "costmap_2d::InflationLayer"}
