@@ -31,7 +31,7 @@ include
 ${catkin_INCLUDE_DIRS}
 )
 
-# Makes the python script executable with "rosrun motor_control_gen2bot motorTalker.py" command
+# Makes the python script executable with "rosrun motor_control_gen2bot motorTalker.py" command or whichever python file it is
  catkin_install_python(PROGRAMS
    scripts/motorTalker.py
    scripts/notDTTalker.py
@@ -72,17 +72,6 @@ target_link_libraries(listenerMotorAuto
   ${catkin_LIBRARIES}
 )
 
-# Makes C++ script that holds mining functions. minePractice.cpp is the main file called 
-# upon, src/gen2botPractice.cpp holds class gen2bot functions,
-# and gen2botPractice.h contains the class of gen2bot. When making an exectuable, you must list all
-# files that the exectuable will rely on for code. You use an exectuable to compile code and turn
-# a text file into usable c++ code. Because I need code from 3 files, I must list every file.
-# The first argument is the name of what you put to call on a file to run ex.
-# add_executable( <name of executable> $PATH_TO_FILE1/File1.cpp $PATH_TO_FILE2/File2.h etc...> )
-# To run all 3 files in ros, do "rosrun motor_control_gen2bot minePractice"
-
-# Now to link the DLLs with minePractice, we need CTRE DLL and default catkin DLLs:
-
 
 add_executable(
 mine
@@ -96,6 +85,8 @@ target_link_libraries(mine
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
+
+# Makes the C++ scripts executable with "rosrun motor_control_gen2bot notDT" command
 
 add_executable(
 notDT

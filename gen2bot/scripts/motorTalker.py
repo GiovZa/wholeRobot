@@ -15,19 +15,21 @@ class JoystickPublisher:
     def __init__(self, Publisher):
         self.pub = Publisher
 
+    # The function that outputs the right and left trigger to get forward and backward movement
     def combineLTRT(self, message):
-	''' 
-	LT is left trigger, message.axes[5] (from Joy package) 
-	takes input from left trigger of controller from value -1 to 1.
-	Without pressing down on the trigger, you get a default value of -1
-	so you need to add 1.0 in the parenthesis to get a default value of 0
-	when you are not pressing the trigger. Divide by 2 because 
-	motorPercentOutput can accept a maximum value of 1. RT is right trigger.
-	'''
+        ''' 
+        LT is left trigger, message.axes[5] (from Joy package) 
+        takes input from left trigger of controller from value -1 to 1.
+        Without pressing down on the trigger, you get a default value of -1
+        so you need to add 1.0 in the parenthesis to get a default value of 0
+        when you are not pressing the trigger. Divide by 2 because 
+        motorPercentOutput can accept a maximum value of 1. RT is right trigger.
+        '''
         LT = -(message.axes[5] + 1.0) / 2
         RT = -(message.axes[4] + 1.0) / 2
         return (RT - LT)
 
+    # This function is the one that gets looped by the publisher
     def callback(self, message):
         # CONFIRMED DRIVETRAIN PUB
 
@@ -51,7 +53,7 @@ def start():
     pub = rospy.Publisher('chatter', Twist, queue_size=5)
     joystick = JoystickPublisher(pub)
 
-    # subscribed to joystick inputs on topic "joy"
+    # subscribed to joystick inputs on topic "joy" to get controller inputs
     rospy.Subscriber("joy", Joy, joystick.callback)
     # starts the node
     rospy.spin()

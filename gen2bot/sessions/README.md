@@ -1,0 +1,1 @@
+Holds the images for object recognition, in this case it is our only QR Code

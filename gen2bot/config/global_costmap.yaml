@@ -1,15 +1,19 @@
 # Look at: http://library.isr.ist.utl.pt/docs/roswiki/costmap_2d.html for parameter list
-# Global frame must be a static map, which is a stagnant position in empty space and have 
-# published tf from base_link which is robot, odom is synced with pose which is static to base_link
+
+# The global costmap gets the position of the entire arena and makes a global planner that gives an
+# initial abstract path for the robot to follow
+
+# Global frame must be a static map, which is a stagnant position in empty space and be within 
+# the same tf tree with base_link which is the tf frame of the robot, what updates the position 
+# of the robot's frame relative to the map frame are tf broadcasters that use sensors fused into
+# into the odom frame. Proper tf tree setup: map -> odom -> base_link -> sensors' frames
 global_frame: map
 
 # We don't want it to track unknown space because otherwise it will assume the space immediately in
 # front of the robot that the cameras can't see must contain an obstacle and immobilizes bot
 track_unknown_space: false
-origin_x: -10
-origin_y: -10
 
-# Plugin found in common_costmap.yaml
+# Plugins found in common_costmap.yaml
 plugins:
   - {name: static_layer,                  type: "costmap_2d::StaticLayer"}
   - {name: inflation_layer,                  type: "costmap_2d::InflationLayer"}

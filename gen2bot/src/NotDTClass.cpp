@@ -1,4 +1,10 @@
 // Script that runs mining operation
+// You must know how classes work in cpp before proceeding
+
+// There is a ton of checks to see if sentinel = p_cmd because we must be able to kill the motors at any point in any function
+// If we change the 'mode' of the robot. Ex. we don't want to dig anymore, we stop the dig function midrun
+
+// Look at falcon_tests to see how motor functions and variables work in CTRE library
 #include <gen2bot/ProcessManager.h>
 #include <iostream>
 #include <chrono> 
@@ -23,9 +29,14 @@ using namespace ctre::phoenix::motorcontrol;
 using namespace ctre::phoenix::motorcontrol::can;
 
 std::string interface = "can0";
+
+// linear actuator initialized
 TalonSRX linAct(31, interface);
+
+// an object that configures an SRX motor 
 TalonSRXConfiguration linActMM;
 
+// ballscrew motor initialized
 TalonFX bScrew(32);
 TalonFXConfiguration bScrewMM;
 
@@ -46,7 +57,10 @@ NotDTClass::NotDTClass(ros::NodeHandle nh)
 void NotDTClass::config(ros::NodeHandle nh)
 {
 	bScrewMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
+
+	// Gets parameter /notDT/bscrew_cfg/motionCruiseVelocity in ros and assigns its value to bScrewMM.motionCruiseVelocity variable
     nh.getParam("/notDT/bscrew_cfg/motionCruiseVelocity", bScrewMM.motionCruiseVelocity);
+
     nh.getParam("/notDT/bscrew_cfg/motionAcceleration", bScrewMM.motionAcceleration);
     nh.getParam("/notDT/bscrew_cfg/motionCurveStrength", bScrewMM.motionCurveStrength);
 
@@ -58,6 +72,7 @@ void NotDTClass::config(ros::NodeHandle nh)
 	nh.getParam("/notDT/bscrew_cfg/depositPosition", bsDepositPosition);
 	nh.getParam("/notDT/bscrew_cfg/digPosition", bsDigPosition);
 
+	// configures the ballscrew motor
 	bScrew.ConfigAllSettings(bScrewMM);
 
 	linActMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonSRXFeedbackDevice::Analog;
@@ -83,6 +98,7 @@ void NotDTClass::stop()
 	linAct.Set(ControlMode::PercentOutput, 0);	
 }
 
+// a function that checks to see if ProcessManager has changed modes, and if so motors should be killed
 void NotDTClass::checkSentinel(int& p_cmd)
 {
 	if (sentinel != p_cmd)
@@ -94,6 +110,7 @@ void NotDTClass::checkSentinel(int& p_cmd)
 	}
 }
 
+// Makes sure the auger doesn't physically break itself
 void NotDTClass::isSafe(int& p_cmd)
 {
 	if(linAct.GetSelectedSensorPosition() > -75 &&  linAct.GetSelectedSensorPosition() < -35)
@@ -113,6 +130,7 @@ void NotDTClass::isSafe(int& p_cmd)
 		}
 }
 
+// Reassigns absolute position so motors know where they are
 void NotDTClass::zero(int& p_cmd, ros::NodeHandle  nh) 
 	{
 		sentinel = p_cmd;
@@ -120,6 +138,8 @@ void NotDTClass::zero(int& p_cmd, ros::NodeHandle  nh)
 		config(nh);
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 		bScrew.Set(ControlMode::PercentOutput, .7);
+
+		// waits 10 seconds for motors to reach upper limit and sets that position to zero
 		for ( int i = 0; i < 10; i++)
 			{
 				if (sentinel != p_cmd) 
@@ -135,6 +155,7 @@ void NotDTClass::zero(int& p_cmd, ros::NodeHandle  nh)
 		if (sentinel == p_cmd)
 			linAct.Set(ControlMode::PercentOutput, .7);
 
+		// waits 10 seconds for motors to reach upper limit and sets that position to zero
 		for ( int i = 0; i < 10; i++)
 			{
 				if (sentinel != p_cmd)
@@ -163,6 +184,7 @@ void NotDTClass::zero(int& p_cmd, ros::NodeHandle  nh)
 
 	}
 
+// auger is all the way tucked in and parallel to ground
 void NotDTClass::driveMode(int& p_cmd, ros::NodeHandle  nh) 
 	{
 		sentinel = p_cmd;

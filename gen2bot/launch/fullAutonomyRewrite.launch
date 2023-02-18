@@ -1,24 +1,26 @@
 <launch>
 
-<!-- Argument names for file, will probably get rid of to make code more readable -->
-  <arg name="camera"                	      default="camera"/>
-  <arg name="manager"             	      default="realsense2_camera_manager"/>
-  <arg name="align_depth"         	      default="true"/>
-  <arg name="rgb"                             default="color" />
-  <arg name="depth"                           default="depth" />
-  <arg name="depth_registered"                default="aligned_depth_to_color" />
-  <arg name="projector"                       default="projector" />
-  <arg name="bond"                            default="false" />
-  <arg name="respawn"                         default="$(arg bond)" />
-  <arg name="rgb_processing"                  default="true"/>
-  <arg name="disparity_processing"            default="false"/>
-  <arg name="disparity_registered_processing" default="false"/>
-  <arg name="hw_registered_processing"        default="$(arg align_depth)" />
+<!-- Learn about launch files in ros here: http://wiki.ros.org/roslaunch/XML -->
+
+<!-- This launch file currently opens both camera nodes, rviz, nodes that allow pointcloud, a map server that detects obstacles
+, QR code reconition node, robot_localization that updates position of robot, static transforms, joystick implementation, motor
+commands, and move_base, which finds a path to desired goal-->
+
+<!-- Currently, we need to split these nodes into different launch files so each computer can run its own nodes, not all on the jetson -->
+
+<!-- The move_base, octomap server, robot_localization, and static tf nodes need massive restructure to create reliable navigation -->
 
 <!-- Launches depth camera with following parameters: 
   https://github.com/IntelRealSense/realsense-ros/tree/ros1-legacy -->
-  <group ns="$(arg camera)">
+
+  <!-- This group ns is what shows up in ros graph, making almost everything go inside this camera umbrella, will need to rework structure-->
+  <group ns="camera">
+
+  <!--This file can be found in Other Locations/opt/ros/melodic/share/launch/includes on the jetson-->
     <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
+
+  <!-- Some of these parameters are in default settings, meaning we don't need to declare them, but leave
+  for now as we might need to change these for our next object recognition script-->
       <arg name="depth_width"       value="640"/>
       <arg name="depth_height"      value="480"/>
       <arg name="depth_fps"         value="30"/>
@@ -28,32 +30,32 @@
       <arg name="enable_fisheye"    value="false"/>
       <arg name="enable_pointcloud" value="false"/>
       <arg name="enable_sync"       value="true"/>
-      <arg name="tf_prefix"         value="$(arg camera)"/>
-      <arg name="align_depth"              value="$(arg align_depth)"/>
+      <arg name="tf_prefix"         value="camera"/>
+      <arg name="align_depth"       value="true"/>
+
     </include>
 
-<!-- Launches rviz using the rgb.launch.xml file, will probably remove since it opens 3 
-  camera nodes that serve no purpose, just using up precious processing speeds. ALSO: figured
-  out recently that we might have to open rviz on a network configured device rather than ssh
-  because the graphics for a jetson don't match with normal vm or dual boot devices --> 
+<!-- Launches rviz using the rgbd.launch file, opens 3 nodes that seems to not send out topics but if I get rid of them, pointcloud
+disappears which is not good, maybe someone figures out why these nodes are needed? The file is in this folder--> 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find realsense2_camera)/rviz/pointcloud.rviz" required="true" />
-    <include file="$(find gen2bot)launch/rgbd.launch.xml">
-      <arg name="manager"                       value="$(arg manager)" />
-      <arg name="respawn"                       value="$(arg respawn)" />
-      <arg name="rgb"                           value="$(arg rgb)" />
+    <include file="$(find gen2bot)launch/rgbd.launch">
+      <arg name="manager"                       value="realsense2_camera_manager" />
+      <arg name="respawn"                       value="false" />
+      <arg name="rgb"                           value="color" />
     </include>
 
-<!-- Remaps pointcloud so that it subscribes to a topic possible for jetson to visualize -->
+<!-- Remaps pointcloud so that it subscribes to a topic possible for jetson to visualize, without 
+this node, jetson won't publish a pointcloud, which navigation relies on -->
       <node pkg="nodelet" type="nodelet" name="points_xyzrgb_hw_registered"
-            args="load depth_image_proc/point_cloud_xyzrgb $(arg manager) $(arg bond)" respawn="$(arg respawn)">
-        <remap from="rgb/image_rect_color"        to="$(arg rgb)/image_rect_color" />
-        <remap from="rgb/camera_info"             to="$(arg rgb)/camera_info" />
-        <remap from="depth_registered/image_rect" to="$(arg depth_registered)/image_raw" />
+            args="load depth_image_proc/point_cloud_xyzrgb realsense2_camera_manager false" respawn="false">
+        <remap from="rgb/image_rect_color"        to="color/image_rect_color" />
+        <remap from="rgb/camera_info"             to="color/camera_info" />
+        <remap from="depth_registered/image_rect" to="aligned_depth_to_color/image_raw" />
         <remap from="depth_registered/points"     to="/camera/depth/color/points" />
       </node>
 
-<!-- Map server used create a map that detects obstacles check out: 
-  http://wiki.ros.org/octomap_server for paramter list-->
+<!-- Map server used to create a map that detects obstacles check out: 
+  http://wiki.ros.org/octomap_server for parameter list-->
 	<node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
 		<param name="base_frame_id" type="string" value="/base_footprint" />
 		<param name="frame_id" type="string" value="/map" />
@@ -66,17 +68,17 @@
 		<remap from="cloud_in" to="/camera/depth/color/points" />
    		<remap from="projected_map" to="/map"/>
 
-        	<remap from="rgb/image_rect_color"        to="$(arg rgb)/image_rect_color" />
-        	<remap from="rgb/camera_info"             to="$(arg rgb)/camera_info" />
-        	<remap from="depth_registered/image_rect" to="$(arg depth_registered)/image_raw" />
+        	<remap from="rgb/image_rect_color"        to="color/image_rect_color" />
+        	<remap from="rgb/camera_info"             to="color/camera_info" />
+        	<remap from="depth_registered/image_rect" to="aligned_depth_to_color/image_raw" />
         	<remap from="depth_registered/points"     to="/camera/depth/color/points" />
 	</node>
 
 <!-- Launches tracking camera with following parameters: 
   https://github.com/IntelRealSense/realsense-ros/tree/ros1-legacy -->
-    <group ns="$(arg camera)">
+    <group ns="camera">
       <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
-        <arg name="tf_prefix"                value="$(arg camera)"/>
+        <arg name="tf_prefix"                value="camera"/>
         <arg name="device_type"              value="t265"/>
         <arg name="json_file_path"           value=""/>
         <arg name="enable_sync"              value="false"/>
@@ -104,6 +106,8 @@
   of QR code relative to camera sensor // curently commented out to focus on move_base algorithm: 
   Check out: https://github.com/bandasaikrishna/object_detection_and_3d_pose_estimation --> 
 
+  <!-- Will need to decide if we want to keep the gui or not, gives us camera image but takes up space and processing power-->
+
   <node name="find_object_3d" pkg="find_object_2d" type="find_object_2d" output="screen">
 		<param name="settings_path" value="~/.ros/find_object_2d.ini" type="str"/>
 		<param name="subscribe_depth" value="true" type="bool"/>
@@ -114,20 +118,22 @@
 		<remap from="depth_registered/camera_info" to="/camera/depth/camera_info"/>
 	</node>
 	
+  <!-- This map_frame_id might need looking into for tf restructuring, still undecided -->
 	<node name="tf_example" pkg="find_object_2d" type="tf_example" output="screen">
 	    <param name="map_frame_id" value="/camera" type="str"/>
 		<param name="object_prefix" value="object" type="str"/>
 	</node> 
 
-
+<!-- NEEDS MAJOR REPURPOSING-->
 <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization" output="screen">
-  <!-- Enable or disable the use of control inputs (e.g. velocity) to improve pose estimates -->
     <rosparam file="$(find gen2bot)/config/robot_localization.yaml" command="load"/>
 </node>
 
-<!-- Static tranform between tracking camera and robot. Arguments are position for x, y, and z
-  followed by orientation for x, y, and z -->
-<!-- <node pkg="tf" type="static_transform_publisher" name="map_to_odom" args= "0.40 0.15 0.45 3.14 3.14 3.14 map odom 100"/> -->
+<!-- Static tranform between parent and child transforms. Arguments are position for x, y, and z followed by orientation for x, y, and z -->
+<!-- These nodes just sticks a child tf to follow a parent tf a certain position and orientation away -->
+<!-- Ex. I want the qr code (called object_22) to have a child digPose 5 meters away in x at all times, now we have a dig spot in front of qr code -->
+<!-- However, this many nodes takes up processing power, will need to change tf tree so that there isn't so many nodes cluttered -->
+<!-- Will resolve this by just having move_base_client.py get qr code position and go 5 meters in it's x direction so we only call on the position once-->
 <node pkg="tf" type="static_transform_publisher" name="map_to_odom" args= "0.40 0.15 0.45 3.14 3.14 3.14 map odom 100"/>
 
 <node pkg="tf" type="static_transform_publisher" name="base_link_to_base_footprint" args= "-0.40 0.15 -0.45 3.14 3.14 3.14 base_link base_footprint 100"/>
@@ -153,28 +159,33 @@
 </node>
 
 <!-- Launches my listenerMotorAuto.cpp file to initialize a base controller 
-  that move_base communicates with to send motor inputs. This links autonomy to motors -->
-<node pkg="gen2bot" type="listenerMotorAuto" name="motorRuns" >
+  that move_base communicates with to send motor inputs. This links autonomy to wheel motors -->
+<node pkg="gen2bot" type="listenerMotorAuto" name="autoWheels" >
     <param name="initalOutput" value="0.2" type="double"/>
     <param name="isInitialState" value="true" type="bool"/>
 </node>
 
+<!-- Launches my move_base_client.py script to send desired positions for robot to reach to move_base planner-->
 <node name="move_baseClientObject22" pkg="gen2bot" type="move_base_client.py" output="screen">
 </node>
 
+<!-- Launches node that converts xbox controller inputs into ROS-->
  <node name="joy2" pkg="joy" type="joy_node" output="screen">
+
+    <!-- parameter that retrieves which joystick controller to link with -->
     <param name="dev" value="/dev/input/js0"/>
     <param name="default_trig_val" value="true"/>
  </node>
  
- <node name="manualControl" pkg="gen2bot" type="notDTTalker.py" output="screen">
+ <!-- Node that takes ROS inputs of joystick to move motors in auger, ballscrew, and linear actuator-->
+ <node name="manualWheelControl" pkg="gen2bot" type="notDTTalker.py" output="screen">
  </node>
 
+ <!-- Node that takes ROS inputs of joystick to move motors in wheels-->
  <node name="wheelies" pkg="gen2bot" type="listenerMotor" output="screen">
  </node>
 
-<!-- Launches my listenerMotorAuto.cpp file to initialize a base controller 
-  that move_base communicates with to send motor inputs. This links autonomy to motors -->
+<!-- Node that contains all motor functions that don't relate to driving -->
  <node pkg="gen2bot" type="notDT" name="notDT" output="screen">
 
     <param name="wheel_multiplier" value="1.1" type="double"/>

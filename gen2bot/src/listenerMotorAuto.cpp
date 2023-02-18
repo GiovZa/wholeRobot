@@ -1,5 +1,7 @@
 // File that allows motors to receive inputs from publishers subscribed to the cmd_vel node
 
+// Exact same as listenerMotor.cpp except turn speed is dropped, topic subscribed to is now cmd_vel
+// and there is an initial function that spins the robot around to find the QR code
 #define Phoenix_No_WPI // remove WPI dependencies
 #include "ctre/Phoenix.h"
 #include "ctre/phoenix/platform/Platform.h"
@@ -22,7 +24,7 @@ TalonFX rightWheel(21);
 void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
 	double x = msg->linear.x;
-	double z = (msg->angular.z / 4);
+	double z = (msg->angular.z / 5);
 	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
 	rightWheel.Set(ControlMode::PercentOutput, (-x + z)/2);
@@ -38,11 +40,12 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "wheels");
 	ros::NodeHandle n;
 
+	// Gets parameter for speed at which motors should spin
 	n.getParam("/wheels/initialOutput", initialPO);
 
 	rightWheel.SetInverted(true);
 
-
+// Function currently commented out as we still have not put in logic of when to exit this while loop 
 	/* while(isInitialState)
 	{
 		n.getParam("/wheels/isInitialState", isInitialState);

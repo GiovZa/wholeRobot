@@ -1,7 +1,7 @@
 /* 
 File that allows motors to receive inputs from publishers subscribed to the chatter node
 
-This file acts as the subscriber to /motorControlGen2Bot/motor_control_gen2bot/scripts/motorTalker.py
+This file acts as the subscriber to /motorControlGen2Bot/motor_control_gen2bot/scripts/notDTTalker.py
 */
 
 // CTRE header includes
@@ -27,7 +27,7 @@ std::string interface = "can0";
 TalonFX talLeft(22, interface); 
 TalonFX talRght(21);
 
-// Takes in the outputs sent from motorTalker.py's published messages
+// Takes in the outputs sent from notDTTalker.py's published messages
 void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
 	// Set X and Z to linear and turn respectively

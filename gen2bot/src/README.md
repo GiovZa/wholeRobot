@@ -17,8 +17,6 @@ listenerMotorAuto.cpp:
   A subscriber node that communicates with the move_base node to
   give wheel motor control commands autonomously. 
 
-gen2bot1.cpp and mine1.cpp:
-  Both are linked with gen2bot1.h with mine1.cpp being a node subscriber and carrying out 
-  functions that uses the auger, ballscrew, and linear actuator simultaneously
-
-  gen2bot1.cpp holds the class functions from gen2bot1.h and initializes the motors
+notDT.cpp and notDTClass.cpp and ProcessManager.cpp:
+  All work with NotDTClass.h and Processmanager.h to control and update the mining and depositing
+  motors while also checking if functions ever need to be killed mid script

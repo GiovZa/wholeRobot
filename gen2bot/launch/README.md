@@ -1,12 +1,5 @@
-These launch scripts open the cameras, each one has more tasks than the one prior in 
-the following order:
+Launch scripts are what opens many ros nodes and files in one terminal command
 
-object_detect_using_find2d_object.xml
-object_detect_using_find2d_object_with_t265.xml
-localizing_navigation_mapping_cluttered.launch.xml
-localizing_navigation_mapping.xml
-autonomy.xml
-autonomyRewrite.xml
+fullAutonomyRewrite.launch opens literally all our code in 1 command
 
-With autonomyRewrite being the one that's fully documented and contains the 
-working autonomy code you want to look at
+rgbd.launch is a launch file someone made to make jetsons work with realsens depth cams

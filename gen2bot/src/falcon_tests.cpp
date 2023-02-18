@@ -83,6 +83,10 @@ int main()
 	std::cout << talLeft.GetSelectedSensorPosition() << std::endl;
 	std::cout << "Motor off" << std::endl;
 
+	// Sets the left motor to spin until it reaches position 5, thus making right spin until -5
+	// from line 46's invert. Dunno units I think it's in ticks
+	talLeft.Set(ControlMode::Position, 5);
+
 	// Return 0 to close program
 	return 0;
 }

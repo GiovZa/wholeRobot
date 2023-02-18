@@ -25,12 +25,12 @@
       <arg name="enable_pointcloud" value="false"/>
       <arg name="enable_sync"       value="true"/>
       <arg name="tf_prefix"         value="$(arg camera)"/>
-      <arg name="align_depth"              value="$(arg align_depth)"/>
+      <arg name="align_depth"       value="$(arg align_depth)"/>
     </include>
 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find realsense2_camera)/rviz/pointcloud.rviz" required="true" />
-    <include if="$(arg rgb_processing)"
-             file="$(find rgbd_launch)/launch/includes/rgb.launch.xml">
+    <include file="$(find gen2bot)/launch/rgbd.launch.xml">
+
       <arg name="manager"                       value="$(arg manager)" />
       <arg name="respawn"                       value="$(arg respawn)" />
       <arg name="rgb"                           value="$(arg rgb)" />
@@ -105,11 +105,11 @@
 <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen"> 
 	
 	<param name="controller_frequency" value="10.0" type="double"/>
-    <rosparam file="$(find object_detection_with_intel_d455)/config/common_costmap.yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find object_detection_with_intel_d455)/config/common_costmap.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find gen2bot)/config/common_costmap.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find gen2bot)/config/common_costmap.yaml" command="load" ns="local_costmap" />
     
-    <rosparam file="$(find object_detection_with_intel_d455)/config/local_costmap.yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find object_detection_with_intel_d455)/config/global_costmap.yaml" command="load" ns="global_costmap" /> 
+    <rosparam file="$(find gen2bot)/config/local_costmap.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find gen2bot)/config/global_costmap.yaml" command="load" ns="global_costmap" /> 
 </node>
 
 
