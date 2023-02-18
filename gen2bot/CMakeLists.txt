@@ -72,22 +72,12 @@ target_link_libraries(listenerMotorAuto
   ${catkin_LIBRARIES}
 )
 
-
-add_executable(
-mine
-
-src/mine1.cpp 
-src/gen2bot1.cpp 
-include/gen2bot/gen2bot1.h
-)
-
 target_link_libraries(mine
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
 
 # Makes the C++ scripts executable with "rosrun motor_control_gen2bot notDT" command
-
 add_executable(
 notDT
 

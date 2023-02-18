@@ -1,7 +1,7 @@
 This src folder has all the C++ scripting code.
 
 To learn how the code works, start with falcon_tests.cpp, then listenerMotor.cpp, 
-listenerMotorAuto.cpp, and finally gen2bot1.cpp and mine1.cpp simultaneously with gen2bot1.h
+listenerMotorAuto.cpp, and finally notDT.cpp and NotDTClass.cpp simultaneously with ProcessManager.cpp
 
 Currently has:
 
