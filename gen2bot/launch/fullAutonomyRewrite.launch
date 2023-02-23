@@ -40,9 +40,10 @@ disappears which is not good, maybe someone figures out why these nodes are need
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find realsense2_camera)/rviz/pointcloud.rviz" required="true" />
     <include file="$(find gen2bot)launch/rgbd.launch">
       <arg name="manager"                       value="realsense2_camera_manager" />
-      <arg name="respawn"                       value="false" />
+      
       <arg name="rgb"                           value="color" />
     </include>
+<!-- I removed respawn parameter, cannot remove rbg since value is not given in rgbd launch-->	  
 
 <!-- Remaps pointcloud so that it subscribes to a topic possible for jetson to visualize, without 
 this node, jetson won't publish a pointcloud, which navigation relies on -->
@@ -80,18 +81,15 @@ this node, jetson won't publish a pointcloud, which navigation relies on -->
       <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
         <arg name="tf_prefix"                value="camera"/>
         <arg name="device_type"              value="t265"/>
-        <arg name="json_file_path"           value=""/>
-        <arg name="enable_sync"              value="false"/>
+   
 
-        <arg name="fisheye_fps"              value="30"/>
 
         <arg name="enable_gyro"              value="true"/>
         <arg name="enable_accel"             value="true"/>
         <arg name="enable_pose"              value="true"/>
 
-        <arg name="linear_accel_cov"         value=".01"/>
-        <arg name="initial_reset"            value="false"/>
-        <arg name="reconnect_timeout"        value="6.0"/>
+      
+       
         <arg name="unite_imu_method"         value="linear_interpolation"/>
         <arg name="publish_odom_tf"          value="true"/>
         <arg name="publish_tf"               value="true"/>
@@ -104,13 +102,14 @@ this node, jetson won't publish a pointcloud, which navigation relies on -->
  
 <!-- Object recognition package to detect QR code and display both position and orientation 
   of QR code relative to camera sensor // curently commented out to focus on move_base algorithm: 
-  Check out: https://github.com/bandasaikrishna/object_detection_and_3d_pose_estimation --> 
+  Check out: https://github.com/bandasaikrishna/object_detection_and_3d_pose_estimation 
+The file is in launch/object_detect_using_find2d_object.launch--> 
 
   <!-- Will need to decide if we want to keep the gui or not, gives us camera image but takes up space and processing power-->
 
   <node name="find_object_3d" pkg="find_object_2d" type="find_object_2d" output="screen">
 		<param name="settings_path" value="~/.ros/find_object_2d.ini" type="str"/>
-		<param name="subscribe_depth" value="true" type="bool"/>
+		
 		<param name="session_path" value="$(find gen2bot)/sessions/qr.bin" type="str"/>
 				
 		<remap from="rgb/image_rect_color" to="/camera/color/image_raw"/>
@@ -142,6 +141,8 @@ this node, jetson won't publish a pointcloud, which navigation relies on -->
 
 <node pkg="tf" type="static_transform_publisher" name="object_22_to_digPose" args= "2.0 2.0 -0.45 3.14 3.14 3.14 object_22 digPose 100"/>
 
+
+<!-- cannot find file for above code, parameters seem not of default value-->	
 
 <!-- Launches move_base which spews out motor commands based on nav_goal and obstacles
   Check out: http://wiki.ros.org/move_base for parameters -->
