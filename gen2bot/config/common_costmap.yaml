@@ -10,7 +10,7 @@ footprint: [[0.55, -0.30], [0.55, 0.30], [-0.55, -0.30], [-0.55, 0.30]]
 footprint_padding: 0.03
 
 # The tf that should be at ground level and at center of robot
-robot_base_frame: base_link
+robot_base_frame: base_footprint
 
 # Map update (topic) frequency and visualization (rviz) publish frequency
 update_frequency: 3
@@ -30,6 +30,8 @@ resolution: 0.03
 static:
 # Setting map to /map because this is our current global frame in which everything would be a child tf of
     map_topic: /map
+    width: 10
+    height: 10
 
 # Takes in the costmap_2d::ObstacleLayer plugin that local costmap calls on. 
 # Look at: https://navigation.ros.org/configuration/packages/costmap-plugins/obstacle.html for parameter list
@@ -52,8 +54,8 @@ obstacle_layer:
     # Clearing set to true removes obstacles in real time
     clearing: true,
 
-    # Set to count things (rocks) above ground level as obstacles
-    min_obstacle_height: 0.3,
+    # Set to count things (rocks) above level robot_base_frame as obstacles
+    min_obstacle_height: 0.2,
 
     # Set to not detect things above robot height (ex. mark the ceiling as an obstacle)
     max_obstacle_height: 0.5

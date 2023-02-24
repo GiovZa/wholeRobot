@@ -30,7 +30,7 @@ def movebase_client():
     while not rospy.is_shutdown():
         try:
             # Gets position from digPose to map, header has to be 'map' because that's where move_base sits
-            trans = tfBuffer.lookup_transform('map', 'digPose', rospy.Time())
+            trans = tfBuffer.lookup_transform('map', 'object_22', rospy.Time())
         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
             rate.sleep()
             continue
@@ -45,9 +45,9 @@ def movebase_client():
    # Gets positional coordinates from map frame to digPose child and inputs it into the goal pose
    # Need to reformat so we add the position between qr code and digPose here, rather than create a
    # tf static broadcaster always outputting digPose position unnecessarily 
-    goal.target_pose.pose.position.x = trans.transform.translation.x
-    goal.target_pose.pose.position.y = trans.transform.translation.y
-    goal.target_pose.pose.position.z = trans.transform.translation.z
+    goal.target_pose.pose.position.x = trans.transform.translation.x + 5
+    goal.target_pose.pose.position.y = trans.transform.translation.y + 2
+    goal.target_pose.pose.position.z = 0
 
    # No rotation of the mobile base frame w.r.t. map frame
     goal.target_pose.pose.orientation.w = 1.0

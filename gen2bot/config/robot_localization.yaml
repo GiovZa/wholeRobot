@@ -4,8 +4,16 @@
 # to understand parameters and purpose of robot_localization ekf
 
 # I don't know much about robot_localization, someone needs to rework the configuration
+# Ok, so we need both absolute and relative postion for robot. Absolute is based off map's fixed frame
+# and relative is based off odom's frame. Absolute typically uses GPS, SLAM, etc. and relative uses
+# IMU, visual odometry, and wheel encoders. While our cameras usually give relative position, I made it so
+# it's initial position is the map position, making it absolute since the cam SLAM algorithm jumps to dif.
+# positions based on features it sees on the map, which we don't want for local. So this file makes it so
+# we make a local odom frame that uses IMU and odometry from cameras (might need to remove odometry since
+# that could be what jumps) and eventually wheel encoders so it doesn't teleport. This fixes TF issues.
+# Having a twist0 will give us wheel encoders for the local part.
 
-# in hertz, how quick to update pose estimation of abse_link
+# in hertz, how quick to update pose estimation of base_link
 frequency: 30
 
 # makes the pose estimate expand into the Z axies, which is required for our robot that will
@@ -14,6 +22,7 @@ two_d_mode: false
 
 # Define tf frames for static map, odom_frame (updated position tf), and robot's frame
 # odom frame is probably not supposed to camera_pose_frame, but odom, but tf tree needs reorganization
+world_frame: camera_pose_frame
 map_frame: map
 odom_frame: camera_pose_frame
 base_link_frame: base_link
@@ -31,14 +40,16 @@ imu0_config: [true, true, true,
                true, true, true,
                true, true, true]
 
-# I don't know what this does, we really need to look into this
+# differential gets linear and turn velocities (ex. wheel encoders)
 imu0_differential: false
+
+# relative gets pose and orientation (ex. GPS or SLAM or visual imu odometry)
 imu0_relative: true
 
 # odometry also gets pose estimation, usually with wheels
 odom0: /camera/camera/odom/sample
 
-# we also have to find which ones should be true or flase for these
+# we also have to find which ones should be true or false for these
 odom0_config: [true, true, true,
                true, true, true,
                true, true, true,
@@ -47,10 +58,31 @@ odom0_config: [true, true, true,
 odom0_differential: false
 odom0_relative: true
 
+twist0: /cmd_vel
+twist0_config: [false, false, false,
+                false, false, false,
+                true,  true,  true,
+                false, false, false,
+                false, false, false]
+twist0_queue_size: 1
+twist0_differential: true
+twist0_relative: false
+
+twist1: /chatter
+twist1_config: [false, false, false,
+                false, false, false,
+                true,  true,  true,
+                false, false, false,
+                false, false, false]
+twist1_queue_size: 1
+twist1_differential: true
+twist1_relative: false
+
+# relative position only, no GPS or SLAM needed
 # The pointcloud uses SLAM to see how much it has moved relative to the points it sees
-point_cloud: /camera/depth/color/points
-point_cloud_differential: false
-point_cloud_relative: true
+#point_cloud: /camera/depth/color/points
+#point_cloud_differential: false
+#point_cloud_relative: true
 
 # Publishes change in position of either odom to robot or map to odom
 publish_tf: true

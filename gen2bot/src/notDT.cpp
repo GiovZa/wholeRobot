@@ -137,6 +137,7 @@ int main(int argc, char** argv)
 			break;
 		case 5:
 			config(notDT, nh);
+			p_cmd = 0;
 			break;
 		default:
 			break;

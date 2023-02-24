@@ -33,9 +33,9 @@ ${catkin_INCLUDE_DIRS}
 
 # Makes the python script executable with "rosrun motor_control_gen2bot motorTalker.py" command or whichever python file it is
  catkin_install_python(PROGRAMS
-   scripts/motorTalker.py
    scripts/notDTTalker.py
    scripts/move_base_client.py
+   scripts/wheelTester.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
@@ -72,11 +72,6 @@ target_link_libraries(listenerMotorAuto
   ${catkin_LIBRARIES}
 )
 
-target_link_libraries(mine
-  CTRE_Phoenix
-  ${catkin_LIBRARIES}
-)
-
 # Makes the C++ scripts executable with "rosrun motor_control_gen2bot notDT" command
 add_executable(
 notDT
@@ -89,6 +84,17 @@ include/gen2bot/NotDTClass.h
 )
 
 target_link_libraries(notDT
+  CTRE_Phoenix
+  ${catkin_LIBRARIES}
+)
+
+add_executable(
+wheelTest
+
+src/wheelTest.cpp 
+)
+
+target_link_libraries(wheelTest
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
