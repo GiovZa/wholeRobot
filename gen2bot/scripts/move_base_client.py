@@ -27,6 +27,7 @@ def movebase_client():
     listener = tf2_ros.TransformListener(tfBuffer)
 
     rate = rospy.Rate(10.0)
+    #new transform for qr code to position we want
     while not rospy.is_shutdown():
         try:
             # Gets position from digPose to map, header has to be 'map' because that's where move_base sits
