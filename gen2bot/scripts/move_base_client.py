@@ -42,15 +42,19 @@ def movebase_client():
     goal.target_pose.header.frame_id = "map"
     goal.target_pose.header.stamp = rospy.Time.now()
 
+   #Set the desired position of robot w.r.t. the QR code
+    pos_x_wrt_qr = 5
+    pos_y_wrt_qr = 5
+   
    # Gets positional coordinates from map frame to digPose child and inputs it into the goal pose
    # Need to reformat so we add the position between qr code and digPose here, rather than create a
    # tf static broadcaster always outputting digPose position unnecessarily 
-    goal.target_pose.pose.position.x = trans.transform.translation.x + 5
-    goal.target_pose.pose.position.y = trans.transform.translation.y + 2
+    goal.target_pose.pose.position.x = pos_x_wrt_qr - trans.transform.translation.x
+    goal.target_pose.pose.position.y = pos_y_wrt_qr - trans.transform.translation.y
     goal.target_pose.pose.position.z = 0
 
    # No rotation of the mobile base frame w.r.t. map frame
-    goal.target_pose.pose.orientation.w = 1.0
+    goal.target_pose.pose.orientation.w = 1.0 # Can change this if different rotation is required.
 
    # Sends the goal to the action server.
     client.send_goal(goal)
