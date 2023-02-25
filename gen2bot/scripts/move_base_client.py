@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # Combination of both: https://hotblackrobotics.github.io/en/blog/2018/01/29/action-client-py/ and 
 # http://wiki.ros.org/tf2/Tutorials/Writing%20a%20tf2%20listener%20%28Python%29
+# http://wiki.ros.org/tf2/Tutorials/Adding%20a%20frame%20%28Python%29
 
 # This script sends the robot to a specified position based off of the detected qr code
 import rospy
