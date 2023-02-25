@@ -30,36 +30,21 @@ def movebase_client():
     #new transform for qr code to position we want
    #Does this need to be updated or can it just be run once? if it needs to be broadcasted should we just put it in the launch file?
 
-      
-    while not rospy.is_shutdown():
-     try:
-         t = geometry_msgs.msg.TransformStamped()
-         t.header.frame_id = "object_22"
-         t.header.stamp = rospy.Time.now()
-         t.child_frame_id = "goal_tf"
-         t.transform.translation.x = 2.0
-         t.transform.translation.y = 2.0
-         t.transform.translation.z = 0.0
+   t = geometry_msgs.msg.TransformStamped()
+   t.header.frame_id = "object_22"
+   t.header.stamp = rospy.Time.now()
+   t.child_frame_id = "goal_tf"
+   t.transform.translation.x = 2.0
+   t.transform.translation.y = 2.0
+   t.transform.translation.z = 0.0
 
-         t.transform.rotation.x = 0.0
-         t.transform.rotation.y = 0.0
-         t.transform.rotation.z = 0.0
-         t.transform.rotation.w = 1.0
+   t.transform.rotation.x = 0.0
+   t.transform.rotation.y = 0.0
+   t.transform.rotation.z = 0.0
+   t.transform.rotation.w = 1.0
 
-         tfm = tf2_msgs.msg.TFMessage([t])
-         self.pub_tf.publish(tfm)
-     except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-         rate.sleep()
-         continue  
-      
-    while not rospy.is_shutdown():
-        try:
-            # Gets position from digPose to map, header has to be 'map' because that's where move_base sits
-            trans = tfBuffer.lookup_transform('object_22', 'goal_tf', rospy.Time())
-        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-            rate.sleep()
-            continue
-
+   tfm = tf2_msgs.msg.TFMessage([t])
+ 
    # Creates a new goal with the MoveBaseGoal constructor
     goal = MoveBaseGoal()
 
@@ -74,8 +59,8 @@ def movebase_client():
    # Gets positional coordinates from map frame to digPose child and inputs it into the goal pose
    # Need to reformat so we add the position between qr code and digPose here, rather than create a
    # tf static broadcaster always outputting digPose position unnecessarily 
-    goal.target_pose.pose.position.x = trans.transform.translation.x
-    goal.target_pose.pose.position.y = trans.transform.translation.y
+    goal.target_pose.pose.position.x = tfm.transform.translation.x
+    goal.target_pose.pose.position.y = tfm.transform.translation.y
     goal.target_pose.pose.position.z = 0
 
    # No rotation of the mobile base frame w.r.t. map frame
