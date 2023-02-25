@@ -60,10 +60,6 @@ def movebase_client():
     # Has to be 'map' or move_base freaks out
     goal.target_pose.header.frame_id = "map"
     goal.target_pose.header.stamp = rospy.Time.now()
-
-   #Set the desired position of robot w.r.t. the QR code
-    pos_x_wrt_qr = 5
-    pos_y_wrt_qr = 5
    
    # Gets positional coordinates from map frame to digPose child and inputs it into the goal pose
    # Need to reformat so we add the position between qr code and digPose here, rather than create a
@@ -96,4 +92,3 @@ if __name__ == '__main__':
             rospy.loginfo("Goal execution done!")
     except rospy.ROSInterruptException:
         rospy.loginfo("Navigation test finished.")
-    
