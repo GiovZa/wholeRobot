@@ -25,22 +25,22 @@ class JoystickPublisher:
         
         # message.buttons/axes[int] == 1 just checks to see if it is being pressed
         if(message.buttons[6] == 1 and message.buttons[7] == 1 and message.axes[7] == 1.0):
-                if(message.buttons[0] == 1):
+                if(message.buttons[0] == 1): # a
                         Int8 = 3 #Deposit
                         self.pub.publish(Int8)
-                elif(message.buttons[1] == 1):
+                elif(message.buttons[1] == 1): # b
                         Int8 = 2 #Dig
                         self.pub.publish(Int8)
-                elif(message.buttons[3] == 1):
+                elif(message.buttons[3] == 1): # x
                         Int8 = 1 #DriveMode
                         self.pub.publish(Int8)
-                elif(message.buttons[4] == 1):
+                elif(message.buttons[4] == 1): # y
                         Int8 = 4 #Zero
                         self.pub.publish(Int8)
-                elif(message.buttons[12] == 1):
+                elif(message.buttons[12] == 1): # Xbox
                         Int8 = 5 #config
                         self.pub.publish(Int8)
-        if(message.axes[7] == -1):
+        if(message.axes[7] == -1): # Down DPad
                 Int8 = 0 #kill any function running
                 self.pub.publish(Int8)
                 
@@ -48,7 +48,7 @@ class JoystickPublisher:
         # b = message.buttons[1]
         # x = message.buttons[3]
         # y = message.buttons[4]
-        # D^ = message.axes[7]
+        # Up DPad = message.axes[7]
         # RB = message.buttons[6]
         # LB = message.buttons[7]
         # menu = message.buttons[10]

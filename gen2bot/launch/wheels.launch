@@ -9,24 +9,17 @@
  </node>
  
  <!-- Node that takes ROS inputs of joystick to move motors in auger, ballscrew, and linear actuator-->
- <node name="manualWheelControl" pkg="gen2bot" type="wheelTester.py" output="screen">
+ <node name="talker" pkg="gen2bot" type="wheelTester.py" output="screen">
  </node>
 
  <!-- Node that takes ROS inputs of joystick to move motors in wheels-->
- <node name="wheelies" pkg="gen2bot" type="wheelTest" output="screen">
+ <node name="motors" pkg="gen2bot" type="wheelTest" output="screen">
       <param name="wheel_multiplier" value="1.0" />
       <param name="position" value="1.0" />
-      <param name="slot0/kP" value="0.1" />
-      <param name="slot0/kI" value="0.002" />
-      <param name="slot0/kD" value="5.0" />
-      <param name="slot0/kF" value="0.035" />
+      <param name="slot0/kP" value="0.052" />
+      <param name="slot0/kI" value=".000001" />
+      <param name="slot0/kD" value="0.0" />
+      <param name="slot0/kF" value="0.0" />
 
  </node>
-
- slot0: {
-    kP: 0.1,
-    kI: 0.002,
-    kD: 5.0,
-    kF: 0.035,
-
 </launch>

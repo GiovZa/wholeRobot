@@ -58,7 +58,7 @@ odom0_config: [true, true, true,
 odom0_differential: false
 odom0_relative: true
 
-twist0: /cmd_vel
+twist0: /twist_with_covariance1
 twist0_config: [false, false, false,
                 false, false, false,
                 true,  true,  true,
@@ -68,7 +68,7 @@ twist0_queue_size: 1
 twist0_differential: true
 twist0_relative: false
 
-twist1: /chatter
+twist1: /twist_with_covariance2
 twist1_config: [false, false, false,
                 false, false, false,
                 true,  true,  true,

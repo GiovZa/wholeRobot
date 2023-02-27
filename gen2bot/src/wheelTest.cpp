@@ -26,6 +26,7 @@ std::string interface = "can0";
 
 TalonFX talLeft(22, interface); 
 TalonFX talRght(21);
+
 TalonFXConfiguration wheelMM;
 
 void getCurrentPosition(ros::NodeHandle nh)
@@ -44,20 +45,41 @@ void setCurrentPositionZero(ros::NodeHandle nh)
 void sendToPosition(ros::NodeHandle nh)
 {
 	double position = 1.0;
-	nh.getParam("/wheelies/position", position);
+	
+	std::cout << "Enter wanted position: " << std::endl;
+	std::cin >> position;
 
+	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 	talRght.Set(ControlMode::Position, position);
 	talLeft.Set(ControlMode::Position, position);
+}
+
+void zero(ros::NodeHandle nh)
+{	
+	std::cout << "Zeroed motors: " << std::endl;
+
+	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+	talRght.Set(ControlMode::Velocity, 0);
+	talLeft.Set(ControlMode::Velocity, 0);
 }
 
 void config(ros::NodeHandle nh)
 {
 	wheelMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
 
-    nh.getParam("/wheelies/slot0/kI", wheelMM.slot0.kI);
-    nh.getParam("/wheelies/slot0/kP", wheelMM.slot0.kP);
-	nh.getParam("/wheelies/slot0/kD", wheelMM.slot0.kD);
-	nh.getParam("/wheelies/slot0/kF", wheelMM.slot0.kF);
+	wheelMM.slot0.kP = 0.1;
+	wheelMM.slot0.kI = 0.002;
+	wheelMM.slot0.kD = 5.0;
+	wheelMM.slot0.kF = 0.035;
+
+	std::cout << "Enter wanted kP: " << std::endl;
+	std::cin >> wheelMM.slot0.kP;
+	std::cout << "Enter wanted kI: " << std::endl;
+	std::cin >> wheelMM.slot0.kI;
+	std::cout << "Enter wanted kD: " << std::endl;
+	std::cin >> wheelMM.slot0.kD;
+	std::cout << "Enter wanted kF: " << std::endl;
+	std::cin >> wheelMM.slot0.kF;
 
 	talLeft.ConfigAllSettings(wheelMM);
 	talRght.ConfigAllSettings(wheelMM);
@@ -74,18 +96,18 @@ void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 	double wheelMultiplier = 1;
 
 	ros::NodeHandle nh;
-	nh.getParam("/wheelies/wheel_multiplier", wheelMultiplier);
-
-	x *= wheelMultiplier;
-	z *= wheelMultiplier;
+	nh.getParam("/motors/wheel_multiplier", wheelMultiplier);
 
 	// Must flip right motor because it is facing the other way
 	talRght.SetInverted(true);
 
+	x *= wheelMultiplier;
+	z *= wheelMultiplier;
+
 	// Set each motor to spin at a percent of max speed relative to triggers' linear speed
 	// and left horizontal axis' turning speed
-	talRght.Set(ControlMode::Velocity, x - z);
-	talLeft.Set(ControlMode::Velocity, x + z);
+	talRght.Set(ControlMode::Velocity, (x + z) );
+	talLeft.Set(ControlMode::Velocity, (x - z) );
 }
 
 int main(int argc, char **argv) 
@@ -95,7 +117,7 @@ int main(int argc, char **argv)
 	ros::NodeHandle n;
 	ros::Subscriber sub = n.subscribe("chatter", 10000, chatterCallback);
 
-	int p_cmd = 0;
+	/* int p_cmd = 0;
 	do{
 		std::cout << "Enter p_cmd: " << std::endl;
 		std::cin >> p_cmd;
@@ -119,10 +141,14 @@ int main(int argc, char **argv)
 			config(n);
 			p_cmd = 0;
 			break;
+		case 5:
+			zero(n);
+			p_cmd = 0;
+			break;
 		default:
 			break;
 		}
-	} while(p_cmd == 0);
+	} while(p_cmd == 0); */
 
 
   	ros::spin();

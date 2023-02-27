@@ -141,16 +141,20 @@ this node, jetson won't publish a pointcloud, which navigation relies on -->
   Check out: http://wiki.ros.org/move_base for parameters -->
 <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen"> 
 	
+    <param name="max_vel_theta" value="0.33" type="double"/>
+    <param name="min_vel_theta" value="-0.33" type="double"/>
     <param name="controller_frequency" value="8.0" type="double"/>
 
-    <!--Diff drive-->
+    <!--Diff drive->
     <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
     <param name="DWAPlannerROS/odom_model/type" value="diff"/>
     <param name="DWAPlannerROS/odom_model/wheel_separation" value="0.5"/>
     <param name="DWAPlannerROS/odom_model/wheel_radius" value="0.15"/>
 
-    <!-- Spins at maximum velocity of 1 radian per second (3 seconds to do 180)-->
+    <!- Spins at maximum velocity of 1 radian per second (3 seconds to do 180)->
     <param name="max_rotational_vel" value="1.0" />
+    <param name="max_rotational_vel" value="1.0" /> -->
+
 
 <!-- Sets common_costmap parameters in config folder to both local and global costmaps -->
     <rosparam file="$(find gen2bot)/config/common_costmap.yaml" command="load" ns="global_costmap" />
@@ -165,12 +169,11 @@ this node, jetson won't publish a pointcloud, which navigation relies on -->
   that move_base communicates with to send motor inputs. This links autonomy to wheel motors -->
 <node pkg="gen2bot" type="listenerMotorAuto" name="autoWheels" >
     <param name="initalOutput" value="0.2" type="double"/>
-    <param name="isInitialState" value="true" type="bool"/>
 </node>
 
-<!-- Launches my move_base_client.py script to send desired positions for robot to reach to move_base planner-->
+<!-- Launches my move_base_client.py script to send desired positions for robot to reach to move_base planner->
 <node name="move_baseClientObject22" pkg="gen2bot" type="move_base_client.py" output="screen">
-</node>
+</node> -->
 
 <!-- Launches node that converts xbox controller inputs into ROS-->
  <node name="joy2" pkg="joy" type="joy_node" output="screen">
@@ -182,6 +185,10 @@ this node, jetson won't publish a pointcloud, which navigation relies on -->
  
  <!-- Node that takes ROS inputs of joystick to move motors in wheels, auger, ballscrew, and linear actuator-->
  <node name="manualMotorControl" pkg="gen2bot" type="notDTTalker.py" output="screen">
+ </node>
+
+<!-- Takes in twist messages and converts them to twistWithCovariancePose messages so robot_localization can use them-->
+  <node name="twistConvertor" pkg="gen2bot" type="twistConvertor.py" output="screen">
  </node>
 
  <!-- Node that takes ROS inputs of joystick to move motors in wheels-->

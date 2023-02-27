@@ -36,6 +36,7 @@ ${catkin_INCLUDE_DIRS}
    scripts/notDTTalker.py
    scripts/move_base_client.py
    scripts/wheelTester.py
+   scripts/twistConvertor.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 

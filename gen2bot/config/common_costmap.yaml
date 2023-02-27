@@ -6,18 +6,19 @@
 # This being the common costmap makes it so both global and local have the same parameters set here
 
 # Set dimensions of robot here in meters along with padding to cushion more space
-footprint: [[0.55, -0.30], [0.55, 0.30], [-0.55, -0.30], [-0.55, 0.30]]
+footprint: [[0.0, -0.40], [0.0, 0.15], [-1.10, -0.40], [-1.10, 0.15]]
 footprint_padding: 0.03
 
-# The tf that should be at ground level and at center of robot
-robot_base_frame: base_footprint
+# The tf that should be at ground level and at center of robot, but for a workaround I currently have it set for
+# frame of camera, and adjust all dimensions and xyz values wrt that. Should be okay
+robot_base_frame: base_link
 
 # Map update (topic) frequency and visualization (rviz) publish frequency
 update_frequency: 3
 publish_frequency: 2
 
 # Time buffer for how off a tf is in seconds (ex. base_link tf is at 15 seconds but we want 15.5 seconds, 
-# so we extrapolate .5 seconds into the past to get it)
+# so we extrapolate 1.0 seconds into the past to get it)
 transform_tolerance: 1.0
 
 # Quality of map, don't want it too high or it will lag
@@ -30,8 +31,10 @@ resolution: 0.03
 static:
 # Setting map to /map because this is our current global frame in which everything would be a child tf of
     map_topic: /map
-    width: 10
-    height: 10
+
+    # Don't know if these even work, still have to test
+    width: 20
+    height: 20
 
 # Takes in the costmap_2d::ObstacleLayer plugin that local costmap calls on. 
 # Look at: https://navigation.ros.org/configuration/packages/costmap-plugins/obstacle.html for parameter list
@@ -55,10 +58,10 @@ obstacle_layer:
     clearing: true,
 
     # Set to count things (rocks) above level robot_base_frame as obstacles
-    min_obstacle_height: 0.2,
+    min_obstacle_height: -0.3,
 
     # Set to not detect things above robot height (ex. mark the ceiling as an obstacle)
-    max_obstacle_height: 0.5
+    max_obstacle_height: 0.0
   }
 
   crater_detector: {
@@ -71,8 +74,8 @@ obstacle_layer:
     clearing: true,
 
     # Set to count things (craters) underneath ground level as obstacles
-    min_obstacle_height: -0.4,
-    max_obstacle_height: -0.2
+    min_obstacle_height: -0.9,
+    max_obstacle_height: -0.8
   }
 
 # Takes in the costmap_2d::InflationLayer plugin that local and global costmap calls on. 
