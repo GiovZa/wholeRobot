@@ -30,21 +30,22 @@ def movebase_client():
     rate = rospy.Rate(10.0)
     #new transform for qr code to position we want
    #Does this need to be updated or can it just be run once? if it needs to be broadcasted should we just put it in the launch file?
-
-    t = geometry_msgs.msg.TransformStamped()
-    t.header.frame_id = "object_22"
-    t.header.stamp = rospy.Time.now()
-    t.child_frame_id = "goal_tf"
-    t.transform.translation.x = 2.0
-    t.transform.translation.y = 2.0
-    t.transform.translation.z = 0.0
-
-    t.transform.rotation.x = 0.0
-    t.transform.rotation.y = 0.0
-    t.transform.rotation.z = 0.0
-    t.transform.rotation.w = 1.0
+   while not rospy.is_shutdown():
+       rospy.sleep(0.1)
+       t = geometry_msgs.msg.TransformStamped()
+       t.header.frame_id = "object_22"
+       t.header.stamp = rospy.Time.now()
+       t.child_frame_id = "goal_tf"
+       t.transform.translation.x = 2.0
+       t.transform.translation.y = 2.0
+       t.transform.translation.z = 0.0
+   
+       t.transform.rotation.x = 0.0
+       t.transform.rotation.y = 0.0
+       t.transform.rotation.z = 0.0
+       t.transform.rotation.w = 1.0
       
-    tfm = tf2_msgs.msg.TFMessage([t])
+       tfm = tf2_msgs.msg.TFMessage([t])
    
     while not rospy.is_shutdown():
      try:
