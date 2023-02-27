@@ -14,8 +14,6 @@ static_map: false
 
 # Dimensions of local_costmap map, but I think this is done wrong, needs fixing and then 
 # dimensions of global costmap set to size of arena
-width: 5
-height: 5
 
 # Takes in obstacle_layer and inflation_layer from common_costmap.yaml
 plugins:

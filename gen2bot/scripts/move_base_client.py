@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # Combination of both: https://hotblackrobotics.github.io/en/blog/2018/01/29/action-client-py/ and 
 # http://wiki.ros.org/tf2/Tutorials/Writing%20a%20tf2%20listener%20%28Python%29
+# http://wiki.ros.org/tf2/Tutorials/Adding%20a%20frame%20%28Python%29
 
 # This script sends the robot to a specified position based off of the detected qr code
 import rospy
@@ -13,6 +14,7 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 import tf2_ros
 import geometry_msgs.msg
+import tf2_msgs.msg
 
 def movebase_client():
 
@@ -27,30 +29,70 @@ def movebase_client():
     listener = tf2_ros.TransformListener(tfBuffer)
 
     rate = rospy.Rate(10.0)
+    #new transform for qr code to position we want
+    #Does this need to be updated or can it just be run once? if it needs to be broadcasted should we just put it in the launch file?
     while not rospy.is_shutdown():
-        try:
-            # Gets position from digPose to map, header has to be 'map' because that's where move_base sits
-            trans = tfBuffer.lookup_transform('map', 'digPose', rospy.Time())
-        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-            rate.sleep()
-            continue
+       rospy.sleep(0.1)
+       t = geometry_msgs.msg.TransformStamped()
+       t.header.frame_id = "object_22"
+       t.header.stamp = rospy.Time.now()
+       t.child_frame_id = "goal_tf"
+       t.transform.translation.x = 2.0
+       t.transform.translation.y = 2.0
+       t.transform.translation.z = 0.0
+   
+       t.transform.rotation.x = 0.0
+       t.transform.rotation.y = 0.0
+       t.transform.rotation.z = 0.0
+       t.transform.rotation.w = 1.0
+      
+       tfm = tf2_msgs.msg.TFMessage([t])
+   
+    #new transform for qr code to position we want
+    #Does this need to be updated or can it just be run once? if it needs to be broadcasted should we just put it in the launch file?
+    while not rospy.is_shutdown():
+       rospy.sleep(0.1)
+       t = geometry_msgs.msg.TransformStamped()
+       t.header.frame_id = "object_22"
+       t.header.stamp = rospy.Time.now()
+       t.child_frame_id = "goal_tf"
+       t.transform.translation.x = 3.0
+       t.transform.translation.y = 1.0
+       t.transform.translation.z = 0.0
+   
+       t.transform.rotation.x = 0.0
+       t.transform.rotation.y = 0.0
+       t.transform.rotation.z = 0.0
+       t.transform.rotation.w = 1.0
+      
+       tfm = tf2_msgs.msg.TFMessage([t])
+   
+    while not rospy.is_shutdown():
+     try:
+         # Gets position from digPose to map, header has to be 'map' because that's where move_base sits
+         trans = tfBuffer.lookup_transform('object_22', 'goal_tf', rospy.Time())
+     except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+         rate.sleep()
+         continue
 
+ 
+ 
    # Creates a new goal with the MoveBaseGoal constructor
     goal = MoveBaseGoal()
 
     # Has to be 'map' or move_base freaks out
     goal.target_pose.header.frame_id = "map"
     goal.target_pose.header.stamp = rospy.Time.now()
-
+   
    # Gets positional coordinates from map frame to digPose child and inputs it into the goal pose
    # Need to reformat so we add the position between qr code and digPose here, rather than create a
    # tf static broadcaster always outputting digPose position unnecessarily 
-    goal.target_pose.pose.position.x = trans.transform.translation.x
-    goal.target_pose.pose.position.y = trans.transform.translation.y
-    goal.target_pose.pose.position.z = trans.transform.translation.z
+    goal.target_pose.pose.position.x = tfm.transform.translation.x - trans.transform.translation.x
+    goal.target_pose.pose.position.y = tfm.transform.translation.y - trans.transform.translation.y
+    goal.target_pose.pose.position.z = 0
 
    # No rotation of the mobile base frame w.r.t. map frame
-    goal.target_pose.pose.orientation.w = 1.0
+    goal.target_pose.pose.orientation.w = 1.0 # Can change this if different rotation is required.
 
    # Sends the goal to the action server.
     client.send_goal(goal)
@@ -73,4 +115,3 @@ if __name__ == '__main__':
             rospy.loginfo("Goal execution done!")
     except rospy.ROSInterruptException:
         rospy.loginfo("Navigation test finished.")
-    

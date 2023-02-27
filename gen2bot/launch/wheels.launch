@@ -1,0 +1,25 @@
+<launch>
+
+<!-- Launches node that converts xbox controller inputs into ROS-->
+ <node name="joy2" pkg="joy" type="joy_node" output="screen">
+
+    <!-- parameter that retrieves which joystick controller to link with -->
+    <param name="dev" value="/dev/input/js0"/>
+    <param name="default_trig_val" value="true"/>
+ </node>
+ 
+ <!-- Node that takes ROS inputs of joystick to move motors in auger, ballscrew, and linear actuator-->
+ <node name="talker" pkg="gen2bot" type="wheelTester.py" output="screen">
+ </node>
+
+ <!-- Node that takes ROS inputs of joystick to move motors in wheels-->
+ <node name="motors" pkg="gen2bot" type="wheelTest" output="screen">
+      <param name="wheel_multiplier" value="1.0" />
+      <param name="position" value="1.0" />
+      <param name="slot0/kP" value="0.052" />
+      <param name="slot0/kI" value=".000001" />
+      <param name="slot0/kD" value="0.0" />
+      <param name="slot0/kF" value="0.0" />
+
+ </node>
+</launch>

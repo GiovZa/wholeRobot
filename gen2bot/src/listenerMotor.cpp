@@ -40,8 +40,8 @@ void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 
 	// Set each motor to spin at a percent of max speed relative to triggers' linear speed
 	// and left horizontal axis' turning speed
-	talRght.Set(ControlMode::PercentOutput, (x - z)/6 );
-	talLeft.Set(ControlMode::PercentOutput, (x + z)/6 );
+	talRght.Set(ControlMode::PercentOutput, (-x + z)/6 );
+	talLeft.Set(ControlMode::PercentOutput, (-x - z)/6 );
 }
 
 int main(int argc, char **argv) 

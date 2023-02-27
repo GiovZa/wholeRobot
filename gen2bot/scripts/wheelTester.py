@@ -14,41 +14,12 @@ from std_msgs.msg import Int8
 
 # Reports the state of a joysticks axes and buttons. (Controller package)
 from sensor_msgs.msg import Joy
-
-# Class for NotDT inputs
-class JoystickPublisher:
-    def __init__(self, Publisher):
-        self.pub = Publisher
-
-    def callback(self, message):
-        # CONFIRMED NOTDRIVETRAIN PUB
-        
-        # message.buttons/axes[int] == 1 just checks to see if it is being pressed
-        if(message.buttons[6] == 1 and message.buttons[7] == 1 and message.axes[7] == 1.0):
-                if(message.buttons[0] == 1): # a
-                        Int8 = 3 #Deposit
-                        self.pub.publish(Int8)
-                elif(message.buttons[1] == 1): # b
-                        Int8 = 2 #Dig
-                        self.pub.publish(Int8)
-                elif(message.buttons[3] == 1): # x
-                        Int8 = 1 #DriveMode
-                        self.pub.publish(Int8)
-                elif(message.buttons[4] == 1): # y
-                        Int8 = 4 #Zero
-                        self.pub.publish(Int8)
-                elif(message.buttons[12] == 1): # Xbox
-                        Int8 = 5 #config
-                        self.pub.publish(Int8)
-        if(message.axes[7] == -1): # Down DPad
-                Int8 = 0 #kill any function running
-                self.pub.publish(Int8)
                 
         # a = message.buttons[0]
         # b = message.buttons[1]
         # x = message.buttons[3]
         # y = message.buttons[4]
-        # Up DPad = message.axes[7]
+        # D^ = message.axes[7]
         # RB = message.buttons[6]
         # LB = message.buttons[7]
         # menu = message.buttons[10]
@@ -93,14 +64,7 @@ def start():
     # Name of node
     rospy.init_node('talker')
 
-    # Publishes to robot_process topic using twist messages. The matching subscriber is notDT.cpp
-    pub = rospy.Publisher('robot_process', Int8, queue_size=5)
-    joystick = JoystickPublisher(pub)
-
-    # subscribed to joystick inputs on topic "joy"
-    rospy.Subscriber("joy", Joy, joystick.callback)
-
-    # Publishes to chatter topic using twist messages. The matching subscriber is listenerMotor.cpp
+    # Publishes to chatter topic using twist messages. The matching subscriber is wheelTest.cpp
     pubWheels = rospy.Publisher('chatter', Twist, queue_size=5)
     joystickWheel = JoystickPublisherWheel(pubWheels)
 
