@@ -1,5 +1,7 @@
 #pragma once
 
+// This class is for declaring functions to run mining motors
+
 // include ros header to be able to use and pass node handles
 #include "ros/ros.h"
 
@@ -16,7 +18,7 @@ public:
 
 	// functions of this class
 
-	// function that zeroes auger of initialization
+	// function that zeroes trencher1 of initialization
 	void zero(int& p_cmd, ros::NodeHandle  nh);
 
 	// functions that run the motors
