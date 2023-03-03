@@ -36,30 +36,26 @@ int main(int argc, char **argv)
 {	
 
 	double initialPO = 0.2;
-	bool isInitialState = true;
+	bool localizationPhase = true;
 
-	ros::init(argc, argv, "wheels");
+	ros::init(argc, argv, "autoWheels");
 	ros::NodeHandle n;
 
-	// Gets parameter for speed at which motors should spin
-	n.getParam("/wheels/initialOutput", initialPO);
+	// Gets parameter for speed at which motors should spin during localization spin
+	n.getParam("/autoWheels/initialOutput", initialPO);
 
 	rightWheel.SetInverted(true);
 
-// Function currently commented out as we still have not put in logic of when to exit this while loop 
-	/* while(isInitialState)
-	{
-		n.getParam("/wheels/isInitialState", isInitialState);
-		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(10000);
-		rightWheel.Set(ControlMode::PercentOutput, -initialPO);
-		leftWheel.Set(ControlMode::PercentOutput, initialPO);
-		std::cout << "Spinning for 1 second at: " << initialPO << "%" << "for 1 second" << std::endl;
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		rightWheel.Set(ControlMode::PercentOutput, 0);
-		leftWheel.Set(ControlMode::PercentOutput, 0);
-		std::cout << "Stagnant for 1 second" << std::endl;
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-	} */
+// Script that spins wheels to initially localize by finding QR code
+	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(10000);
+	rightWheel.Set(ControlMode::PercentOutput, -initialPO);
+	leftWheel.Set(ControlMode::PercentOutput, initialPO);
+	std::cout << "Spinning for 10 seconds at: " << initialPO * 100 << "%" << "for 1 second" << std::endl;
+	std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+	rightWheel.Set(ControlMode::PercentOutput, 0);
+	leftWheel.Set(ControlMode::PercentOutput, 0);
+	n.setParam("/localizationPhase", false);
+	n.setParam("/navigationDigPhase", true);
 
 	ros::Subscriber sub = n.subscribe("cmd_vel", 10000, chatterCallback);
 
