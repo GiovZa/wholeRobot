@@ -57,37 +57,46 @@ def movebase_client(xPos, yPos):
      try:
         # With the transform between QR code and goal_tf, we can now get transform between map and goal_tf
         # to get absolute position of goal_tf
-         trans = tfBuffer.lookup_transform('map', 'goal_tf', rospy.Time())
+       trans = tfBuffer.lookup_transform('map', 'goal_tf', rospy.Time())
+               # Creates a new goal with the MoveBaseGoal constructor
+       goal = MoveBaseGoal()
+
+       # Has to be 'map' or move_base freaks out
+       goal.target_pose.header.frame_id = "map"
+       goal.target_pose.header.stamp = rospy.Time.now()
+
+       goal.target_pose.pose.position.x = trans.transform.translation.x
+       goal.target_pose.pose.position.y = trans.transform.translation.y
+       goal.target_pose.pose.position.z = 0
+
+      # No rotation of the mobile base frame w.r.t. map frame
+       goal.target_pose.pose.orientation.w = 1.0 # Can change this if different rotation is required.
+
+      # Sends the goal to the action server.
+       client.send_goal(goal)
+      # Waits for the server to finish performing the action.
+      while  data.data == 7:
+         state = client.get_state()
+         if state == actionlib.GoalStatus.SUCCEEDED:
+            print("Goal Reached!")
+            break
+            
+      client.cancel_all_goals()
+     
+      # If the result doesn't arrive, assume the Server is not available
+       if not wait:
+           rospy.logerr("Action server not available!")
+           rospy.signal_shutdown("Action server not available!")
+       else:
+       # Result of executing the action
+           return client.get_result()   
      except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
          rate.sleep()
          continue
  
-   # Creates a new goal with the MoveBaseGoal constructor
-    goal = MoveBaseGoal()
 
-    # Has to be 'map' or move_base freaks out
-    goal.target_pose.header.frame_id = "map"
-    goal.target_pose.header.stamp = rospy.Time.now()
-   
-    goal.target_pose.pose.position.x = trans.transform.translation.x
-    goal.target_pose.pose.position.y = trans.transform.translation.y
-    goal.target_pose.pose.position.z = 0
 
-   # No rotation of the mobile base frame w.r.t. map frame
-    goal.target_pose.pose.orientation.w = 1.0 # Can change this if different rotation is required.
-
-   # Sends the goal to the action server.
-    client.send_goal(goal)
-   # Waits for the server to finish performing the action.
-    wait = client.wait_for_result()
-   # If the result doesn't arrive, assume the Server is not available
-    if not wait:
-        rospy.logerr("Action server not available!")
-        rospy.signal_shutdown("Action server not available!")
-    else:
-    # Result of executing the action
-        return client.get_result()   
-
+# os.system(
 def callback(data):
     if data.data == 7:
         xPos = 1.0
@@ -110,5 +119,6 @@ if __name__ == '__main__':
     
     # Publisher is from notDTAuto.cpp
     rospy.Subscriber('robot_status', Int8, callback)
+    rospy.Subscriber('robot_status', Int8, movebase_client)
 
     rospy.spin()
