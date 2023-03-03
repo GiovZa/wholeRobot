@@ -44,9 +44,9 @@ class JoystickPublisher:
         if(message.axes[7] == -1): # Down DPad
                 Int8 = 0 #kill any function running
                 self.pub.publish(Int8)        
-        if(message.axes[] == 1): # Needs changing
-                Int8 = 9 #kill auto
-                self.pub.publish(Int8)
+        #if(message.axes[] == 1): # Needs changing
+         #       Int8 = 9 #kill auto
+          #      self.pub.publish(Int8)
         
 
 # Class for wheel inputs
