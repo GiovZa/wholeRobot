@@ -24,6 +24,7 @@ class JoystickPublisher:
         # CONFIRMED NOTDRIVETRAIN PUB
         
         # message.buttons/axes[int] == 1 just checks to see if it is being pressed
+        # buttons[6] and [7] are bumpers
         if(message.buttons[6] == 1 and message.buttons[7] == 1 and message.axes[7] == 1.0):
                 if(message.buttons[0] == 1): # a
                         Int8 = 3 #Deposit
@@ -42,18 +43,11 @@ class JoystickPublisher:
                         self.pub.publish(Int8)
         if(message.axes[7] == -1): # Down DPad
                 Int8 = 0 #kill any function running
+                self.pub.publish(Int8)        
+        if(message.axes[] == 1): # Needs changing
+                Int8 = 9 #kill auto
                 self.pub.publish(Int8)
-                
-        # a = message.buttons[0]
-        # b = message.buttons[1]
-        # x = message.buttons[3]
-        # y = message.buttons[4]
-        # Up DPad = message.axes[7]
-        # RB = message.buttons[6]
-        # LB = message.buttons[7]
-        # menu = message.buttons[10]
-        # start = message.buttons[11]
-        # Xbox = message.buttons[12]
+        
 
 # Class for wheel inputs
 class JoystickPublisherWheel:
