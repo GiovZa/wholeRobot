@@ -69,12 +69,21 @@ void zero(int& p_cmd, NotDTClass notDT, ros::NodeHandle nh)
 		" and p_cmd: " << sentinel << " " << notDT.sentinel << " " << p_cmd << std::endl;
 		p_cmd = 0;
 	}
-
 }
 
 void config(NotDTClass notDT, ros::NodeHandle nh)
 {
 	notDT.config(nh);
+}
+
+void moveToDig()
+{
+
+}
+
+void moveToDeposit()
+{
+
 }
 
 void updateProcess(const int& msg)
@@ -139,12 +148,13 @@ int main(int argc, char** argv)
 			config(notDT, nh);
 			p_cmd = 0;
 			break;
+		case 6:
+			
 		default:
 			break;
 		}
 		ros::spinOnce();
 		loop_rate.sleep();
-
 	}
 
 	// shut down motors
@@ -156,4 +166,3 @@ int main(int argc, char** argv)
 	std::cout << "Script has now ended: " << std::endl;
 	return 0;
 }
-
