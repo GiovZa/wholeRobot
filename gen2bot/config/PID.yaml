@@ -4,23 +4,21 @@
 # Besides how to tune the motors with gif above, I suggest some more research but to sum it up,
 # you want to generally use P and then a tiny bit of I to tune motors and I Zone to limit range of I
 # you get to use Phoenix Motors' encoders that keeps track of position. If you use percent output,
-# it has no idea how far it travels but with PID, you can have it reach the exact spot you want
-# consistently with efficient movement.
+# it has only a bad guess for how far it travels but with PID, you can have it reach the exact 
+# spot you want consistently with efficient movement too
+# To sum: PID = smart motors; PercentOutput = dumb guesses
 
 # Current PID config for wheels
 wheel_cfg:
   closedloopRamp: 1
 
-  # Each falcon motor has multiple slots that can each contain their own PIDFs, here we use slot0
-  # This is the PID the previous Robotics Club coder set up, so I just pulled it but haven't
-  # implemented with ROS because we haven't used wheel odometry yet, we will have to get
-  # new PID for the wheels to sensor fuse everything with wheels accurately. This will be the 
-  # case for all the motors
+# Updated wheel PID for accurate encoders to get wheel odometry and accurate move_base 
+# twist outputs for robot_localization sensor fusion
   slot0: {
-    kP: 0.1,
-    kI: 0.002,
-    kD: 5.0,
-    kF: 0.035,
+    kP: 0.052,
+    kI: 0.000001,
+    kD: 0.0,
+    kF: 0.0,
 
     # I don't know what this one does, someone figure this out
     maxIntegralAccumulator: 16000
@@ -68,6 +66,7 @@ linact_cfg:
   digPosition: -80 # -60
   miliseconds: 1000
 
+  # Probably won't be using this
   motionCruiseVelocity: 4
   motionAcceleration: 10
   motionCurveStrength: 0
@@ -77,3 +76,44 @@ linact_cfg:
     kI: 0.0008 #0.001 # 0.0001
   }
 
+bucket_cfg:
+  # auger is parallel to ground
+  drivePosition: -14 # 0
+
+  # auger is all the way up
+  depositPosition: 0 # 10
+
+  # auger is all the way down
+  digPosition: -80 # -60
+  miliseconds: 1000
+
+  # Probably won't be using this
+  motionCruiseVelocity: 4
+  motionAcceleration: 10
+  motionCurveStrength: 0
+
+  slot0: {
+    kP: 42, #45
+    kI: 0.0008 #0.001 # 0.0001
+  }
+
+trencher_cfg:
+  # auger is parallel to ground
+  drivePosition: -14 # 0
+
+  # auger is all the way up
+  depositPosition: 0 # 10
+
+  # auger is all the way down
+  digPosition: -80 # -60
+  miliseconds: 1000
+
+  # Probably won't be using this
+  motionCruiseVelocity: 4
+  motionAcceleration: 10
+  motionCurveStrength: 0
+
+  slot0: {
+    kP: 42, #45
+    kI: 0.0008 #0.001 # 0.0001
+  }
