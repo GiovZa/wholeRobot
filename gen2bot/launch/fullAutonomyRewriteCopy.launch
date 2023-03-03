@@ -1,5 +1,15 @@
 <launch>
 
+
+
+
+
+<!-- A launch file to just test different nodes, changes all the time based on what needs testing. No need to go through-->
+
+
+
+
+
 <!-- Learn about launch files in ros here: http://wiki.ros.org/roslaunch/XML -->
 
 <!-- This launch file currently opens both camera nodes, rviz, nodes that allow pointcloud, a map server that detects obstacles

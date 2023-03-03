@@ -57,9 +57,9 @@ int main()
 	// talLeft.GetSelectedSensorPosition() retrieves position of default sensor
 	std::cout << talLeft.GetSelectedSensorPosition() << std::endl;
 
-	// Sets the left motor to spin for a velocity input of 5, thus making right spin at -5
+	// Sets the left motor to spin for a velocity input of 5000, thus making right spin at -5000
 	// from line 46's invert. Dunno units I think it's in ticks
-	talLeft.Set(ControlMode::Velocity, 5);
+	talLeft.Set(ControlMode::Velocity, 5000);
 	
 	// Print statement with just text
 	std::cout << "Running motor for 5 seconds" << std::endl;
@@ -83,9 +83,12 @@ int main()
 	std::cout << talLeft.GetSelectedSensorPosition() << std::endl;
 	std::cout << "Motor off" << std::endl;
 
-	// Sets the left motor to spin until it reaches position 5, thus making right spin until -5
+	// Sets the left motor to spin until it reaches position 50000, thus making right spin until -5000
 	// from line 46's invert. Dunno units I think it's in ticks
-	talLeft.Set(ControlMode::Position, 5);
+	talLeft.Set(ControlMode::Position, 50000);
+
+	// time included so previous script has time to move motors to position
+	sleepApp(5000);
 
 	// Return 0 to close program
 	return 0;

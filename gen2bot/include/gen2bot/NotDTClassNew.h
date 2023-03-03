@@ -18,7 +18,7 @@ public:
 
 	// functions of this class
 
-	// function that zeroes trencher1 of initialization
+	// function that zeroes trencher of initialization
 	void zero(int& p_cmd, ros::NodeHandle  nh);
 
 	// functions that run the motors
@@ -50,4 +50,10 @@ public:
 	double bsDrivePosition;
 	double bsDepositPosition;
 	double bsDigPosition;
+
+	double buDrivePosition;
+	double buDepositPosition;
+	double buDigPosition;
+
+	double trencherZeroPosition;
 };

@@ -6,9 +6,12 @@
 #include <chrono> 
 #include <thread>
 #include <mutex>
+#include <cstdlib>
 
+#include "std_srvs/Empty.h"
 #include "ros/ros.h"
 #include "std_msgs/String.h"
+#include "std_msgs/Int8.h"
 
 #include <iostream>
 
@@ -76,14 +79,19 @@ void config(NotDTClass notDT, ros::NodeHandle nh)
 	notDT.config(nh);
 }
 
-void moveToDig()
+void moveToDig(int& p_cmd, NotDTClass notDT, ros::NodeHandle nh)
 {
-
+	goToDrive(p_cmd, notDT, nh);
+	nh.setParam = true;
+  //  std::string command = "python ~/catkin_ws/src/gen2bot/scripts/move_base_dig_client.py";
+ //   std::system(command.c_str());
 }
 
-void moveToDeposit()
+void moveToDeposit(int& p_cmd, NotDTClass notDT, ros::NodeHandle nh)
 {
-
+	goToDrive(p_cmd, notDT, nh);
+    std::string command = "python ~/catkin_ws/src/gen2bot/scripts/move_base_deposit_client.py";
+    std::system(command.c_str());
 }
 
 void updateProcess(const int& msg)
@@ -118,12 +126,39 @@ int main(int argc, char** argv)
 	// use the & to allow us to use this-> key word for pointers
 	ros::Subscriber sub = nh.subscribe("robot_process", 0, &ProcessManager::callback, &proMan);
 	
+	// create a publisher to publish p_cmd to the robot_status topic
+	ros::Publisher pub = nh.advertise<std_msgs::Int8>("robot_status", 10);
+
 	ros::AsyncSpinner spinner(0);
 	spinner.start();
+
+	int zeroNum = 0;
+	bool isAuto = true;
+
+	std::cout << "Start zeroing? (y/n) (1/2)" << std::endl;
+	std::cin >> zeroNum;
+	if (zeroNum = 1)
+	{
+		zero();
+		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+	}
+
+	std::cout << "9 for manual, 6 for autonomy: " << std::endl;
+	std::cin >> p_cmd;
+
+	if(p_cmd != 9 || p_cmd !=6)
+		p_cmd = 1;
 
 	while (ros::ok())
 	{
 		ROS_INFO("From the main loop: %d", p_cmd);
+
+		std_msgs::Int8 msg;
+		msg.data = p_cmd;
+
+		// publish the message to the robot_status topic
+		pub.publish(msg);
+
 		switch (p_cmd)
 		{
 		case 0:
@@ -134,11 +169,17 @@ int main(int argc, char** argv)
 			break;
 		case 2:
 			dig(p_cmd, notDT, nh);
-			p_cmd = 0;
+			if(isAuto)
+				p_cmd = 7;
+			else
+				p_cmd = 0;
 			break;
 		case 3:
 			deposit(p_cmd, notDT, nh);
-			p_cmd = 0;
+			if(isAuto)
+				p_cmd = 6;
+			else
+				p_cmd = 0;
 			break;
 		case 4:
 			zero(p_cmd, notDT, nh);
@@ -149,7 +190,22 @@ int main(int argc, char** argv)
 			p_cmd = 0;
 			break;
 		case 6:
-			
+			moveToDig(p_cmd, notDT, nh);
+			if(isAuto)
+				p_cmd = 2;
+			else
+				p_cmd = 0;
+			break;
+		case 7:
+			moveToDeposit(p_cmd, notDT, nh);
+			p_cmd = 3;
+			break;
+		case 8:
+			isAuto = true;
+			break;
+		case 9:
+			isAuto = false;
+			break;
 		default:
 			break;
 		}

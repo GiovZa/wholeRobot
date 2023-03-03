@@ -20,3 +20,6 @@ listenerMotorAuto.cpp:
 notDT.cpp and notDTClass.cpp and ProcessManager.cpp:
   All work with NotDTClass.h and Processmanager.h to control and update the mining and depositing
   motors while also checking if functions ever need to be killed mid script
+
+notDTAuto.cpp and notDTClassNew.cpp and ProcessManager.cpp:
+  Still being tested on but will eventually make the new robot fully autonomous with its motor functions working

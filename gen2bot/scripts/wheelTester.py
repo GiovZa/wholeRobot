@@ -14,17 +14,6 @@ from std_msgs.msg import Int8
 
 # Reports the state of a joysticks axes and buttons. (Controller package)
 from sensor_msgs.msg import Joy
-                
-        # a = message.buttons[0]
-        # b = message.buttons[1]
-        # x = message.buttons[3]
-        # y = message.buttons[4]
-        # D^ = message.axes[7]
-        # RB = message.buttons[6]
-        # LB = message.buttons[7]
-        # menu = message.buttons[10]
-        # start = message.buttons[11]
-        # Xbox = message.buttons[12]
 
 # Class for wheel inputs
 class JoystickPublisherWheel:
@@ -73,7 +62,6 @@ def start():
 
     # starts the node
     rospy.spin()
-
     
 if __name__ == '__main__':
         #start the initialize controller script

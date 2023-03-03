@@ -8,3 +8,5 @@ Gabe also talks about it in the "Updated Motor Integration Tutorial For COD"
 document in Google Drive.
 
 This a folder you should not be interacting with
+
+Holds motor library for Phoenix motors

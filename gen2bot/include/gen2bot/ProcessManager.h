@@ -4,7 +4,7 @@
 // ex. we want to stop the motors from digging and instead deposit, we pass in the number that starts the 
 // deposit function and now ROS knows to kill the dig script and start the deposit script
 
-// the smallest integer type in ROS (8 bits I think?)
+// the smallest integer type in ROS (8 bits or bytes I think?)
 #include "std_msgs/Int8.h"
 
 #include "ros/ros.h"

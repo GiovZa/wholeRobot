@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
+# name of folder
 project(gen2bot)
 
+# ROS dependencies
 find_package(catkin REQUIRED COMPONENTS
   roscpp 
   rospy
@@ -11,7 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   sensor_msgs
   cv_bridge
-  actionlib
   move_base_msgs
 )
 
@@ -83,18 +84,32 @@ include/gen2bot/ProcessManager.h
 src/NotDTClass.cpp 
 include/gen2bot/NotDTClass.h
 )
-
 target_link_libraries(notDT
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
 
+# Makes the C++ scripts executable with "rosrun motor_control_gen2bot notDT" command
+add_executable(
+notDTAuto
+
+src/notDTAuto.cpp 
+src/ProcessManager.cpp 
+include/gen2bot/ProcessManager.h
+src/NotDTClass.cpp 
+include/gen2bot/NotDTClass.h
+)
+target_link_libraries(notDT
+  CTRE_Phoenix
+  ${catkin_LIBRARIES}
+)
+
+# node for testing wheels
 add_executable(
 wheelTest
 
 src/wheelTest.cpp 
 )
-
 target_link_libraries(wheelTest
   CTRE_Phoenix
   ${catkin_LIBRARIES}

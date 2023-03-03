@@ -169,21 +169,11 @@ to understand parameters and purpose of robot_localization ekf -->
     <rosparam file="$(find gen2bot)/config/local_costmap.yaml" command="load" ns="local_costmap" />
 </node>
 
-<node name="move_base_deposit_client" pkg="gen2bot" type="move_base_deposit_client.py" output="screen">
-</node>
-
-<node name="move_base_dig_client" pkg="gen2bot" type="move_base_dig_client.py" output="screen">
-</node>
-
 <!-- Launches my listenerMotorAuto.cpp file to initialize a base controller 
   that move_base communicates with to send motor inputs. This links autonomy to wheel motors -->
 <node pkg="gen2bot" type="listenerMotorAuto" name="autoWheels" >
     <param name="initalOutput" value="0.0" type="double"/>
 </node>
-
-<!-- Launches my move_base_client.py script to send desired positions for robot to reach to move_base planner->
-<node name="move_baseClientObject22" pkg="gen2bot" type="move_base_client.py" output="screen">
-</node> -->
 
 <!-- Launches node that converts xbox controller inputs into ROS-->
  <node name="joy2" pkg="joy" type="joy_node" output="screen">
@@ -212,6 +202,9 @@ to understand parameters and purpose of robot_localization ekf -->
  </node> 
 
 <!-- loads states.yaml's parameters-->
-<rosparam file="$(find gen2bot)/config/states.yaml" command="load"/> 
+  <rosparam file="$(find gen2bot)/config/states.yaml" command="load"/> 
+
+ <node pkg="gen2bot" type="move_base_client.py" name="move_base_client.py" output="screen">
+ </node> 
 
 </launch>
