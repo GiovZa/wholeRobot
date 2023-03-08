@@ -40,7 +40,25 @@ TalonSRXConfiguration linActMM;
 TalonFX bScrew(32);
 TalonFXConfiguration bScrewMM;
 
-TalonFX auger(41);
+
+
+// Attention: Need to check and make sure TalonFXConfiguration and TalonSRXConfiguration is correct.
+
+
+// auger initilized
+TalonFX trench(41);
+
+// Attention: Need to create augerMM.
+// an object that configures an SRX motor
+TalonFXConfiguration trenchMM;
+
+
+TalonFX bucket(/*Attention: Enter device ID*/, interface);
+
+// Attention: Need to create bucketMM.
+// an object that configures an SRX motor.
+TalonSRXConfiguration bucketMM;
+
 
 NotDTClass::NotDTClass(ros::NodeHandle nh)
 	: sentinel(),
@@ -49,7 +67,17 @@ NotDTClass::NotDTClass(ros::NodeHandle nh)
 	  laDigPosition(-30),
 	  bsDrivePosition(0),
 	  bsDepositPosition(-2000000),
-	  bsDigPosition(-4000000)
+	  bsDigPosition(-4000000),
+	  // Warning: new bucket and trencher variables.
+	  trnDrivePosition(/*Warning: Need to set variables to test.*/),
+	  trnDepositPosition(/*Warning: Need to set variables to test.*/),
+	  trnDigPosition(/*Warning: Need to set variables to test.*/),
+	  bktDrivePosition(/*Warning: Need to set variables to test.*/),
+	  bktDepositPosition(/*Warning: Need to set variables to test.*/),
+	  bktDigPosition(/*Warning: Need to set variables to test.*/)
+
+	  
+	  
 {	
 	config(nh);
 }
@@ -65,6 +93,8 @@ void NotDTClass::config(ros::NodeHandle nh)
     nh.getParam("/notDT/bscrew_cfg/motionCurveStrength", bScrewMM.motionCurveStrength);
 
     nh.getParam("/notDT/bscrew_cfg/clearPositionOnLimitF", bScrewMM.clearPositionOnLimitF);
+
+	// Note: Just include these bottom 5 for bucket and trencher.
 
     nh.getParam("/notDT/bscrew_cfg/slot0/kI", bScrewMM.slot0.kI);
     nh.getParam("/notDT/bscrew_cfg/slot0/kP", bScrewMM.slot0.kP);
@@ -88,6 +118,31 @@ void NotDTClass::config(ros::NodeHandle nh)
 	nh.getParam("/notDT/linact_cfg/digPosition", laDigPosition);
 
 	linAct.ConfigAllSettings(linActMM);
+
+
+
+	// Configures the trencher motor.
+
+	trenchMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
+    nh.getParam("/notDT/trench_cfg/slot0/kI", trenchMM.slot0.kI);
+    nh.getParam("/notDT/trench_cfg/slot0/kP", trenchMM.slot0.kP);
+	nh.getParam("/notDT/trench_cfg/drivePosition", trnDrivePosition);
+	nh.getParam("/notDT/trench_cfg/depositPosition", trnDepositPosition);
+	nh.getParam("/notDT/trench_cfg/digPosition", trnDigPosition);
+
+
+	// Configures the bucket system.
+
+	bucketMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonSRXFeedbackDevice::Analog;
+	nh.getParam("/notDT/bucket_cfg/slot0/kI", bucketMM.slot0.kI);
+    nh.getParam("/notDT/bucket_cfg/slot0/kP", bucketMM.slot0.kP);
+	nh.getParam("/notDT/bucket_cfg/drivePosition", bktDrivePosition);
+	nh.getParam("/notDT/bucket_cfg/depositPosition", bktDepositPosition);
+	nh.getParam("/notDT/bucket_cfg/digPosition", bktDigPosition);
+
+
+
+
 }
 
 void NotDTClass::stop()
@@ -95,7 +150,13 @@ void NotDTClass::stop()
 	bScrew.Set(ControlMode::Velocity, 0);
 	linAct.Set(ControlMode::Velocity, 0);	
 	bScrew.Set(ControlMode::PercentOutput, 0);
-	linAct.Set(ControlMode::PercentOutput, 0);	
+	linAct.Set(ControlMode::PercentOutput, 0);
+
+	// Added new commands for trencher and bucket.
+	trench.Set(ControlMode::Velocity, 0);
+	bucket.Set(ControlMode::Velocity, 0);
+	trench.Set(ControlMode::PercentOutput, 0);
+	bucket.Set(ControlMode::PercentOutput, 0);	
 }
 
 // a function that checks to see if ProcessManager has changed modes, and if so motors should be killed
@@ -105,8 +166,12 @@ void NotDTClass::checkSentinel(int& p_cmd)
 	{
 		bScrew.Set(ControlMode::Velocity, 0);
 		linAct.Set(ControlMode::Velocity, 0);
+		trench.Set(ControlMode::Velocity, 0);
+		bucket.Set(ControlMode::Velocity, 0);
 		bScrew.Set(ControlMode::PercentOutput, 0);
-		linAct.Set(ControlMode::PercentOutput, 0);	
+		linAct.Set(ControlMode::PercentOutput, 0);
+		trench.Set(ControlMode::PercentOutput, 0);
+		bucket.Set(ControlMode::PercentOutput, 0);
 	}
 }
 
@@ -116,6 +181,10 @@ void NotDTClass::isSafe(int& p_cmd)
 	if(linAct.GetSelectedSensorPosition() > -75 &&  linAct.GetSelectedSensorPosition() < -35)
 		{
 			linAct.Set(ControlMode::Velocity, 0);
+
+			// Stops trencher
+			trench.Set(ControlMode::Velocity, 0);
+
 			while(bScrew.GetSelectedSensorPosition() < (bsDrivePosition - 250) || bScrew.GetSelectedSensorPosition() > (bsDrivePosition + 250))
 			{
 				if (sentinel != p_cmd)
@@ -200,6 +269,8 @@ void NotDTClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 			isSafe(p_cmd);
 			std::cout << "BalLS and linAct pos: " << bScrew.GetSelectedSensorPosition() << linAct.GetSelectedSensorPosition() << std::endl;
 			bScrew.Set(ControlMode::Position, bsDrivePosition);
+			bucket.Set(ControlMode::Position, bktDrivePosition);
+			trench.Set(ControlMode::Position, bktDrivePosition);
 			linAct.Set(ControlMode::Position, laDrivePosition);
 			if (sentinel != p_cmd)
 			{ 
@@ -273,4 +344,3 @@ void NotDTClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 
 		stop();
 	}
-
