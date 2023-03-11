@@ -277,6 +277,114 @@ void config(int x)
 	}
 }
 
+//sets percent output 
+void setPO(int x)
+{
+	int percentOutput = 0;
+	int postion = 0;
+	int more = 1;
+
+	if (x == 21)
+	{
+		while (more == 1)
+		{
+			std::cout << "set PO: ";
+			std::cin >> percentOutput;
+			talleft.Set(ControlMode::PercentOutput, percentOutput);
+			talright.Set(ControlMode::PercentOutput, percentOutput);
+			std::cout << "Enter 0 to stop motors and return to initial position: ";
+			std::cin >> percentOutput;
+			if (percentOutput == 0)
+			{
+				talleft.Set(ControlMode::PercentOutput, percentOutput);
+				talright.Set(ControlMode::PercentOutput, percentOutput);
+				talRght.Set(ControlMode::Position, position);
+				talLeft.Set(ControlMode::Position, position);
+			}
+			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
+			std::cim >> more;		
+		}
+	}
+	if (x == 31)
+	{
+		while (more == 1)
+		{
+			std::cout << "set PO: ";
+			std::cin >> percentOutput;
+			linAct1.Set(ControlMode::PercentOutput, percentOutput);
+			linAct2.Set(ControlMode::PercentOutput, percentOutput);
+			std::cout << "Enter 0 to stop motors and return to initial position: ";
+			std::cin >> percentOutput;
+			if (percentOutput == 0)
+			{
+				linAct1.Set(ControlMode::PercentOutput, percentOutput);
+				linAct2.Set(ControlMode::PercentOutput, percentOutput);
+				linAct1.Set(ControlMode::Position, position);
+				linAct2.Set(ControlMode::Position, position);
+			}
+			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
+			std::cim >> more;
+		}
+	}
+	if (x == 11)
+	{
+		while (more == 1)
+		{
+			std::cout << "set PO: ";
+			std::cin >> percentOutput;
+			bScrew.Set(Controlmode::PercentOutput, percentOutput);
+			std::cout << "Enter 0 to stop motors and return to initial position: ";
+			std::cin >> percentOutput;
+			if (percentOutput == 0)
+			{
+				bScrew.Set(ControlMode::PercentOutput, percentOutput);
+				bScrew.Set(ControlMode::Position, position);
+			}
+			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
+			std::cim >> more;
+		}
+	}
+	if (x == 41)
+	{
+		while (more == 1)
+		{
+			std::cout << "set PO: ";
+			std::cin >> percentOutput;
+			trencher.Set(Controlmode::PercentOutput, percentOutput);
+			std::cout << "Enter 0 to stop motors and return to initial position: ";
+			std::cin >> percentOutput;
+			if (percentOutput == 0)
+			{
+				trencher.Set(ControlMode::PercentOutput, percentOutput);
+				trencher.Set(ControlMode::Position, position);
+			}
+			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
+			std::cim >> more;
+		}
+	}
+	if (x == 51)
+	{
+		while (more == 1)
+		{
+			std::cout << "set PO: ";
+			std::cin >> percentOutput;
+			bucket1.Set(Controlmode::PercentOutput, percentOutput);
+			bucket2.Set(Controlmode::PercentOutput, percentOutput);
+			std::cout << "Enter 0 to stop motors and return to initial position: ";
+			std::cin >> percentOutput;
+			if (percentOutput == 0)
+			{
+				bucket1.Set(ControlMode::PercentOutput, percentOutput);
+				bucket2.Set(ControlMode::PercentOutput, percentOutput);
+				bucket1.Set(ControlMode::Position, position);
+				bucket2.Set(ControlMode::Position, position);
+			}
+			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
+			std::cim >> more;
+		}
+	}
+}
+
 // Takes in the outputs sent from notDTTalker.py's published messages
 void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
@@ -298,8 +406,8 @@ void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 
 	// Set each motor to spin at a percent of max speed relative to triggers' linear speed
 	// and left horizontal axis' turning speed
-	talRght.Set(ControlMode::Velocity, (x + z) );
-	talLeft.Set(ControlMode::Velocity, (x - z) );
+	talRght.Set(ControlMode::Velocity, (x + z) / 2 );
+	talLeft.Set(ControlMode::Velocity, (x - z) / 2 );
 }
 
 int main(int argc, char **argv) 
@@ -312,6 +420,7 @@ int main(int argc, char **argv)
 	 int p_cmd = 0;
 	 int motorNumber = 0;
 	do{
+		std::cout << "geCurrentPosition: 1\n setCurrentPosition: 2\n sendToPosition: 3\n config: 4\n Zero: 5\n setPO: 6\n";
 		std::cout << "Enter p_cmd: " << std::endl;
 		std::cin >> p_cmd;
 		std::cout << "Wheels: 21\nLinear actuators: 31\nBallscrew: 11\nTrencher: 41\nBuckets: 51\n";
@@ -340,6 +449,10 @@ int main(int argc, char **argv)
 			break;
 		case 5:
 			zero(motorNumber);
+			p_cmd = 0;
+			break;
+		case 6:
+		    setPO(motorNumber);
 			p_cmd = 0;
 			break;
 		default:
