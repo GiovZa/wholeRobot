@@ -24,25 +24,87 @@ using namespace ctre::phoenix::motorcontrol::can;
 
 std::string interface = "can0";
 
+// wheels
 TalonFX talLeft(22, interface); 
 TalonFX talRght(21);
-
 TalonFXConfiguration wheelMM;
 
-void getCurrentPosition(ros::NodeHandle nh)
+// linear actuator initialized (points trencher up and down)
+TalonSRX linAct1(31, interface);
+TalonSRX linAct2(32);
+TalonSRXConfiguration linActMM;
+
+// ballscrew motor initialized (extends and contracts motor)
+TalonFX bScrew(11);
+TalonFXConfiguration bScrewMM;
+
+// spins the conveyor belt (spins the scoopers)
+TalonFX trencher(41);
+TalonFXConfiguration trencherMM;
+
+// deposit bucket motor
+TalonFX bucket1(51);
+TalonFX bucket2(52);
+TalonFXConfiguration bucketMM;
+
+
+
+void getCurrentPosition(int x))
 {
-	std::cout << "Left motor position: " << talLeft.GetSelectedSensorPosition() << std::endl;
-	std::cout << "Right motor position: " << talRght.GetSelectedSensorPosition() << std::endl;
+	if(x == 21)
+	{
+		std::cout << "Left motor position: " << talLeft.GetSelectedSensorPosition() << std::endl;
+		std::cout << "Right motor position: " << talRght.GetSelectedSensorPosition() << std::endl;
+	}
+	if(x == 31)
+	{
+		std::cout << "Linear actuator 1 position: " << linAct1.GetSelectedSensorPosition() << std::endl;
+		std::cout << "Linear actuator 2 position: " << linAct2.GetSelectedSensorPosition() << std::endl;
+	}
+	if(x == 11)
+	{
+		std::cout << "Ballscrew motor position: " << bScrew.GetSelectedSensorPosition() << std::endl;
+	}
+	if(x == 41)
+	{
+		std::cout << "Trencher motor position: " << trencher.GetSelectedSensorPosition() << std::endl;
+	}
+	if(x == 51)
+	{
+		std::cout << "Bucket motor 1 position: " << bucket1.GetSelectedSensorPosition() << std::endl;
+		std::cout << "Bucket motor 2 position: " << bucket2.GetSelectedSensorPosition() << std::endl;
+	}
 }
 
-void setCurrentPositionZero(ros::NodeHandle nh)
+void setCurrentPositionZero(int x)
 {
-	talLeft.SetSelectedSensorPosition(0);
-	talRght.SetSelectedSensorPosition(0);
+	if(x == 21)
+	{
+		talLeft.SetSelectedSensorPosition(0);
+		talRght.SetSelectedSensorPosition(0);
+	}
+	if(x == 31)
+	{
+		linAct1.SetSelectedSensorPosition(0);
+        linAct2.SetSelectedSensorPosition(0);
+	}
+	if(x == 11)
+	{
+		bScrew.SetSelectedSensorPosition(0);
+	}
+	if(x == 41)
+	{
+		trencher.SetSelectedSensorPosition(0);
+	}
+	if(x == 51)
+	{
+		bucket1.SetSelectedSensorPosition(0);
+        bucket2.SetSelectedSensorPosition(0);
+	}
 	std::cout << "Motors set to zero" << std::endl;
 }
 
-void sendToPosition(ros::NodeHandle nh)
+void sendToPosition(int x)
 {
 	double position = 1.0;
 	
@@ -50,21 +112,68 @@ void sendToPosition(ros::NodeHandle nh)
 	std::cin >> position;
 
 	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-	talRght.Set(ControlMode::Position, position);
-	talLeft.Set(ControlMode::Position, position);
+	if (x == 21)
+	{
+		talRght.Set(ControlMode::Position, position);
+		talLeft.Set(ControlMode::Position, position);
+	}
+	if (x == 31)
+	{
+		linAct1.Set(ControlMode::Position, position);
+        linAct2.Set(ControlMode::Position, position);
+	}
+	if (x == 11)
+	{
+		bScrew.Set(ControlMode::Position, position);
+	}
+	if (x == 41)
+	{
+		trencher.Set(ControlMode::Position, position);
+	}
+	if (x == 51)
+	{
+		bucket1.Set(ControlMode::Position, position);
+        bucket2.Set(ControlMode::Position, position);
+	}
+	std::cout << "Position set to: " << position << std::endl;
 }
 
-void zero(ros::NodeHandle nh)
+void zero(int x)
 {	
-	std::cout << "Zeroed motors: " << std::endl;
-
+	
 	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-	talRght.Set(ControlMode::Velocity, 0);
-	talLeft.Set(ControlMode::Velocity, 0);
+	
+	if (x == 21)
+	{
+		talRght.Set(ControlMode::Velocity, 0);
+		talLeft.Set(ControlMode::Velocity, 0);
+	}
+	if (x == 31)
+	{
+		linAct1.Set(ControlMode::Velocity, 0);
+        linAct2.Set(ControlMode::Velocity, 0);
+	}
+	if (x == 11)
+	{
+		bScrew.Set(ControlMode::Velocity, 0);
+	}
+	if (x == 41)
+	{
+		trencher.Set(ControlMode::Velocity, 0);
+	}
+	if (x == 51)
+	{
+		bucket1.Set(ControlMode::Velocity, 0);
+        bucket2.Set(ControlMode::Velocity, 0);
+	}
+	
+	std::cout << "Zeroed motors" << std::endl;
 }
 
-void config(ros::NodeHandle nh)
+void config(int x)
 {
+	if (x == 21)
+	{
 	wheelMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
 
 	wheelMM.slot0.kP = 0.1;
@@ -83,6 +192,197 @@ void config(ros::NodeHandle nh)
 
 	talLeft.ConfigAllSettings(wheelMM);
 	talRght.ConfigAllSettings(wheelMM);
+	}
+	if (x == 31)
+	{
+	linActMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
+
+	linActMM.slot0.kP = 0.1;
+	linActMM.slot0.kI = 0.002;
+	linActMM.slot0.kD = 5.0;
+	linActMM.slot0.kF = 0.035;
+
+	std::cout << "Enter wanted kP: " << std::endl;
+	std::cin >> linActMM.slot0.kP;
+	std::cout << "Enter wanted kI: " << std::endl;
+	std::cin >> linActMM.slot0.kI;
+	std::cout << "Enter wanted kD: " << std::endl;
+	std::cin >> linActMM.slot0.kD;
+	std::cout << "Enter wanted kF: " << std::endl;
+	std::cin >> linActMM.slot0.kF;
+
+	linAct1.ConfigAllSettings(linActMM);
+	linAct2.ConfigAllSettings(linActMM);
+	}
+	if (x == 11)
+	{
+	bScrewMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
+
+	bScrewMM.slot0.kP = 0.1;
+	bScrewMM.slot0.kI = 0.002;
+	bScrewMM.slot0.kD = 5.0;
+	bScrewMM.slot0.kF = 0.035;
+
+	std::cout << "Enter wanted kP: " << std::endl;
+	std::cin >> bScrewMM.slot0.kP;
+	std::cout << "Enter wanted kI: " << std::endl;
+	std::cin >> bScrewMM.slot0.kI;
+	std::cout << "Enter wanted kD: " << std::endl;
+	std::cin >> bScrewMM.slot0.kD;
+	std::cout << "Enter wanted kF: " << std::endl;
+	std::cin >> bScrewMM.slot0.kF;
+
+	bScrew.ConfigAllSettings(bScrewMM);
+	}
+	if (x == 41)
+	{
+	trencherMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
+
+	trencherMM.slot0.kP = 0.1;
+	trencherMM.slot0.kI = 0.002;
+	trencherMM.slot0.kD = 5.0;
+	trencherMM.slot0.kF = 0.035;
+
+	std::cout << "Enter wanted kP: " << std::endl;
+	std::cin >> trencherMM.slot0.kP;
+	std::cout << "Enter wanted kI: " << std::endl;
+	std::cin >> trencherMM.slot0.kI;
+	std::cout << "Enter wanted kD: " << std::endl;
+	std::cin >> trencherMM.slot0.kD;
+	std::cout << "Enter wanted kF: " << std::endl;
+	std::cin >> trencherMM.slot0.kF;
+
+	trencher.ConfigAllSettings(trencherMM);
+	}
+	if (x == 51)
+	{
+	bucketMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
+
+	bucketMM.slot0.kP = 0.1;
+	bucketMM.slot0.kI = 0.002;
+	bucketMM.slot0.kD = 5.0;
+	bucketMM.slot0.kF = 0.035;
+
+	std::cout << "Enter wanted kP: " << std::endl;
+	std::cin >> bucketMM.slot0.kP;
+	std::cout << "Enter wanted kI: " << std::endl;
+	std::cin >> bucketMM.slot0.kI;
+	std::cout << "Enter wanted kD: " << std::endl;
+	std::cin >> bucketMM.slot0.kD;
+	std::cout << "Enter wanted kF: " << std::endl;
+	std::cin >> bucketMM.slot0.kF;
+
+	bucket1.ConfigAllSettings(bucketMM);
+	bucket2.ConfigAllSettings(bucketMM);
+	}
+}
+
+//sets percent output 
+void setPO(int x)
+{
+	int percentOutput = 0;
+	int postion = 0;
+	int more = 1;
+
+	if (x == 21)
+	{
+		while (more == 1)
+		{
+			std::cout << "set PO: ";
+			std::cin >> percentOutput;
+			talleft.Set(ControlMode::PercentOutput, percentOutput);
+			talright.Set(ControlMode::PercentOutput, percentOutput);
+			std::cout << "Enter 0 to stop motors and return to initial position: ";
+			std::cin >> percentOutput;
+			if (percentOutput == 0)
+			{
+				talleft.Set(ControlMode::PercentOutput, percentOutput);
+				talright.Set(ControlMode::PercentOutput, percentOutput);
+				talRght.Set(ControlMode::Position, position);
+				talLeft.Set(ControlMode::Position, position);
+			}
+			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
+			std::cim >> more;		
+		}
+	}
+	if (x == 31)
+	{
+		while (more == 1)
+		{
+			std::cout << "set PO: ";
+			std::cin >> percentOutput;
+			linAct1.Set(ControlMode::PercentOutput, percentOutput);
+			linAct2.Set(ControlMode::PercentOutput, percentOutput);
+			std::cout << "Enter 0 to stop motors and return to initial position: ";
+			std::cin >> percentOutput;
+			if (percentOutput == 0)
+			{
+				linAct1.Set(ControlMode::PercentOutput, percentOutput);
+				linAct2.Set(ControlMode::PercentOutput, percentOutput);
+				linAct1.Set(ControlMode::Position, position);
+				linAct2.Set(ControlMode::Position, position);
+			}
+			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
+			std::cim >> more;
+		}
+	}
+	if (x == 11)
+	{
+		while (more == 1)
+		{
+			std::cout << "set PO: ";
+			std::cin >> percentOutput;
+			bScrew.Set(Controlmode::PercentOutput, percentOutput);
+			std::cout << "Enter 0 to stop motors and return to initial position: ";
+			std::cin >> percentOutput;
+			if (percentOutput == 0)
+			{
+				bScrew.Set(ControlMode::PercentOutput, percentOutput);
+				bScrew.Set(ControlMode::Position, position);
+			}
+			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
+			std::cim >> more;
+		}
+	}
+	if (x == 41)
+	{
+		while (more == 1)
+		{
+			std::cout << "set PO: ";
+			std::cin >> percentOutput;
+			trencher.Set(Controlmode::PercentOutput, percentOutput);
+			std::cout << "Enter 0 to stop motors and return to initial position: ";
+			std::cin >> percentOutput;
+			if (percentOutput == 0)
+			{
+				trencher.Set(ControlMode::PercentOutput, percentOutput);
+				trencher.Set(ControlMode::Position, position);
+			}
+			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
+			std::cim >> more;
+		}
+	}
+	if (x == 51)
+	{
+		while (more == 1)
+		{
+			std::cout << "set PO: ";
+			std::cin >> percentOutput;
+			bucket1.Set(Controlmode::PercentOutput, percentOutput);
+			bucket2.Set(Controlmode::PercentOutput, percentOutput);
+			std::cout << "Enter 0 to stop motors and return to initial position: ";
+			std::cin >> percentOutput;
+			if (percentOutput == 0)
+			{
+				bucket1.Set(ControlMode::PercentOutput, percentOutput);
+				bucket2.Set(ControlMode::PercentOutput, percentOutput);
+				bucket1.Set(ControlMode::Position, position);
+				bucket2.Set(ControlMode::Position, position);
+			}
+			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
+			std::cim >> more;
+		}
+	}
 }
 
 // Takes in the outputs sent from notDTTalker.py's published messages
@@ -106,8 +406,8 @@ void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 
 	// Set each motor to spin at a percent of max speed relative to triggers' linear speed
 	// and left horizontal axis' turning speed
-	talRght.Set(ControlMode::Velocity, (x + z) );
-	talLeft.Set(ControlMode::Velocity, (x - z) );
+	talRght.Set(ControlMode::Velocity, (x + z) / 2 );
+	talLeft.Set(ControlMode::Velocity, (x - z) / 2 );
 }
 
 int main(int argc, char **argv) 
@@ -117,38 +417,48 @@ int main(int argc, char **argv)
 	ros::NodeHandle n;
 	ros::Subscriber sub = n.subscribe("chatter", 10000, chatterCallback);
 
-	/* int p_cmd = 0;
+	 int p_cmd = 0;
+	 int motorNumber = 0;
 	do{
+		std::cout << "geCurrentPosition: 1\n setCurrentPosition: 2\n sendToPosition: 3\n config: 4\n Zero: 5\n setPO: 6\n";
 		std::cout << "Enter p_cmd: " << std::endl;
 		std::cin >> p_cmd;
+		std::cout << "Wheels: 21\nLinear actuators: 31\nBallscrew: 11\nTrencher: 41\nBuckets: 51\n";
+		std::cout << "Enter motor number: " << std::endl;
+		std::cin >> motorNumber;
+
 		switch (p_cmd)
 		{
 		case 0:
 			break;
 		case 1:
-			getCurrentPosition(n);
+			getCurrentPosition(motorNumber);
 			p_cmd = 0;
 			break;
 		case 2:
-			setCurrentPositionZero(n);
+			setCurrentPositionZero(motorNumber);
 			p_cmd = 0;
 			break;
 		case 3:
-			sendToPosition(n);
+			sendToPosition(motorNumber);
 			p_cmd = 0;
 			break;
 		case 4:
-			config(n);
+			config(motorNumber);
 			p_cmd = 0;
 			break;
 		case 5:
-			zero(n);
+			zero(motorNumber);
+			p_cmd = 0;
+			break;
+		case 6:
+		    setPO(motorNumber);
 			p_cmd = 0;
 			break;
 		default:
 			break;
 		}
-	} while(p_cmd == 0); */
+	} while(p_cmd == 0);
 
 
   	ros::spin();

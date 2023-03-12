@@ -38,7 +38,7 @@ TalonSRX linAct2(32);
 TalonSRXConfiguration linActMM;
 
 // ballscrew motor initialized (extends and contracts motor)
-TalonFX bScrew(21);
+TalonFX bScrew(11);
 TalonFXConfiguration bScrewMM;
 
 // spins the conveyor belt (spins the scoopers)

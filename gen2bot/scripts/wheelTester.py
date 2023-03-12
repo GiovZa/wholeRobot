@@ -29,8 +29,9 @@ class JoystickPublisherWheel:
         when you are not pressing the trigger. Divide by 2 because 
         motorPercentOutput can accept a maximum value of 1. RT is right trigger.
         '''
-        LT = -(message.axes[5] + 1.0) / 2
-        RT = -(message.axes[4] + 1.0) / 2
+        if message.buttons[0] == 1.0:
+            LT = -(message.axes[5] + 1.0) / 2
+            RT = -(message.axes[4] + 1.0) / 2   
         return (RT - LT)
 
         # Function that keeps getting called on by publisher

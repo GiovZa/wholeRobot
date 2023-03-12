@@ -34,6 +34,7 @@ void goToDrive(int& p_cmd, NotDTClass notDT, ros::NodeHandle nh)
 		// After function ends, put p_cmd in default value so process knows function has ended
 		p_cmd = 0;
 	}
+	// bucket.percentoutput(100%);
 }
 
 void deposit(int& p_cmd, NotDTClass notDT, ros::NodeHandle nh)
