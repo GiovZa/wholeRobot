@@ -21,6 +21,8 @@ import tf2_msgs.msg
 
 def movebase_client(xPos, yPos):
 
+    rospy.set_param('navigation_1', "Navigation to mine started")
+      
    # Create an action client called "move_base" with action definition file "MoveBaseAction"
     client = actionlib.SimpleActionClient('move_base',MoveBaseAction)
 
@@ -82,6 +84,7 @@ def movebase_client(xPos, yPos):
             break
             
       client.cancel_all_goals()
+      rospy.set_param('navigation_1', "Navigation to mine done")
      
       # If the result doesn't arrive, assume the Server is not available
        if not wait:
@@ -107,18 +110,31 @@ def callback(data):
     else:
         print("No move_base values given: ")
         return
-    try:
+    if data.data == 7:
         result = movebase_client(xPos, yPos)
-        if result:
-            rospy.loginfo("Goal execution done!")
-    except rospy.ROSInterruptException:
-        rospy.loginfo("Navigation test finished.")
+        try:
+            if result:
+                rospy.loginfo("Goal execution done!")
+                #publish robot_status topic int8 to 2
+                pub = rospy.Publisher('robot_status', Int8, queue_size=10)
+                pub.publish(std_msgs.msg.String("2"))
+         except rospy.ROSInterruptException:
+                rospy.loginfo("Navigation test finished.")
+    if data.data == 6:
+        result = movebase_client(xPos, yPos)
+        try:
+            if result:
+                rospy.loginfo("Goal execution done!")
+                #publish robot_status topic int8 to somwhere other than 2
+                pub = rospy.Publisher('robot_status', Int8, queue_size=10)
+                pub.publish(std_msgs.msg.String("3"))
+         except rospy.ROSInterruptException:
+                rospy.loginfo("Navigation test finished.")
 
 if __name__ == '__main__':
     rospy.init_node('move_base_client_process_manager')
     
     # Publisher is from notDTAuto.cpp
     rospy.Subscriber('robot_status', Int8, callback)
-    rospy.Subscriber('robot_status', Int8, movebase_client)
 
     rospy.spin()
