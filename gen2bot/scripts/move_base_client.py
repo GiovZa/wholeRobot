@@ -21,6 +21,8 @@ import tf2_msgs.msg
 
 def movebase_client(xPos, yPos):
 
+    rospy.set_param('navigation_1', "Navigation to mine started")
+      
    # Create an action client called "move_base" with action definition file "MoveBaseAction"
     client = actionlib.SimpleActionClient('move_base',MoveBaseAction)
 
@@ -57,37 +59,47 @@ def movebase_client(xPos, yPos):
      try:
         # With the transform between QR code and goal_tf, we can now get transform between map and goal_tf
         # to get absolute position of goal_tf
-         trans = tfBuffer.lookup_transform('map', 'goal_tf', rospy.Time())
+       trans = tfBuffer.lookup_transform('map', 'goal_tf', rospy.Time())
+               # Creates a new goal with the MoveBaseGoal constructor
+       goal = MoveBaseGoal()
+
+       # Has to be 'map' or move_base freaks out
+       goal.target_pose.header.frame_id = "map"
+       goal.target_pose.header.stamp = rospy.Time.now()
+
+       goal.target_pose.pose.position.x = trans.transform.translation.x
+       goal.target_pose.pose.position.y = trans.transform.translation.y
+       goal.target_pose.pose.position.z = 0
+
+      # No rotation of the mobile base frame w.r.t. map frame
+       goal.target_pose.pose.orientation.w = 1.0 # Can change this if different rotation is required.
+
+      # Sends the goal to the action server.
+       client.send_goal(goal)
+      # Waits for the server to finish performing the action.
+      while  data.data == 7:
+         state = client.get_state()
+         if state == actionlib.GoalStatus.SUCCEEDED:
+            print("Goal Reached!")
+            break
+            
+      client.cancel_all_goals()
+      rospy.set_param('navigation_1', "Navigation to mine done")
+     
+      # If the result doesn't arrive, assume the Server is not available
+       if not wait:
+           rospy.logerr("Action server not available!")
+           rospy.signal_shutdown("Action server not available!")
+       else:
+       # Result of executing the action
+           return client.get_result()   
      except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
          rate.sleep()
          continue
  
-   # Creates a new goal with the MoveBaseGoal constructor
-    goal = MoveBaseGoal()
 
-    # Has to be 'map' or move_base freaks out
-    goal.target_pose.header.frame_id = "map"
-    goal.target_pose.header.stamp = rospy.Time.now()
-   
-    goal.target_pose.pose.position.x = trans.transform.translation.x
-    goal.target_pose.pose.position.y = trans.transform.translation.y
-    goal.target_pose.pose.position.z = 0
 
-   # No rotation of the mobile base frame w.r.t. map frame
-    goal.target_pose.pose.orientation.w = 1.0 # Can change this if different rotation is required.
-
-   # Sends the goal to the action server.
-    client.send_goal(goal)
-   # Waits for the server to finish performing the action.
-    wait = client.wait_for_result()
-   # If the result doesn't arrive, assume the Server is not available
-    if not wait:
-        rospy.logerr("Action server not available!")
-        rospy.signal_shutdown("Action server not available!")
-    else:
-    # Result of executing the action
-        return client.get_result()   
-
+# os.system(
 def callback(data):
     if data.data == 7:
         xPos = 1.0
@@ -98,12 +110,26 @@ def callback(data):
     else:
         print("No move_base values given: ")
         return
-    try:
+    if data.data == 7:
         result = movebase_client(xPos, yPos)
-        if result:
-            rospy.loginfo("Goal execution done!")
-    except rospy.ROSInterruptException:
-        rospy.loginfo("Navigation test finished.")
+        try:
+            if result:
+                rospy.loginfo("Goal execution done!")
+                #publish robot_status topic int8 to 2
+                pub = rospy.Publisher('robot_status', Int8, queue_size=10)
+                pub.publish(std_msgs.msg.String("2"))
+         except rospy.ROSInterruptException:
+                rospy.loginfo("Navigation test finished.")
+    if data.data == 6:
+        result = movebase_client(xPos, yPos)
+        try:
+            if result:
+                rospy.loginfo("Goal execution done!")
+                #publish robot_status topic int8 to somwhere other than 2
+                pub = rospy.Publisher('robot_status', Int8, queue_size=10)
+                pub.publish(std_msgs.msg.String("3"))
+         except rospy.ROSInterruptException:
+                rospy.loginfo("Navigation test finished.")
 
 if __name__ == '__main__':
     rospy.init_node('move_base_client_process_manager')
