@@ -302,7 +302,7 @@ void setPO(int x)
 				talLeft.Set(ControlMode::Position, position);
 			}
 			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
-			std::cim >> more;		
+			std::cin >> more;		
 		}
 	}
 	if (x == 31)
@@ -323,7 +323,7 @@ void setPO(int x)
 				linAct2.Set(ControlMode::Position, position);
 			}
 			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
-			std::cim >> more;
+			std::cin >> more;
 		}
 	}
 	if (x == 11)
@@ -341,7 +341,7 @@ void setPO(int x)
 				bScrew.Set(ControlMode::Position, position);
 			}
 			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
-			std::cim >> more;
+			std::cin >> more;
 		}
 	}
 	if (x == 41)
@@ -359,7 +359,7 @@ void setPO(int x)
 				trencher.Set(ControlMode::Position, position);
 			}
 			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
-			std::cim >> more;
+			std::cin >> more;
 		}
 	}
 	if (x == 51)
@@ -380,7 +380,7 @@ void setPO(int x)
 				bucket2.Set(ControlMode::Position, position);
 			}
 			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
-			std::cim >> more;
+			std::cin >> more;
 		}
 	}
 }
