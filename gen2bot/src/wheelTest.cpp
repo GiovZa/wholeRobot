@@ -298,8 +298,8 @@ void setPO(int x)
 			{
 				talleft.Set(ControlMode::PercentOutput, percentOutput);
 				talright.Set(ControlMode::PercentOutput, percentOutput);
-				talRght.Set(ControlMode::Position, position);
-				talLeft.Set(ControlMode::Position, position);
+				talRght.Set(ControlMode::Position, percentOutput);
+				talLeft.Set(ControlMode::Position, percentOutput);
 			}
 			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
 			std::cin >> more;		
@@ -319,8 +319,8 @@ void setPO(int x)
 			{
 				linAct1.Set(ControlMode::PercentOutput, percentOutput);
 				linAct2.Set(ControlMode::PercentOutput, percentOutput);
-				linAct1.Set(ControlMode::Position, position);
-				linAct2.Set(ControlMode::Position, position);
+				linAct1.Set(ControlMode::Position, percentOutput);
+				linAct2.Set(ControlMode::Position, percentOutput);
 			}
 			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
 			std::cin >> more;
@@ -338,7 +338,7 @@ void setPO(int x)
 			if (percentOutput == 0)
 			{
 				bScrew.Set(ControlMode::PercentOutput, percentOutput);
-				bScrew.Set(ControlMode::Position, position);
+				bScrew.Set(ControlMode::Position, percentOutput);
 			}
 			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
 			std::cin >> more;
@@ -356,7 +356,7 @@ void setPO(int x)
 			if (percentOutput == 0)
 			{
 				trencher.Set(ControlMode::PercentOutput, percentOutput);
-				trencher.Set(ControlMode::Position, position);
+				trencher.Set(ControlMode::Position, percentOutput);
 			}
 			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
 			std::cin >> more;
@@ -376,8 +376,8 @@ void setPO(int x)
 			{
 				bucket1.Set(ControlMode::PercentOutput, percentOutput);
 				bucket2.Set(ControlMode::PercentOutput, percentOutput);
-				bucket1.Set(ControlMode::Position, position);
-				bucket2.Set(ControlMode::Position, position);
+				bucket1.Set(ControlMode::Position, percentOutput);
+				bucket2.Set(ControlMode::Position, percentOutput);
 			}
 			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)"
 			std::cin >> more;
