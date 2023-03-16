@@ -98,14 +98,9 @@ bucket_cfg:
   }
 
 trencher_cfg:
-  # auger is parallel to ground
-  drivePosition: -14 # 0
-
-  # auger is all the way up
-  depositPosition: 0 # 10
-
-  # auger is all the way down
-  digPosition: -80 # -60
+  
+  # zero position
+  zeroPos: 10000
   miliseconds: 1000
 
   # Probably won't be using this
