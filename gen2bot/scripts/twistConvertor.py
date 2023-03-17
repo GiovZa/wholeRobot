@@ -10,6 +10,8 @@
 # Imports a pure Python client library for ROS
 import rospy
 
+from std_msgs.msg import Header
+
 from geometry_msgs.msg import Twist
 
 from geometry_msgs.msg import TwistWithCovarianceStamped
@@ -20,8 +22,12 @@ def twist_callback(msg):
     
     # Create TwistWithCovarianceStamped message and set header
     twist_with_covariance_msg = TwistWithCovarianceStamped()
-    twist_with_covariance_msg.header = twist.header
     
+    header = Header()
+    header.frame_id = "base_link"
+    header.seq = 0
+    header.stamp = rospy.Time.now()
+
     # Set mean twist
     twist_with_covariance_msg.twist.twist = twist
     

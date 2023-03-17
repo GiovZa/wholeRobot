@@ -6,7 +6,7 @@
 # This being the common costmap makes it so both global and local have the same parameters set here
 
 # Set dimensions of robot here in meters along with padding to cushion more space
-footprint: [[0.0, -0.40], [0.0, 0.15], [-1.10, -0.40], [-1.10, 0.15]]
+footprint: [[0.05, 0.40], [0.05, -0.20], [-1.10, 0.40], [-1.10, -0.20]]
 footprint_padding: 0.03
 
 # The tf that should be at ground level and at center of robot, but for a workaround I currently have it set for
@@ -30,11 +30,11 @@ resolution: 0.03
 # Look at: https://navigation.ros.org/configuration/packages/costmap-plugins/static.html for parameter list
 static:
 # Setting map to /map because this is our current global frame in which everything would be a child tf of
-    map_topic: /map
+    map_topic: /camera_odom_frame
 
     # Don't know if these even work, still have to test
-    width: 20
-    height: 20
+    #width: 20
+    #height: 20
 
 # Takes in the costmap_2d::ObstacleLayer plugin that local costmap calls on. 
 # Look at: https://navigation.ros.org/configuration/packages/costmap-plugins/obstacle.html for parameter list
@@ -52,7 +52,7 @@ obstacle_layer:
     data_type: PointCloud2,
 
     #What topic to subscribe to in order to retrive PointCloud2 data
-    topic: /camera/depth/color/points,
+    topic: /depth_camera/depth/color/points,
 
     # Clearing set to true removes obstacles in real time
     clearing: true,
@@ -69,7 +69,7 @@ obstacle_layer:
 
     data_type: PointCloud2,
 
-    topic: /camera/depth/color/points,
+    topic: /depth_camera/depth/color/points,
 
     # Clearing set to true removes obstacles in real time
     clearing: true,

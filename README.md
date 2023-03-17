@@ -12,4 +12,4 @@ to set up the jetson
 &
 
 https://docs.google.com/document/d/1D6gk7AN-qlIyPaUhHwxsQQYGHbhVlwscmfQVct45VJU/edit#heading=h.yiei94iwb8su
-for setting up motors
+for setting up VEX motors

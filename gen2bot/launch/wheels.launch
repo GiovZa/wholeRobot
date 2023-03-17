@@ -1,5 +1,7 @@
 <launch>
 
+<!-- Used to test and change configurations of motors for PID setup -->
+
 <!-- Launches node that converts xbox controller inputs into ROS-->
  <node name="joy2" pkg="joy" type="joy_node" output="screen">
 

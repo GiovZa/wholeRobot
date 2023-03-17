@@ -80,19 +80,10 @@ void config(NotDTClass notDT, ros::NodeHandle nh)
 }
 
 void moveToDig(int& p_cmd, NotDTClass notDT, ros::NodeHandle nh)
-{
-	goToDrive(p_cmd, notDT, nh);
-	nh.setParam = true;
-  //  std::string command = "python ~/catkin_ws/src/gen2bot/scripts/move_base_dig_client.py";
- //   std::system(command.c_str());
-}
+{	goToDrive(p_cmd, notDT, nh);	}
 
 void moveToDeposit(int& p_cmd, NotDTClass notDT, ros::NodeHandle nh)
-{
-	goToDrive(p_cmd, notDT, nh);
-    std::string command = "python ~/catkin_ws/src/gen2bot/scripts/move_base_deposit_client.py";
-    std::system(command.c_str());
-}
+{	goToDrive(p_cmd, notDT, nh);	}
 
 void updateProcess(const int& msg)
 {
@@ -139,7 +130,7 @@ int main(int argc, char** argv)
 	std::cin >> zeroNum;
 	if (zeroNum = 1)
 	{
-		zero();
+		zero(p_cmd, notDT, nh);
 		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 	}
 
@@ -155,9 +146,6 @@ int main(int argc, char** argv)
 
 		std_msgs::Int8 msg;
 		msg.data = p_cmd;
-
-		// publish the message to the robot_status topic
-		pub.publish(msg);
 
 		switch (p_cmd)
 		{
@@ -190,6 +178,8 @@ int main(int argc, char** argv)
 			p_cmd = 0;
 			break;
 		case 6:
+			// publish the message to the robot_status topic
+			pub.publish(msg);
 			moveToDig(p_cmd, notDT, nh);
 			if(isAuto)
 				p_cmd = 2;
@@ -197,6 +187,8 @@ int main(int argc, char** argv)
 				p_cmd = 0;
 			break;
 		case 7:
+			// publish the message to the robot_status topic
+			pub.publish(msg);
 			moveToDeposit(p_cmd, notDT, nh);
 			p_cmd = 3;
 			break;

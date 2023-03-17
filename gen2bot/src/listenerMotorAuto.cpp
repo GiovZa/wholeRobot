@@ -24,38 +24,23 @@ TalonFX rightWheel(21);
 void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
 	double x = msg->linear.x;
-	double z = msg->angular.z / 5;
+	double z = msg->angular.z;
 
 	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
-	rightWheel.Set(ControlMode::PercentOutput, (-x + z)/2 );
-	leftWheel.Set(ControlMode::PercentOutput, (-x - z)/2 );
+	rightWheel.SetInverted(true);
+	rightWheel.Set(ControlMode::PercentOutput, (-x + z));
+	leftWheel.Set(ControlMode::PercentOutput, (-x - z));
 }
 
 int main(int argc, char **argv) 
 {	
 
-	double initialPO = 0.2;
-	bool localizationPhase = true;
+	// double initialPO = 0.2;
+	// bool localizationPhase = true;
 
 	ros::init(argc, argv, "autoWheels");
 	ros::NodeHandle n;
-
-	// Gets parameter for speed at which motors should spin during localization spin
-	n.getParam("/autoWheels/initialOutput", initialPO);
-
-	rightWheel.SetInverted(true);
-
-// Script that spins wheels to initially localize by finding QR code
-	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(10000);
-	rightWheel.Set(ControlMode::PercentOutput, -initialPO);
-	leftWheel.Set(ControlMode::PercentOutput, initialPO);
-	std::cout << "Spinning for 10 seconds at: " << initialPO * 100 << "%" << "for 1 second" << std::endl;
-	std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-	rightWheel.Set(ControlMode::PercentOutput, 0);
-	leftWheel.Set(ControlMode::PercentOutput, 0);
-	n.setParam("/localizationPhase", false);
-	n.setParam("/navigationDigPhase", true);
 
 	ros::Subscriber sub = n.subscribe("cmd_vel", 10000, chatterCallback);
 

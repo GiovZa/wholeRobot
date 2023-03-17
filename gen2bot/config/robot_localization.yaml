@@ -13,7 +13,7 @@
 # This probably fixes TF issues.
 
 # in hertz, how quick to update pose estimation of base_link, might need to update to like 240 for gyro sensor
-frequency: 30
+frequency: 60
 
 # makes the pose estimate expand into the Z axies, which is required for our robot that will
 # move on hills and craters and bumps and such
@@ -29,7 +29,7 @@ base_link_frame: base_link
 
 # imu gets change in velocity (acceleration) to record position
 # imu topic to subscribe to
-imu0: /camera/imu
+imu0: /tracking_camera/imu
 
 # I don't know which ones T265 IMU uses, so we have to figure out which ones we want and 
 # disable the other ones or figure out if the ones not used take up any processing power,
@@ -40,14 +40,14 @@ imu0_config: [true, true, true,
                true, true, true,
                true, true, true]
 
-# differential gets linear and turn velocities (ex. wheel encoders)
+# differential gets linear and turn velocities relative to last known time (ex. wheel encoders)
 imu0_differential: false
 
-# relative gets pose and orientation (ex. GPS or SLAM or visual imu odometry)
+# relative gets pose and orientation relative to original position (ex. GPS or SLAM or visual imu odometry)
 imu0_relative: true
 
 # odometry also gets pose estimation, usually with wheels
-odom0: /camera/odom/sample
+odom0: /tracking_camera/odom/sample
 
 # we also have to find which ones should be true or false for these
 odom0_config: [true, true, true,
@@ -55,32 +55,35 @@ odom0_config: [true, true, true,
                true, true, true,
                true, true, true,
                true, true, true]
-odom0_differential: false
+odom0_differential: true
 odom0_relative: true
 
+
 # From twistConvertor.py
-twist0: /twist_with_covariance1
+#twist0: /twist_with_covariance1
+
 
 #Translation in X and Y and turn in yaw?
-twist0_config: [false, false, false,
-                false, false, false,
-                true,  true,  true,
-                false, false, false,
-                false, false, false]
-twist0_queue_size: 1
-twist0_differential: true
-twist0_relative: false
+#twist0_config: [false, false, false,
+#                false, false, false,
+ #               true,  true,  true,
+#                false, false, false,
+ #               false, false, false]
+#twist0_queue_size: 1
+#twist0_differential: true
+#twist0_relative: false
 
 # From twistConvertor.py
-twist1: /twist_with_covariance2
-twist1_config: [false, false, false,
-                false, false, false,
-                true,  true,  true,
-                false, false, false,
-                false, false, false]
-twist1_queue_size: 1
-twist1_differential: true
-twist1_relative: false
+#twist1: /twist_with_covariance2
+#twist1_config: [false, false, false,
+#                false, false, false,
+#                true,  true,  true,
+#                false, false, false,
+#                false, false, false]
+#twist1_queue_size: 1
+#twist1_differential: true
+#twist1_relative: false
+
 
 # Publishes change in position of either odom to robot or map to odom, we have it for odom to robot
 publish_tf: true

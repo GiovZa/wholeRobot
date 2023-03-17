@@ -3,7 +3,7 @@
 # Global frame for local_costmap MUST be odom frame which is a combination of all the sensors
 # from robot_localization and gets the updated position of the robot right now, we have the 
 # camera_pose_frame acting as the odom frame 
-global_frame: camera_pose_frame
+global_frame: camera_odom_frame
 
 # Rolling window set to true means the frame will follow the robot, which is needed for local planners
 rolling_window: true
@@ -11,6 +11,10 @@ rolling_window: true
 # Static map set to false means map is able to move around the empty space
 # If it was static then it would be the fixed frame everything is attached to on the tf tree
 static_map: false
+
+# Dimensions of local_costmap map
+width: 3
+height: 3
 
 # Takes in obstacle_layer and inflation_layer from common_costmap.yaml
 plugins:

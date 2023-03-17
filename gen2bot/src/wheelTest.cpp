@@ -96,8 +96,6 @@ void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 	double wheelMultiplier = 1;
 
 	ros::NodeHandle nh;
-	nh.getParam("/motors/wheel_multiplier", wheelMultiplier);
-
 	// Must flip right motor because it is facing the other way
 	talRght.SetInverted(true);
 
@@ -106,8 +104,8 @@ void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 
 	// Set each motor to spin at a percent of max speed relative to triggers' linear speed
 	// and left horizontal axis' turning speed
-	talRght.Set(ControlMode::Velocity, (x + z) );
-	talLeft.Set(ControlMode::Velocity, (x - z) );
+	talRght.Set(ControlMode::PercentOutput, (x + z) );
+	talLeft.Set(ControlMode::PercentOutput, (x - z) );
 }
 
 int main(int argc, char **argv) 

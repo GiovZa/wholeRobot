@@ -21,7 +21,7 @@ find_package(Threads REQUIRED)
 
 catkin_package(
 	INCLUDE_DIRS include # Set include path
-	CATKIN_DEPENDS roscpp rospy std_msgs std_srvs geometry_msgs actionlib_msgs message_generation sensor_msgs cv_bridge actionlib move_base_msgs# Message types list
+	CATKIN_DEPENDS roscpp rospy std_msgs std_srvs geometry_msgs actionlib_msgs message_generation sensor_msgs cv_bridge actionlib move_base_msgs # Message types list
 	LIBRARIES lib # Set library path
 )
 
@@ -99,7 +99,7 @@ include/gen2bot/ProcessManager.h
 src/NotDTClass.cpp 
 include/gen2bot/NotDTClass.h
 )
-target_link_libraries(notDT
+target_link_libraries(notDTAuto
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
