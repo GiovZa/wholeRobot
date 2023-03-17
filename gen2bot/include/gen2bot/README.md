@@ -1,6 +1,8 @@
-This folder contains the header files for NotDTClass.cpp and ProcessManager.cpp
+This folder contains the header files for augerOperationsClass.cpp and processManagerClass.cpp
 
-NotDTClass contains all the functions and variables needed for auger, ballscrew, and linear
+augerOperationsClass.h contains all the functions and variables needed for auger, ballscrew, and linear
 actuator motors, notDT means 'not drive train'
 
-ProcessManager checks to see if a process should be killed mid function or not
+processManagerClass.h checks to see if a process should be killed mid function or not
+
+trencherOperationsClass.h contains all functions and variables needed for trencher and bucket motors

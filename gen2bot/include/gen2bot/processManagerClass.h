@@ -9,13 +9,13 @@
 
 #include "ros/ros.h"
 
-class ProcessManager
+class processManagerClass
 {
 
 public:
 
 	// constuctor
-	ProcessManager(int* p_cmd);
+	processManagerClass(int* p_cmd);
 
 	// variable that always gets checked
 	int* p_cmd;

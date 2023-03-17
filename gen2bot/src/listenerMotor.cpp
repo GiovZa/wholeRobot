@@ -46,10 +46,12 @@ void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 
 int main(int argc, char **argv) 
 {	
-	// Initialize ROS subscriber node called "motors" that subscribes to "chatter" topic
+	// Initialize ROS subscriber node called "motors" that subscribes to "manual_inputs" topic
 	ros::init(argc, argv, "motors");
 	ros::NodeHandle n;
-	ros::Subscriber sub = n.subscribe("chatter", 10000, chatterCallback);
+
+	// Corresponding publisher is controllerInputs.py
+	ros::Subscriber sub = n.subscribe("manual_inputs", 10000, chatterCallback);
 
   	ros::spin();
 

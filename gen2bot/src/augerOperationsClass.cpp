@@ -5,12 +5,12 @@
 // If we change the 'mode' of the robot. Ex. we don't want to dig anymore, we stop the dig function midrun
 
 // Look at falcon_tests to see how motor functions and variables work in CTRE library
-#include <gen2bot/ProcessManager.h>
+#include <gen2bot/processManagerClass.h>
 #include <iostream>
 #include <chrono> 
 #include <thread>
 #include <mutex>
-#include <gen2bot/NotDTClass.h>
+#include <gen2bot/augerOperationsClass.h>
 
 #include "ros/ros.h"
 #include "std_msgs/String.h"
@@ -42,7 +42,7 @@ TalonFXConfiguration bScrewMM;
 
 TalonFX auger(41);
 
-NotDTClass::NotDTClass(ros::NodeHandle nh)
+augerOperationsClass::augerOperationsClass(ros::NodeHandle nh)
 	: sentinel(),
 	  laDrivePosition(-16),
 	  laDepositPosition(0),
@@ -54,43 +54,43 @@ NotDTClass::NotDTClass(ros::NodeHandle nh)
 	config(nh);
 }
 
-void NotDTClass::config(ros::NodeHandle nh)
+void augerOperationsClass::config(ros::NodeHandle nh)
 {
 	bScrewMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
 
-	// Gets parameter /notDT/bscrew_cfg/motionCruiseVelocity in ros and assigns its value to bScrewMM.motionCruiseVelocity variable
-    nh.getParam("/notDT/bscrew_cfg/motionCruiseVelocity", bScrewMM.motionCruiseVelocity);
+	// Gets parameter /miningOperationsAuger/bscrew_cfg/motionCruiseVelocity in ros and assigns its value to bScrewMM.motionCruiseVelocity variable
+    nh.getParam("/miningOperationsAuger/bscrew_cfg/motionCruiseVelocity", bScrewMM.motionCruiseVelocity);
 
-    nh.getParam("/notDT/bscrew_cfg/motionAcceleration", bScrewMM.motionAcceleration);
-    nh.getParam("/notDT/bscrew_cfg/motionCurveStrength", bScrewMM.motionCurveStrength);
+    nh.getParam("/miningOperationsAuger/bscrew_cfg/motionAcceleration", bScrewMM.motionAcceleration);
+    nh.getParam("/miningOperationsAuger/bscrew_cfg/motionCurveStrength", bScrewMM.motionCurveStrength);
 
-    nh.getParam("/notDT/bscrew_cfg/clearPositionOnLimitF", bScrewMM.clearPositionOnLimitF);
+    nh.getParam("/miningOperationsAuger/bscrew_cfg/clearPositionOnLimitF", bScrewMM.clearPositionOnLimitF);
 
-    nh.getParam("/notDT/bscrew_cfg/slot0/kI", bScrewMM.slot0.kI);
-    nh.getParam("/notDT/bscrew_cfg/slot0/kP", bScrewMM.slot0.kP);
-	nh.getParam("/notDT/bscrew_cfg/drivePosition", bsDrivePosition);
-	nh.getParam("/notDT/bscrew_cfg/depositPosition", bsDepositPosition);
-	nh.getParam("/notDT/bscrew_cfg/digPosition", bsDigPosition);
+    nh.getParam("/miningOperationsAuger/bscrew_cfg/slot0/kI", bScrewMM.slot0.kI);
+    nh.getParam("/miningOperationsAuger/bscrew_cfg/slot0/kP", bScrewMM.slot0.kP);
+	nh.getParam("/miningOperationsAuger/bscrew_cfg/drivePosition", bsDrivePosition);
+	nh.getParam("/miningOperationsAuger/bscrew_cfg/depositPosition", bsDepositPosition);
+	nh.getParam("/miningOperationsAuger/bscrew_cfg/digPosition", bsDigPosition);
 
 	// configures the ballscrew motor
 	bScrew.ConfigAllSettings(bScrewMM);
 
 	linActMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonSRXFeedbackDevice::Analog;
-	nh.getParam("/notDT/linact_cfg/motionCruiseVelocity", linActMM.motionCruiseVelocity);
-    nh.getParam("/notDT/linact_cfg/motionAcceleration", linActMM.motionAcceleration);
-    nh.getParam("/notDT/linact_cfg/motionCurveStrength", linActMM.motionCurveStrength);
+	nh.getParam("/miningOperationsAuger/linact_cfg/motionCruiseVelocity", linActMM.motionCruiseVelocity);
+    nh.getParam("/miningOperationsAuger/linact_cfg/motionAcceleration", linActMM.motionAcceleration);
+    nh.getParam("/miningOperationsAuger/linact_cfg/motionCurveStrength", linActMM.motionCurveStrength);
 
-    nh.getParam("/notDT/linact_cfg/slot0/kP", linActMM.slot0.kP);
-    nh.getParam("/notDT/linact_cfg/slot0/kI", linActMM.slot0.kI);
+    nh.getParam("/miningOperationsAuger/linact_cfg/slot0/kP", linActMM.slot0.kP);
+    nh.getParam("/miningOperationsAuger/linact_cfg/slot0/kI", linActMM.slot0.kI);
 
-	nh.getParam("/notDT/linact_cfg/drivePosition", laDrivePosition);
-	nh.getParam("/notDT/linact_cfg/depositPosition", laDepositPosition);
-	nh.getParam("/notDT/linact_cfg/digPosition", laDigPosition);
+	nh.getParam("/miningOperationsAuger/linact_cfg/drivePosition", laDrivePosition);
+	nh.getParam("/miningOperationsAuger/linact_cfg/depositPosition", laDepositPosition);
+	nh.getParam("/miningOperationsAuger/linact_cfg/digPosition", laDigPosition);
 
 	linAct.ConfigAllSettings(linActMM);
 }
 
-void NotDTClass::stop()
+void augerOperationsClass::stop()
 {
 	bScrew.Set(ControlMode::Velocity, 0);
 	linAct.Set(ControlMode::Velocity, 0);	
@@ -99,7 +99,7 @@ void NotDTClass::stop()
 }
 
 // a function that checks to see if ProcessManager has changed modes, and if so motors should be killed
-void NotDTClass::checkSentinel(int& p_cmd)
+void augerOperationsClass::checkSentinel(int& p_cmd)
 {
 	if (sentinel != p_cmd)
 	{
@@ -111,7 +111,7 @@ void NotDTClass::checkSentinel(int& p_cmd)
 }
 
 // Makes sure the auger doesn't physically break itself
-void NotDTClass::isSafe(int& p_cmd)
+void augerOperationsClass::isSafe(int& p_cmd)
 {
 	if(linAct.GetSelectedSensorPosition() > -75 &&  linAct.GetSelectedSensorPosition() < -35)
 		{
@@ -131,13 +131,13 @@ void NotDTClass::isSafe(int& p_cmd)
 }
 
 // Reassigns absolute position so motors know where they are
-void NotDTClass::zero(int& p_cmd, ros::NodeHandle  nh) 
+void augerOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh) 
 	{
 		sentinel = p_cmd;
 
 		config(nh);
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		bScrew.Set(ControlMode::PercentOutput, .7);
+		bScrew.Set(ControlMode::PercentOutput, .25);
 
 		// waits 10 seconds for motors to reach upper limit and sets that position to zero
 		for ( int i = 0; i < 10; i++)
@@ -153,7 +153,7 @@ void NotDTClass::zero(int& p_cmd, ros::NodeHandle  nh)
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
 		if (sentinel == p_cmd)
-			linAct.Set(ControlMode::PercentOutput, .7);
+			linAct.Set(ControlMode::PercentOutput, .25);
 
 		// waits 10 seconds for motors to reach upper limit and sets that position to zero
 		for ( int i = 0; i < 10; i++)
@@ -185,7 +185,7 @@ void NotDTClass::zero(int& p_cmd, ros::NodeHandle  nh)
 	}
 
 // auger is all the way tucked in and parallel to ground
-void NotDTClass::driveMode(int& p_cmd, ros::NodeHandle  nh) 
+void augerOperationsClass::driveMode(int& p_cmd, ros::NodeHandle  nh) 
 	{
 		sentinel = p_cmd;
 
@@ -213,7 +213,7 @@ void NotDTClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 
 	}
 
-	void NotDTClass::deposit(int& p_cmd, ros::NodeHandle  nh)
+	void augerOperationsClass::deposit(int& p_cmd, ros::NodeHandle  nh)
 	{
 		sentinel = p_cmd;
 
@@ -242,7 +242,7 @@ void NotDTClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 		stop();
 	}
 
-	void NotDTClass::dig(int& p_cmd, ros::NodeHandle  nh)
+	void augerOperationsClass::dig(int& p_cmd, ros::NodeHandle  nh)
 	{
 		sentinel = p_cmd;
 

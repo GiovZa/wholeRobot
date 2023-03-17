@@ -2,7 +2,7 @@
 # This specifies exactly which python interpreter will be used to run the file
 
 #This script subscribes to joystick publisher and then creates 2 publishers. 1 
-# for notDT and 1 for wheels, notDT.cpp and listenerMotor.cpp are linked with this file
+# for mining operations and 1 for wheels, miningOperations ... .cpp and listenerMotor.cpp are linked with this file
 
 # Imports a pure Python client library for ROS
 import rospy
@@ -87,7 +87,7 @@ def start():
     # Name of node
     rospy.init_node('talker')
 
-    # Publishes to robot_process topic using twist messages. The matching subscriber is notDT.cpp
+    # Publishes to robot_process topic using twist messages. The matching subscriber is miningOperations... .cpp
     pub = rospy.Publisher('robot_process', Int8, queue_size=5)
     joystick = JoystickPublisher(pub)
 
@@ -95,7 +95,7 @@ def start():
     rospy.Subscriber("joy", Joy, joystick.callback)
 
     # Publishes to chatter topic using twist messages. The matching subscriber is listenerMotor.cpp
-    pubWheels = rospy.Publisher('chatter', Twist, queue_size=5)
+    pubWheels = rospy.Publisher('manual_inputs', Twist, queue_size=5)
     joystickWheel = JoystickPublisherWheel(pubWheels)
 
 # subscribed to joystick inputs on topic "joy"

@@ -6,7 +6,7 @@
 #include "ros/ros.h"
 
 // class of all motors that are not apart of drivetrain (wheels)
-class NotDTClass
+class trencherOperationsClass
 {
 
 // you generally want everything private, but I make it public because
@@ -14,7 +14,7 @@ class NotDTClass
 public:
 
 	// This is a constructor, look 'constructor in cpp' up to learn more
-	NotDTClass(ros::NodeHandle nh);
+	trencherOperationsClass(ros::NodeHandle nh);
 
 	// functions of this class
 
@@ -51,6 +51,7 @@ public:
 	double bsDepositPosition;
 	double bsDigPosition;
 
+	// bu = bucket
 	double buDrivePosition;
 	double buDepositPosition;
 	double buDigPosition;

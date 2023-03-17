@@ -57,7 +57,7 @@ if __name__ == '__main__':
     twist_with_covariance_pub1 = rospy.Publisher('twist_with_covariance1', TwistWithCovarianceStamped, queue_size=10)
 
     # Subscribe to cmd_vel topic
-    twist_sub2 = rospy.Subscriber('chatter', Twist, twist_callback)
+    twist_sub2 = rospy.Subscriber('manual_inputs', Twist, twist_callback)
     
     # Publish TwistWithCovarianceStamped message
     twist_with_covariance_pub2 = rospy.Publisher('twist_with_covariance2', TwistWithCovarianceStamped, queue_size=10)

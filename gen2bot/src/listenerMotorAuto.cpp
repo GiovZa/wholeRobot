@@ -24,13 +24,13 @@ TalonFX rightWheel(21);
 void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
 	double x = msg->linear.x;
-	double z = msg->angular.z;
+	double z = msg->angular.z / 3 ;
 
 	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
 	rightWheel.SetInverted(true);
-	rightWheel.Set(ControlMode::PercentOutput, (-x + z));
-	leftWheel.Set(ControlMode::PercentOutput, (-x - z));
+	rightWheel.Set(ControlMode::PercentOutput, (-x + z)/2);
+	leftWheel.Set(ControlMode::PercentOutput, (-x - z)/2);
 }
 
 int main(int argc, char **argv) 

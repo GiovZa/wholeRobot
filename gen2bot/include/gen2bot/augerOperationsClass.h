@@ -6,7 +6,7 @@
 #include "ros/ros.h"
 
 // class of all motors that are not apart of drivetrain (wheels)
-class NotDTClass
+class augerOperationsClass
 {
 
 // you generally want everything private, but I make it public because
@@ -14,7 +14,7 @@ class NotDTClass
 public:
 
 	// This is a constructor, look 'constructor in cpp' up to learn more
-	NotDTClass(ros::NodeHandle nh);
+	augerOperationsClass(ros::NodeHandle nh);
 
 	// functions of this class
 

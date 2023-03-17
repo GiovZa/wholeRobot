@@ -5,12 +5,12 @@
 // If we change the 'mode' of the robot. Ex. we don't want to dig anymore, we stop the dig function midrun
 
 // Look at falcon_tests to see how motor functions and variables work in CTRE library
-#include <gen2bot/ProcessManager.h>
+#include <gen2bot/processManagerClass.h>
 #include <iostream>
 #include <chrono> 
 #include <thread>
 #include <mutex>
-#include <gen2bot/NotDTClassNew.h>
+#include <gen2bot/trencherOperationsClass.h>
 
 #include "ros/ros.h"
 #include "std_msgs/String.h"
@@ -50,7 +50,7 @@ TalonFX bucket1(51);
 TalonFX bucket2(52);
 TalonFXConfiguration bucketMM;
 
-NotDTClass::NotDTClass(ros::NodeHandle nh)
+trencherOperationsClass::trencherOperationsClass(ros::NodeHandle nh)
 	: sentinel(),
 	  laDrivePosition(-16),
 	  laDepositPosition(0),
@@ -60,13 +60,13 @@ NotDTClass::NotDTClass(ros::NodeHandle nh)
 	  bsDigPosition(-4000000),
 	  buDrivePosition(0),
 	  buDepositPosition(0),
-	  buDigPosition(0);
-	  trencherZeroPosition(0);
+	  buDigPosition(0),
+	  trencherZeroPosition(0)
 {	
 	config(nh);
 }
 
-void NotDTClass::config(ros::NodeHandle nh)
+void trencherOperationsClass::config(ros::NodeHandle nh)
 {
 	bScrewMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
 
@@ -107,7 +107,7 @@ void NotDTClass::config(ros::NodeHandle nh)
 	linAct2.SetInverted(true);
 	linAct2.Set(ControlMode::Follower, 31);
 
-	bucketMM.primaryPID.selectedfeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
+	bucketMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
 	nh.getParam("/notDT/bucket_cfg/motionCruiseVelocity", bucketMM.motionCruiseVelocity);
     nh.getParam("/notDT/bucket_cfg/motionAcceleration", bucketMM.motionAcceleration);
     nh.getParam("/notDT/bucket_cfg/motionCurveStrength", bucketMM.motionCurveStrength);
@@ -125,7 +125,7 @@ void NotDTClass::config(ros::NodeHandle nh)
 	bucket2.SetInverted(true);
 	bucket2.Set(ControlMode::Follower, 51);
 
-	trencherMM.primaryPID.selectedfeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
+	trencherMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
 	nh.getParam("/notDT/trencher_cfg/motionCruiseVelocity", trencherMM.motionCruiseVelocity);
     nh.getParam("/notDT/trencher_cfg/motionAcceleration", trencherMM.motionAcceleration);
     nh.getParam("/notDT/trencher_cfg/motionCurveStrength", trencherMM.motionCurveStrength);
@@ -139,7 +139,7 @@ void NotDTClass::config(ros::NodeHandle nh)
 	trencher.ConfigAllSettings(trencherMM);
 }
 
-void NotDTClass::stop()
+void trencherOperationsClass::stop()
 {
 	bScrew.Set(ControlMode::Velocity, 0);
 	linAct1.Set(ControlMode::Velocity, 0);
@@ -153,7 +153,7 @@ void NotDTClass::stop()
 }
 
 // a function that checks to see if ProcessManager has changed modes, and if so motors should be killed
-void NotDTClass::checkSentinel(int& p_cmd)
+void trencherOperationsClass::checkSentinel(int& p_cmd)
 {
 	if (sentinel != p_cmd)
 	{
@@ -170,7 +170,7 @@ void NotDTClass::checkSentinel(int& p_cmd)
 }
 
 // Makes sure the trencher doesn't physically break itself
-// void NotDTClass::isSafe(int& p_cmd)
+// void trencherOperationsClass::isSafe(int& p_cmd)
 // {
 // 	// THE CONDITIONS FOR EACH FUNCTION ARE NOT TESTED YET
 // 	// These cases are not permanent yet; still need to test position values in order to exact range of values for the safety checks.
@@ -287,7 +287,7 @@ void NotDTClass::checkSentinel(int& p_cmd)
 // }
 
 // Reassigns absolute position so motors know where they are
-void NotDTClass::zero(int& p_cmd, ros::NodeHandle  nh) 
+void trencherOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh) 
 	{
 		sentinel = p_cmd;
 
@@ -333,7 +333,7 @@ void NotDTClass::zero(int& p_cmd, ros::NodeHandle  nh)
 	}
 
 // trencher is all the way tucked in and parallel to ground
-void NotDTClass::driveMode(int& p_cmd, ros::NodeHandle  nh) 
+void trencherOperationsClass::driveMode(int& p_cmd, ros::NodeHandle  nh) 
 	{
 		sentinel = p_cmd;
 
@@ -368,7 +368,7 @@ void NotDTClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 			bucket1.Set(ControlMode::Position, buDrivePosition);
 
 			// If the ball screw retracted and bucket in drive position, start moving the linAct
-			if (bScrew.GetSelectedSensorPosition() == bsDrivePosition && bucket1.GetSelectedSensorPosition() == buDrivePosition &&)
+			if (bScrew.GetSelectedSensorPosition() == bsDrivePosition && bucket1.GetSelectedSensorPosition() == buDrivePosition)
 			{
 				linAct1.Set(ControlMode::Position, laDrivePosition);
 			}
@@ -379,16 +379,11 @@ void NotDTClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 				return;
 			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-			
-			
 		}
-
-
 		stop();
-
 	}
 
-	void NotDTClass::deposit(int& p_cmd, ros::NodeHandle  nh)
+	void trencherOperationsClass::deposit(int& p_cmd, ros::NodeHandle  nh)
 	{
 		sentinel = p_cmd;
 
@@ -444,7 +439,7 @@ void NotDTClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 			bucket1.Set(ControlMode::Position, buDrivePosition);
 
 			
-			while(bucket1.GetSelectedSensorPosition() != buDrivePosition || linAct1.GetSelectedSensorPosition != laDrivePosition)
+			while(bucket1.GetSelectedSensorPosition() != buDrivePosition || linAct1.GetSelectedSensorPosition() != laDrivePosition)
 			{
 				
 				ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
@@ -470,7 +465,7 @@ void NotDTClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 		stop();
 	}
 
-	void NotDTClass::dig(int& p_cmd, ros::NodeHandle  nh)
+	void trencherOperationsClass::dig(int& p_cmd, ros::NodeHandle  nh)
 	{
 		sentinel = p_cmd;
 

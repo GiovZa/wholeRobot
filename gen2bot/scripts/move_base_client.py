@@ -4,6 +4,7 @@
 # http://wiki.ros.org/tf2/Tutorials/Adding%20a%20frame%20%28Python%29
 
 # This script sends the robot to a specified position based off of the detected qr code
+
 from os import wait
 import rospy
 
@@ -133,7 +134,7 @@ def callback(data):
 if __name__ == '__main__':
     rospy.init_node('move_base_client_process_manager')
     
-    # Publisher is from notDTAuto.cpp
+    # Publisher is from miningOperations... .cpp files
     rospy.Subscriber('robot_status', Int8, callback)
 
     rospy.spin()

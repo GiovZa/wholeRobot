@@ -34,7 +34,7 @@ ${catkin_INCLUDE_DIRS}
 
 # Makes the python script executable with "rosrun motor_control_gen2bot motorTalker.py" command or whichever python file it is
  catkin_install_python(PROGRAMS
-   scripts/notDTTalker.py
+   scripts/controllerInputs.py
    scripts/move_base_client.py
    scripts/wheelTester.py
    scripts/twistConvertor.py
@@ -76,30 +76,30 @@ target_link_libraries(listenerMotorAuto
 
 # Makes the C++ scripts executable with "rosrun motor_control_gen2bot notDT" command
 add_executable(
-notDT
+miningOperationsAuger
 
-src/notDT.cpp 
-src/ProcessManager.cpp 
-include/gen2bot/ProcessManager.h
-src/NotDTClass.cpp 
-include/gen2bot/NotDTClass.h
+src/miningOperationsAuger.cpp 
+src/processManagerClass.cpp 
+include/gen2bot/processManagerClass.h
+src/augerOperationsClass.cpp 
+include/gen2bot/augerOperationsClass.h
 )
-target_link_libraries(notDT
+target_link_libraries(miningOperationsAuger
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
 
 # Makes the C++ scripts executable with "rosrun motor_control_gen2bot notDT" command
 add_executable(
-notDTAuto
+miningOperationsTrencherManual
 
-src/notDTAuto.cpp 
-src/ProcessManager.cpp 
-include/gen2bot/ProcessManager.h
-src/NotDTClass.cpp 
-include/gen2bot/NotDTClass.h
+src/miningOperationsTrencherManual.cpp 
+src/processManagerClass.cpp 
+include/gen2bot/processManagerClass.h
+src/trencherOperationsClass.cpp 
+include/gen2bot/trencherOperationsClass.h
 )
-target_link_libraries(notDTAuto
+target_link_libraries(miningOperationsTrencherManual
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )

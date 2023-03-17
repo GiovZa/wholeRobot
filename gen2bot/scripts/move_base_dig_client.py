@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # File is just a backup of old code, currently not in use as of 03/03/2023
 
+# OUTDATED CODE!!!
+
 # This script sends the robot to a specified position based off of the detected qr code
 import rospy
 

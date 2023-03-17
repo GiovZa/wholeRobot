@@ -1,7 +1,7 @@
 This src folder has all the C++ scripting code.
 
-To learn how the code works, start with falcon_tests.cpp, then listenerMotor.cpp, 
-listenerMotorAuto.cpp, and finally notDT.cpp and NotDTClass.cpp simultaneously with ProcessManager.cpp
+To learn how the code works, start with falcon_tests.cpp, then listenerMotor.cpp, listenerMotorAuto.cpp, 
+and finally miningOperationsAuger.cpp and augerOperationsClass.cpp simultaneously with processManagerClass.cpp
 
 Currently has:
 
@@ -17,9 +17,9 @@ listenerMotorAuto.cpp:
   A subscriber node that communicates with the move_base node to
   give wheel motor control commands autonomously. 
 
-notDT.cpp and notDTClass.cpp and ProcessManager.cpp:
-  All work with NotDTClass.h and Processmanager.h to control and update the mining and depositing
+augerOperationsClass.cpp and miningOperationsAuger.cpp and processManagerClass.cpp:
+  All work with augerOperationsClass.h and processManagerClass.h to control and update the mining and depositing
   motors while also checking if functions ever need to be killed mid script
 
-notDTAuto.cpp and notDTClassNew.cpp and ProcessManager.cpp:
+trencherOperationsClass.cpp and miningOperationsTrencherAuto.cpp and processManagerClass.cpp:
   Still being tested on but will eventually make the new robot fully autonomous with its motor functions working

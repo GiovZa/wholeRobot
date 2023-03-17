@@ -175,7 +175,7 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
   </node>
  
   <!-- Node that takes ROS inputs of joystick to move motors in wheels, auger, ballscrew, and linear actuator-->
-  <node name="manual_motor_control" pkg="gen2bot" type="notDTTalker.py" output="screen"/>
+  <node name="manual_motor_control" pkg="gen2bot" type="controllerInputs.py" output="screen"/>
 
   <!-- Node that takes ROS inputs of joystick to move motors in wheels-->
   <node name="manual_wheels" pkg="gen2bot" type="listenerMotor" output="screen"/>
@@ -184,7 +184,7 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
   <rosparam file="$(find gen2bot)/config/states.yaml" command="load"/> 
 
   <!--<node name="mb_client" pkg="gen2bot" type="move_base_client.py" output="screen"/>
-  <node name="notDTAuto" pkg="gen2bot" type="notDTAuto" output="screen"/>-->
+  <node name="miningOperationsAuger" pkg="gen2bot" type="miningOperationsAuger" output="screen"/>-->
 
 
 </launch>
