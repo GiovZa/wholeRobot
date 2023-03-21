@@ -9,11 +9,11 @@ falcon_tests.cpp:
   A simple file that just spins motors by their ID for a specified amount of time with 
   no ROS implementation. Use this to test if motors can move without worrying about ROS.
 
-listenerMotor.cpp:
+manualDrive.cpp:
   A subscriber node that communicates with motorTalker.py to 
   give wheel motor control commands manually.
 
-listenerMotorAuto.cpp:
+autoDrive.cpp:
   A subscriber node that communicates with the move_base node to
   give wheel motor control commands autonomously. 
 

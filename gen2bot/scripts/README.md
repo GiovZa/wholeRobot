@@ -17,7 +17,10 @@ Button layout for controllerInputs and wheelTester:
       b = message.buttons[1]
       x = message.buttons[3]
       y = message.buttons[4]
-      Up DPad = message.axes[7]
+      Up DPad = message.axes[7] (1.0)
+      Down DPad = message.axes[7] (-1.0)
+      Left DPad = message.axes[6] (1.0)
+      Right DPad = message.axes[6] (-1.0)
       RB = message.buttons[6]
       LB = message.buttons[7]
       menu = message.buttons[10]

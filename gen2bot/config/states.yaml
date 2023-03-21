@@ -1,13 +1,20 @@
 # This file tells ROS what state/phase the robot is currently on using parameters. Ex. dig, deposit, move
 
-localizationPhase: true 
+localizationPhase: false 
 
-navigationDigPhase: false
+settingNavigationDigPhase: false
+ongoingNavigationDigPhase: false
 
-digPhase: false
+settingDigPhase: false
+ongoingDigPhase: false
 
-navigationDepositPhase: false
+settingNavigationDepositPhase: false
+ongoingNavigationDepositPhase: false
 
-depositPhase: false
+settingDepositPhase: false
+ongoingDepositPhase: false
 
-manualMode: false
+settingDriveModePhase: false
+ongoingDriveModePhase: false
+
+manualMode: true

@@ -42,6 +42,8 @@ def twist_callback(msg):
                          0, 0, 0, 0, 0, covariance_angular]
     twist_with_covariance_msg.twist.covariance = covariance_matrix
     
+    # I don't think this works as intended, chatGPT says it is in scope but idk
+
     # Publish TwistWithCovarianceStamped message
     twist_with_covariance_pub1.publish(twist_with_covariance_msg)
     # Publish TwistWithCovarianceStamped message

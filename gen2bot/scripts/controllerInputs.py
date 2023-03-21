@@ -26,28 +26,72 @@ class JoystickPublisher:
         # message.buttons/axes[int] == 1 just checks to see if it is being pressed
         # buttons[6] and [7] are bumpers
         if(message.buttons[6] == 1 and message.buttons[7] == 1 and message.axes[7] == 1.0):
+
                 if(message.buttons[0] == 1): # a
                         Int8 = 3 #Deposit
+                        
+                        rospy.loginfo("Initiating deposit")
                         self.pub.publish(Int8)
+
                 elif(message.buttons[1] == 1): # b
                         Int8 = 2 #Dig
+
+                        rospy.loginfo("Initiating dig")
                         self.pub.publish(Int8)
+
                 elif(message.buttons[3] == 1): # x
                         Int8 = 1 #DriveMode
+
+                        rospy.loginfo("Initiating driveMode")
                         self.pub.publish(Int8)
+
                 elif(message.buttons[4] == 1): # y
                         Int8 = 4 #Zero
+
+                        rospy.loginfo("Initiating zero function")
                         self.pub.publish(Int8)
+
                 elif(message.buttons[12] == 1): # Xbox
                         Int8 = 5 #config
+
+                        rospy.loginfo("Configuring motors")
                         self.pub.publish(Int8)
-        if(message.axes[7] == -1): # Down DPad
+
+                elif(message.axes[6] == 1.0): # left DPad
+                        rospy.set_param('manualMode', True)
+
+                        rospy.loginfo("auto mode disengaged")
+                        rospy.loginfo("manual mode engaged")
+
+                elif(message.axes[6] == -1.0): # right DPad
+                        rospy.set_param('manualMode', False)
+
+                        rospy.loginfo("manual mode disengaged")
+                        rospy.loginfo("auto mode engaged")
+
+                elif(message.buttons[10] == 1.0): # menu
+                        Int8 = 6 #navigation to dig
+
+                        rospy.loginfo("Initiating autonomous navigation towards dig goal")
+                        self.pub.publish(Int8)
+
+                elif(message.buttons[11] == 1.0): # start
+                        Int8 = 7 #navigation to deposit
+
+                        rospy.loginfo("Initiating autonomous navigation towards deposit goal")
+                        self.pub.publish(Int8)
+
+        if(message.axes[7] == -1.0): # Down DPad
                 Int8 = 0 #kill any function running
-                self.pub.publish(Int8)        
-        #if(message.axes[] == 1): # Needs changing
-        #       Int8 = 9 #kill auto
-        #      self.pub.publish(Int8)
+                self.pub.publish(Int8)   
         
+        #if(not rospy.get_param('manualMode')):
+        #      Int8 = 5
+        '''
+        1 = driveMode, 2 = dig, 3 = deposit, 4 = zero, 5 = config, 6 = starting digNav, 7 = starting depNav
+        8 = digNaving, 9 = depNaving, 10 = end of dig, 11 = end of deposit
+        '''
+       
 
 # Class for wheel inputs
 class JoystickPublisherWheel:

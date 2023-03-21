@@ -126,10 +126,6 @@ int main(int argc, char **argv)
 
 	while (ros::ok())
 	{
-		ROS_INFO("From the main loop: %d", p_cmd);
-
-		std_msgs::Int8 msg;
-		msg.data = p_cmd;
 
 		switch (p_cmd)
 		{

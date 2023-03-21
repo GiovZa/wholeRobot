@@ -171,7 +171,7 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
 
   <!-- Launches my listenerMotorAuto.cpp file to initialize a base controller 
     that move_base communicates with to send motor inputs. This links autonomy to wheel motors -->
-  <node pkg="gen2bot" type="listenerMotorAuto" name="auto_wheels" >
+  <node pkg="gen2bot" type="autoDrive" name="auto_wheels" >
       <param name="initalOutput" value="0.0" type="double"/>
   </node>
 
@@ -190,7 +190,7 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
   <node name="twist_convertor" pkg="gen2bot" type="twistConvertor.py" output="screen"/>
 
   <!-- Node that takes ROS inputs of joystick to move motors in wheels-->
-  <node name="manual_wheels" pkg="gen2bot" type="listenerMotor" output="screen"/>
+  <node name="manual_wheels" pkg="gen2bot" type="manualDrive" output="screen"/>
 
   <!-- Node that contains all motor functions that don't relate to driving -->
   <node pkg="gen2bot" type="miningOperationsTrencherManual" name="mining_operations" output="screen">

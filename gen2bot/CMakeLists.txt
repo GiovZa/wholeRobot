@@ -61,15 +61,15 @@ target_link_libraries(falcon_tests
 )
 
 # Makes the C++ script executable with "rosrun motor_control_gen2bot listenerMotor" command
-add_executable(listenerMotor src/listenerMotor.cpp)
-target_link_libraries(listenerMotor 
+add_executable(manualDrive src/manualDrive.cpp)
+target_link_libraries(manualDrive 
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
 
 # Makes the C++ script executable with "rosrun motor_control_gen2bot listenerMotorAuto" command
-add_executable(listenerMotorAuto src/listenerMotorAuto.cpp)
-target_link_libraries(listenerMotorAuto
+add_executable(autoDrive src/autoDrive.cpp)
+target_link_libraries(autoDrive
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
@@ -100,6 +100,31 @@ src/trencherOperationsClass.cpp
 include/gen2bot/trencherOperationsClass.h
 )
 target_link_libraries(miningOperationsTrencherManual
+  CTRE_Phoenix
+  ${catkin_LIBRARIES}
+)
+
+# Makes the C++ scripts executable with "rosrun motor_control_gen2bot notDT" command
+add_executable(
+miningOperationsTrencherPOL
+
+src/miningOperationsTrencherPOL.cpp 
+src/processManagerClass.cpp 
+include/gen2bot/processManagerClass.h
+src/trencherOperationsClass.cpp 
+include/gen2bot/trencherOperationsClass.h
+)
+target_link_libraries(miningOperationsTrencherPOL
+  CTRE_Phoenix
+  ${catkin_LIBRARIES}
+)
+
+add_executable(
+manualAutoSelection
+
+src/manualAutoSelection.cpp
+)
+target_link_libraries(manualAutoSelection
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )

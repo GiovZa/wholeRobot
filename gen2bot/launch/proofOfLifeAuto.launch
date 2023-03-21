@@ -80,7 +80,7 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
   of QR code relative to camera sensor
   Check out: https://github.com/bandasaikrishna/object_detection_and_3d_pose_estimation -->
   <!-- Will need to decide if we want to keep the gui or not, gives us camera image but takes up space and processing power-->
-  <!--Parameter list: http://wiki.ros.org/find_object_2d-->
+  <!--Parameter list: http://wiki.ros.org/find_object_2d -->
   <group ns = "qr_code_detector">
     <node name="find_object_3d" pkg="find_object_2d" type="find_object_2d" output="screen">
       <param name="settings_path" value="~/.ros/find_object_2d.ini" type="str"/>
@@ -162,11 +162,12 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
 
   <!-- Launches my listenerMotorAuto.cpp file to initialize a base controller 
     that move_base communicates with to send motor inputs. This links autonomy to wheel motors -->
-  <node pkg="gen2bot" type="listenerMotorAuto" name="auto_wheels" >
+  <node pkg="gen2bot" type="autoDrive" name="auto_wheels" >
       <param name="initalOutput" value="0.0" type="double"/>
   </node>
 
-  <!-- Launches node that converts xbox controller inputs into ROS-->
+  <!-- Launches node that converts xbox controller inputs into ROS; 
+  http://wiki.ros.org/joy          http://wiki.ros.org/joy/Tutorials/ConfiguringALinuxJoystick -->
   <node name="joy2" pkg="joy" type="joy_node" output="screen">
 
     <!-- parameter that retrieves which joystick controller to link with -->
@@ -178,13 +179,13 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
   <node name="manual_motor_control" pkg="gen2bot" type="controllerInputs.py" output="screen"/>
 
   <!-- Node that takes ROS inputs of joystick to move motors in wheels-->
-  <node name="manual_wheels" pkg="gen2bot" type="listenerMotor" output="screen"/>
+  <node name="manual_wheels" pkg="gen2bot" type="manualDrive" output="screen"/>
 
   <!-- loads states.yaml's parameters-->
   <rosparam file="$(find gen2bot)/config/states.yaml" command="load"/> 
 
   <!--<node name="mb_client" pkg="gen2bot" type="move_base_client.py" output="screen"/>
-  <node name="miningOperationsAuger" pkg="gen2bot" type="miningOperationsAuger" output="screen"/>-->
+  <node name="miningOperationsTrencherPOL" pkg="gen2bot" type="miningOperationsTrencherPOL" output="screen"/>-->
 
 
 </launch>

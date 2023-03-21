@@ -1,7 +1,3 @@
-# Before even going through the configurations, I suggest looking up:
-# https://www.cloudbees.com/blog/yaml-tutorial-everything-you-need-get-started
-# To understand markup languages and the syntax for .yaml files
-
 # Look at: http://library.isr.ist.utl.pt/docs/roswiki/costmap_2d.html for parameter list
 # This being the common costmap makes it so both global and local have the same parameters set here
 

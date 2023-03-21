@@ -1,3 +1,7 @@
+# Before even going through the configurations, I suggest looking up:
+# https://www.cloudbees.com/blog/yaml-tutorial-everything-you-need-get-started
+# To understand markup languages and the syntax for .yaml files
+
 Costmap files contain the parameters of the maps used to detect obstacles
 common_costmap has general configurations for both global and local costmaps
 Global costmap is the static frame where robot moves around (basically arena)
