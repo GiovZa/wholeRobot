@@ -5,12 +5,12 @@
 // If we change the 'mode' of the robot. Ex. we don't want to dig anymore, we stop the dig function midrun
 
 // Look at falcon_tests to see how motor functions and variables work in CTRE library
-#include <gen2bot/processManagerClass.h>
+#include <gen2bot/ProcessManager.h>
 #include <iostream>
 #include <chrono> 
 #include <thread>
 #include <mutex>
-#include <gen2bot/trencherOperationsClass.h>
+#include <gen2bot/NotDTClassNew.h>
 
 #include "ros/ros.h"
 #include "std_msgs/String.h"
@@ -38,7 +38,7 @@ TalonSRX linAct2(32);
 TalonSRXConfiguration linActMM;
 
 // ballscrew motor initialized (extends and contracts motor)
-TalonFX bScrew(11);
+TalonFX bScrew(21);
 TalonFXConfiguration bScrewMM;
 
 // spins the conveyor belt (spins the scoopers)
@@ -46,11 +46,11 @@ TalonFX trencher(41);
 TalonFXConfiguration trencherMM;
 
 // deposit bucket motor
-TalonSRX bucket1(51);
-TalonSRX bucket2(52);
-TalonSRXConfiguration bucketMM;
+TalonFX bucket1(51);
+TalonFX bucket2(52);
+TalonFXConfiguration bucketMM;
 
-trencherOperationsClass::trencherOperationsClass(ros::NodeHandle nh)
+NotDTClass::NotDTClass(ros::NodeHandle nh)
 	: sentinel(),
 	  laDrivePosition(-16),
 	  laDepositPosition(0),
@@ -60,84 +60,86 @@ trencherOperationsClass::trencherOperationsClass(ros::NodeHandle nh)
 	  bsDigPosition(-4000000),
 	  buDrivePosition(0),
 	  buDepositPosition(0),
-	  buDigPosition(0),
-	  trencherZeroPosition(0)
+	  buDigPosition(0);
+	  trencherZeroPosition(0);
 {	
 	config(nh);
 }
 
-void trencherOperationsClass::config(ros::NodeHandle nh)
+void NotDTClass::config(ros::NodeHandle nh)
 {
 	bScrewMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
 
 	// Gets parameter /notDT/bscrew_cfg/motionCruiseVelocity in ros and assigns its value to bScrewMM.motionCruiseVelocity variable
-    nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/motionCruiseVelocity", bScrewMM.motionCruiseVelocity);
+    nh.getParam("/notDT/bscrew_cfg/motionCruiseVelocity", bScrewMM.motionCruiseVelocity);
 
-    nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/motionAcceleration", bScrewMM.motionAcceleration);
-    nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/motionCurveStrength", bScrewMM.motionCurveStrength);
+    nh.getParam("/notDT/bscrew_cfg/motionAcceleration", bScrewMM.motionAcceleration);
+    nh.getParam("/notDT/bscrew_cfg/motionCurveStrength", bScrewMM.motionCurveStrength);
 
-    nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/clearPositionOnLimitF", bScrewMM.clearPositionOnLimitF);
+    nh.getParam("/notDT/bscrew_cfg/clearPositionOnLimitF", bScrewMM.clearPositionOnLimitF);
 
-    nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/slot0/kI", bScrewMM.slot0.kI);
-    nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/slot0/kP", bScrewMM.slot0.kP);
-	nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/drivePosition", bsDrivePosition);
-	nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/depositPosition", bsDepositPosition);
-	nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/digPosition", bsDigPosition);
+    nh.getParam("/notDT/bscrew_cfg/slot0/kI", bScrewMM.slot0.kI);
+    nh.getParam("/notDT/bscrew_cfg/slot0/kP", bScrewMM.slot0.kP);
+	nh.getParam("/notDT/bscrew_cfg/drivePosition", bsDrivePosition);
+	nh.getParam("/notDT/bscrew_cfg/depositPosition", bsDepositPosition);
+	nh.getParam("/notDT/bscrew_cfg/digPosition", bsDigPosition);
 
 	// configures the ballscrew motor
 	bScrew.ConfigAllSettings(bScrewMM);
 
 	linActMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonSRXFeedbackDevice::Analog;
-	nh.getParam("/miningOperationsTrencherPOL/linact_cfg/motionCruiseVelocity", linActMM.motionCruiseVelocity);
-    nh.getParam("/miningOperationsTrencherPOL/linact_cfg/motionAcceleration", linActMM.motionAcceleration);
-    nh.getParam("/miningOperationsTrencherPOL/linact_cfg/motionCurveStrength", linActMM.motionCurveStrength);
+	nh.getParam("/notDT/linact_cfg/motionCruiseVelocity", linActMM.motionCruiseVelocity);
+    nh.getParam("/notDT/linact_cfg/motionAcceleration", linActMM.motionAcceleration);
+    nh.getParam("/notDT/linact_cfg/motionCurveStrength", linActMM.motionCurveStrength);
 
-    nh.getParam("/miningOperationsTrencherPOL/linact_cfg/slot0/kP", linActMM.slot0.kP);
-    nh.getParam("/miningOperationsTrencherPOL/linact_cfg/slot0/kI", linActMM.slot0.kI);
+    nh.getParam("/notDT/linact_cfg/slot0/kP", linActMM.slot0.kP);
+    nh.getParam("/notDT/linact_cfg/slot0/kI", linActMM.slot0.kI);
 
-	nh.getParam("/miningOperationsTrencherPOL/linact_cfg/drivePosition", laDrivePosition);
-	nh.getParam("/miningOperationsTrencherPOL/linact_cfg/depositPosition", laDepositPosition);
-	nh.getParam("/miningOperationsTrencherPOL/linact_cfg/digPosition", laDigPosition);
+	nh.getParam("/notDT/linact_cfg/drivePosition", laDrivePosition);
+	nh.getParam("/notDT/linact_cfg/depositPosition", laDepositPosition);
+	nh.getParam("/notDT/linact_cfg/digPosition", laDigPosition);
 
 	// Confggure the linear actuator motor
 	linAct1.ConfigAllSettings(linActMM);
 	linAct2.ConfigAllSettings(linActMM);
 
 	// Setup follower
+	linAct2.SetInverted(true);
 	linAct2.Set(ControlMode::Follower, 31);
 
-	bucketMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonSRXFeedbackDevice::Analog;
-	nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/motionCruiseVelocity", bucketMM.motionCruiseVelocity);
-    nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/motionAcceleration", bucketMM.motionAcceleration);
-    nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/motionCurveStrength", bucketMM.motionCurveStrength);
+	bucketMM.primaryPID.selectedfeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
+	nh.getParam("/notDT/bucket_cfg/motionCruiseVelocity", bucketMM.motionCruiseVelocity);
+    nh.getParam("/notDT/bucket_cfg/motionAcceleration", bucketMM.motionAcceleration);
+    nh.getParam("/notDT/bucket_cfg/motionCurveStrength", bucketMM.motionCurveStrength);
 
-    nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/slot0/kP", bucketMM.slot0.kP);
-    nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/slot0/kI", bucketMM.slot0.kI);
+    nh.getParam("/notDT/bucket_cfg/slot0/kP", bucketMM.slot0.kP);
+    nh.getParam("/notDT/bucket_cfg/slot0/kI", bucketMM.slot0.kI);
 
-	nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/drivePosition", buDrivePosition);
-	nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/depositPosition", buDepositPosition);
-	nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/digPosition", buDigPosition);
+	nh.getParam("/notDT/bucket_cfg/drivePosition", buDrivePosition);
+	nh.getParam("/notDT/bucket_cfg/depositPosition", buDepositPosition);
+	nh.getParam("/notDT/bucket_cfg/digPosition", buDigPosition);
 
 	// Configure the bucket1 motor
 	bucket1.ConfigAllSettings(bucketMM);
 	bucket2.ConfigAllSettings(bucketMM);
+	bucket2.SetInverted(true);
 	bucket2.Set(ControlMode::Follower, 51);
 
-	trencherMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
-	nh.getParam("/miningOperationsTrencherPOL/trencher_cfg/motionCruiseVelocity", trencherMM.motionCruiseVelocity);
-    nh.getParam("/miningOperationsTrencherPOL/trencher_cfg/motionAcceleration", trencherMM.motionAcceleration);
-    nh.getParam("/miningOperationsTrencherPOL/trencher_cfg/motionCurveStrength", trencherMM.motionCurveStrength);
+	trencherMM.primaryPID.selectedfeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
+	nh.getParam("/notDT/trencher_cfg/motionCruiseVelocity", trencherMM.motionCruiseVelocity);
+    nh.getParam("/notDT/trencher_cfg/motionAcceleration", trencherMM.motionAcceleration);
+    nh.getParam("/notDT/trencher_cfg/motionCurveStrength", trencherMM.motionCurveStrength);
 
-    nh.getParam("/miningOperationsTrencherPOL/trencher_cfg/slot0/kP", trencherMM.slot0.kP);
-    nh.getParam("/miningOperationsTrencherPOL/trencher_cfg/slot0/kI", trencherMM.slot0.kI);
+    nh.getParam("/notDT/trencher_cfg/slot0/kP", trencherMM.slot0.kP);
+    nh.getParam("/notDT/trencher_cfg/slot0/kI", trencherMM.slot0.kI);
 
-	nh.getParam("/miningOperationsTrencherPOL/trencher_cfg/drivePosition", trencherZeroPosition);
+	nh.getParam("/notDT/trencher_cfg/drivePosition", trencherZeroPosition);
 
 	// Configure the trencher motor
 	trencher.ConfigAllSettings(trencherMM);
 }
 
-void trencherOperationsClass::stop()
+void NotDTClass::stop()
 {
 	bScrew.Set(ControlMode::Velocity, 0);
 	linAct1.Set(ControlMode::Velocity, 0);
@@ -151,7 +153,7 @@ void trencherOperationsClass::stop()
 }
 
 // a function that checks to see if ProcessManager has changed modes, and if so motors should be killed
-void trencherOperationsClass::checkSentinel(int& p_cmd)
+void NotDTClass::checkSentinel(int& p_cmd)
 {
 	if (sentinel != p_cmd)
 	{
@@ -167,8 +169,125 @@ void trencherOperationsClass::checkSentinel(int& p_cmd)
 	}
 }
 
+// Makes sure the trencher doesn't physically break itself
+// void NotDTClass::isSafe(int& p_cmd)
+// {
+// 	// THE CONDITIONS FOR EACH FUNCTION ARE NOT TESTED YET
+// 	// These cases are not permanent yet; still need to test position values in order to exact range of values for the safety checks.
+
+// 	// If linAct is below bucket and bucket is trying to go to down, move bucket to deposit position and then move the linAct to deposit position
+// 	if (bucket1.GetSelectedSensorPosition() >= linAct1.GetSelectedSensorPosition() && bucket1.GetClosedLoopTarget() >= linAct1.GetSelectedSensorPosition())
+// 	{
+// 		while (bucket1.GetSelectedSensorPosition != buDepositPosition)
+// 		{
+// 			bucket1.Set(ControlMode::Position, buDepositPosition);
+
+// 			if (sentinel != p_cmd)
+// 			{ 
+// 				stop();
+// 				return;
+// 			}
+// 		}
+
+// 		linAct1.Set(ControlMode::Position, laDepositPosition);
+		
+// 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+// 	}
+
+// 	// If bucket is below linAct and above drivePosition, and linAct is trying to go down, stop linAct.
+// 	if (bucket1.GetSelectedSensorPosition() <= linAct1.GetSelectedSensorPosition()
+// 		&& bucket1.GetSelectedSensorPosition() > buDrivePosition 
+// 		&& linAct1.GetClosedLoopTarget() <= bucket1.GetSelectedSensorPosition())
+// 	{
+// 		linAct1.Set(ControlMode::Velocity, 0);
+// 		if (sentinel != p_cmd)
+// 			{ 
+// 				stop();
+// 				return;
+// 			}
+// 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+// 	}
+
+// 	// If bucket is not moving, is above linAct, and linAct is trying to go up, stop the linAct.
+// 	if (bucket1.GetSelectedSensorPosition() <= linAct1.GetSelectedSensorPosition()
+// 		&& bucket1.GetSelectedSensorVelocity() == 0
+// 		&& linAct1.GetClosedLoopTarget() <= bucket1.GetSelectedSensorPosition())
+// 	{
+// 		linAct1.Set(ControlMode::Velocity, 0);
+// 		if (sentinel != p_cmd)
+// 			{ 
+// 				stop();
+// 				return;
+// 			}
+// 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+// 	}
+
+// 	// If linAct is not moving, is above bucket, and bucket is trying to go up, stop the bucket.
+// 	if (linAct1.GetSelectedSensorPosition() < bucket1.GetSelectedSensorPosition()
+// 		&& linAct1.GetSelectedSensorVelocity() == 0
+// 		&& linAct1.GetClosedLoopTarget() <= bucket1.GetSelectedSensorPosition())
+// 	{
+// 		linAct1.Set(ControlMode::Velocity, 0);
+// 		if (sentinel != p_cmd)
+// 			{ 
+// 				stop();
+// 				return;
+// 			}
+// 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+// 	}
+
+// 	// If bucket and linAct are at the same relative position (where they will collide if they keep going) 
+// 	// and are going to the same position at the same time (at the same speed), stop both of them.
+// 	if (bucket1.GetClosedLoopTarget() == linAct1.GetClosedLoopTarget() && bucket1.GetSelectedSensorPosition() == linAct1.GetSelectedSensorPosition())
+// 	{
+// 		bucket1.Set(ControlMode::Velocity,0);
+// 		linAct1.Set(ControlMode::Velocity, 0);
+// 		if (sentinel != p_cmd)
+// 			{ 
+// 				stop();
+// 				return;
+// 			}
+// 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+// 	}
+
+// 	// If the linAct or the bScrew try to move back to drive position and the trencher stays on, stop the linAct, bScrew, and trencher
+// 	if (trencher.GetSelectedSensorVelocity() > 0 && (linAct1.GetControlMode() == ControlMode::Position || bScrew.GetClosedLoopTarget() == bsDrivePosition))
+// 	{
+// 		trencher.Set(ControlMode::Velocity, 0);
+// 		bScrew.Set(ControlMode::Velocity,0);
+// 		linAct1.Set(ControlMode::Velocity, 0);
+// 		if (sentinel != p_cmd)
+// 			{ 
+// 				stop();
+// 				return;
+// 			}
+// 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+// 	}
+
+// 	while(linAct.GetSelectedSensorPosition != laDrivePosition || bScrew.GetSelectedSensorPosition != bsDrivePosition || bucket1.GetSelectedSensorPosition != buDrivePosition )
+// 	{
+// 		bScrew.Set(ControlMode::Position, bsDrivePosition);
+
+// 		bucket1.Set(ControlMode::Position, bsDrivePosition);
+
+// 		trencher.Set(ControlMode::Velocity, 0);
+
+// 		if (linAct1.GetSelectedSensorPosition() <= (laDigPosition - 10) && bScrew.GetSelectedSensorPosition() == bsDrivePosition)
+// 		{	
+// 			trencher.Set(ControlMode::Position, 10000);
+// 		}
+
+// 		if (bScrew.GetSelectedSensorPosition() == bsDrivePosition && bucket1.GetSelectedSensorPosition() == buDrivePosition)
+// 		{
+// 			linAct1.Set(ControlMode::Position, laDrivePosition);
+// 		}
+		
+// 	}
+
+// }
+
 // Reassigns absolute position so motors know where they are
-void trencherOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh) 
+void NotDTClass::zero(int& p_cmd, ros::NodeHandle  nh) 
 	{
 		sentinel = p_cmd;
 
@@ -178,7 +297,7 @@ void trencherOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh)
 		linAct1.Set(ControlMode::PercentOutput, .7);
 
 		// Need to know which direction bucket goes
-		bucket1.Set(ControlMode::PercentOutput, .7);
+		// bucket1.Set(ControlMode::PercentOutput, .7);
 
 		// waits 10 seconds for motors to reach upper limit and sets that position to zero
 		for ( int i = 0; i < 10; i++)
@@ -196,7 +315,7 @@ void trencherOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh)
 		bScrew.SetSelectedSensorPosition(0.0);
 		linAct1.SetSelectedSensorPosition(0.0);
 		trencher.SetSelectedSensorPosition(0.0);
-		bucket1.SetSelectedSensorPosition(0.0);
+		// bucket1.SetSelectedSensorPosition(0.0);
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
 		if (sentinel != p_cmd)
@@ -214,7 +333,7 @@ void trencherOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh)
 	}
 
 // trencher is all the way tucked in and parallel to ground
-void trencherOperationsClass::driveMode(int& p_cmd, ros::NodeHandle  nh) 
+void NotDTClass::driveMode(int& p_cmd, ros::NodeHandle  nh) 
 	{
 		sentinel = p_cmd;
 
@@ -260,12 +379,16 @@ void trencherOperationsClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 				return;
 			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			
+			
 		}
-		
+
+
 		stop();
+
 	}
 
-	void trencherOperationsClass::deposit(int& p_cmd, ros::NodeHandle  nh)
+	void NotDTClass::deposit(int& p_cmd, ros::NodeHandle  nh)
 	{
 		sentinel = p_cmd;
 
@@ -321,7 +444,7 @@ void trencherOperationsClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 			bucket1.Set(ControlMode::Position, buDrivePosition);
 
 			
-			while(bucket1.GetSelectedSensorPosition() != buDrivePosition || linAct1.GetSelectedSensorPosition() != laDrivePosition)
+			while(bucket1.GetSelectedSensorPosition() != buDrivePosition || linAct1.GetSelectedSensorPosition != laDrivePosition)
 			{
 				
 				ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
@@ -342,27 +465,12 @@ void trencherOperationsClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 				}
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 			}
-
-			if (sentinel != p_cmd)
-				{ 
-					stop();
-					return;
-				}
-			
-			ROS_INFO("drive mode complete, enabling ongoingDepositPhase if auto engaged: ");
-
-			bool checkAutoDeposit;
-    		nh.getParam("manualMode", checkAutoDeposit);
-			if(!checkAutoDeposit)
-			{
-				bool checkDeposit = true;
-    			nh.setParam("ongoingDepositPhase", checkDeposit);
-			}
 		}
+	
 		stop();
 	}
 
-	void trencherOperationsClass::dig(int& p_cmd, ros::NodeHandle  nh)
+	void NotDTClass::dig(int& p_cmd, ros::NodeHandle  nh)
 	{
 		sentinel = p_cmd;
 
@@ -388,15 +496,17 @@ void trencherOperationsClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 					return;
 				}
 
-				while((bScrew.GetSelectedSensorPosition() != (bsDigPosition - 300)) || (linAct1.GetSelectedSensorPosition() != laDigPosition) && (bucket1.GetSelectedSensorPosition() != buDigPosition))
+				while((bScrew.GetSelectedSensorPosition() != (bsDigPosition - 200)) || (linAct1.GetSelectedSensorPosition() != laDigPosition) && (bucket1.GetSelectedSensorPosition() != buDigPosition))
 				{
 					
 					ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
 					// Move the ball screw after the linAct has rotated past a certain point
-					if (linAct1.GetSelectedSensorPosition() < (laDigPosition + 10))
+					if (linAct1.GetSelectedSensorPosition() == laDigPosition)
 					{
 						bScrew.Set(ControlMode::Position, bsDigPosition);
+						// Turn the trencher on
+						//trencher.Set(ControlMode::Velocity, 1);
 					}
 					std::cout << "Bscrew pos: " << bScrew.GetSelectedSensorPosition() << std::endl;
 					std::cout << "LinAct pos: " << linAct1.GetSelectedSensorPosition() << std::endl;
@@ -410,29 +520,40 @@ void trencherOperationsClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 				}
 
-				// Turn the trencher on
-				//trencher.Set(ControlMode::Velocity, 0.1);
 
-			}	
+				bool cycleOnce = true;
 
-			if (sentinel != p_cmd)
-				{ 
-					stop();
-					return;
+				while(bScrew.GetSelectedSensorPosition() != bsDrivePosition || linAct1.GetSelectedSensorPosition() != laDrivePosition || bucket1.GetSelectedSensorPosition() != buDigPosition)
+				{
+					ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+					bScrew.Set(ControlMode::Position, bsDrivePosition);
+					trencher.Set(ControlMode::Velocity, 0);
+
+					// When bScrew is retracted, cycle the trencher once.
+					if (linAct1.GetSelectedSensorPosition() <= (laDigPosition + 10) && bScrew.GetSelectedSensorPosition() == bsDrivePosition && cycleOnce)
+					{	
+						trencher.Set(ControlMode::Position, 10000);
+						cycleOnce = false;
+					}
+					
+					// bucket moves first
+					bucket1.Set(ControlMode::Position, buDrivePosition);
+
+					// If the ball screw retracted and bucket in drive position, start moving the linAct
+					if (bScrew.GetSelectedSensorPosition() == bsDrivePosition && bucket1.GetSelectedSensorPosition() == buDrivePosition )
+					{
+						linAct1.Set(ControlMode::Position, laDrivePosition);
+					}
+
+					if (sentinel != p_cmd)
+					{ 
+						stop();
+						return;
+					}
+					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+					
 				}
-
-			driveMode(p_cmd, nh);
-			
-			ROS_INFO("drive mode complete, enabling ongoingDigPhase if auto engaged: ");
-			bool checkAutoDig;
-    		nh.getParam("manualMode", checkAutoDig);
-			if(!checkAutoDig)
-			{
-				bool checkDig = true;
-    			nh.setParam("ongoingDigPhase", checkDig);
-			}
-
-
+			}	
 
 		stop();
 	}
