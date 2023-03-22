@@ -1,7 +1,7 @@
 /* 
-File that allows motors to receive inputs from publishers subscribed to the chatter node
+File that allows motors to receive inputs from publishers subscribed to the manual_inputs topic
 
-This file acts as the subscriber to /motorControlGen2Bot/motor_control_gen2bot/scripts/notDTTalker.py
+This file acts as the subscriber to gen2bot/scripts/controllerInputs.py
 */
 
 // CTRE header includes
@@ -27,7 +27,7 @@ std::string interface = "can0";
 TalonFX talLeft(22, interface); 
 TalonFX talRght(21);
 
-// Takes in the outputs sent from notDTTalker.py's published messages
+// Takes in the outputs sent from controllerInputs.py's published messages
 void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
 	// Set X and Z to linear and turn respectively
@@ -39,7 +39,7 @@ void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 	talRght.SetInverted(true);
 
 	// Set each motor to spin at a percent of max speed relative to triggers' linear speed
-	// and left horizontal axis' turning speed
+	// and left stick horizontal axis' turning speed
 	talRght.Set(ControlMode::PercentOutput, (-x + z)/4 );
 	talLeft.Set(ControlMode::PercentOutput, (-x - z)/4 );
 }

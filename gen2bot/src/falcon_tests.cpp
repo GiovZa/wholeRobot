@@ -90,6 +90,12 @@ int main()
 	// time included so previous script has time to move motors to position
 	sleepApp(5000);
 
+	// When setting one ControlMode right after another, the newest one replaces the old one
+	// This doesn't spin at 30% output until position 50000 is reached, it just goes to position 50000
+	// based on configuration of PID
+	talLeft.Set(ControlMode::PercentOutput, .3);
+	talLeft.Set(ControlMode::Position, 50000);
+
 	// Return 0 to close program
 	return 0;
 }

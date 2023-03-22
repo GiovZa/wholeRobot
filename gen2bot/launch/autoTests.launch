@@ -1,14 +1,12 @@
 <launch>
 <!-- Learn about launch files in ros here: http://wiki.ros.org/roslaunch/XML -->
 
-<!-- This launch file is the poorly put together code that will run on 03/24/23 for NASA's proof of life video-->
+<!-- This launch file tests components of autonomy based on what needs debugging-->
 
-<!-- Currently, we need to split these nodes into different launch files so each computer can run its own nodes, not all on the jetson -->
-
-<!-- Launches depth camera with following parameters: 
+<!-- Launches depth camera with the following parameters: 
   https://github.com/IntelRealSense/realsense-ros/tree/ros1-legacy -->
 
-  <!-- This group ns is what shows up in ros graph, making almost everything go inside this camera umbrella, will need to rework structure-->
+  <!-- This group ns tag merges all nodes contained within the tag into: depth_camera-->
   <group ns="depth_camera">
 
   <!--This file can be found in Other Locations/opt/ros/melodic/share/launch/includes on the jetson-->
@@ -31,8 +29,8 @@
       <arg name="align_depth"       value="true"/>
     </include>
 
-<!-- Launches rviz using the rgbd.launch file, opens 3 nodes that seems to not send out topics but if I get rid of them, pointcloud
-disappears which is not good, maybe someone figures out why these nodes are needed? The file is in this directory, rgbd.launch -->
+<!-- Launches rviz using the rgbd.launch file which, somehow, allows pointcloud to work. pointcloud is what camera publishes to get
+  positional values of all objects and points in space it can calculate relative to camera's frame-->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find realsense2_camera)/rviz/pointcloud.rviz" required="true" />
       <include file="$(find gen2bot)/launch/rgbd.launch">
         <arg name="manager"                       value="realsense2_camera_manager" />
@@ -56,12 +54,14 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
   <!-- Object recognition package to detect QR code and display both position and orientation 
   of QR code relative to camera sensor
   Check out: https://github.com/bandasaikrishna/object_detection_and_3d_pose_estimation -->
-  <!-- Will need to decide if we want to keep the gui or not, gives us camera image but takes up space and processing power-->
+  <!-- Will remove GUI at competitions -->
   <!--Parameter list: http://wiki.ros.org/find_object_2d-->
   <group ns = "qr_code_detector">
     <node name="find_object_3d" pkg="find_object_2d" type="find_object_2d" output="screen">
       <param name="settings_path" value="~/.ros/find_object_2d.ini" type="str"/>
       <param name="subscribe_depth" value="true" type="bool"/>
+
+      <!-- Set to "true" when debugging, false at competition-->
       <param name="gui" value="true" type="bool"/>
 
       <!-- Where to store QR code image-->
@@ -71,9 +71,6 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
       <remap from="rgb/image_rect_color" to="/depth_camera/color/image_raw"/>
       <remap from="depth_registered/image_raw" to="/depth_camera/depth/image_rect_raw"/>
       <remap from="depth_registered/camera_info" to="/depth_camera/depth/camera_info"/>
-
-      <remap from="find_object_2d/target_frame" to="/camera_link" />
-
     </node>
     
   </group>

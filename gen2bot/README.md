@@ -22,7 +22,7 @@ Structure of Gen2bot Package:
 
 
 
-Third Party Packages used:
+Third Party ROS Packages used:
 
 
 
@@ -37,3 +37,11 @@ Third Party Packages used:
     Find_Object_2d: Detects objects and gets estimated position and orientation from desired frame
 
     ROS_Realsense: ROS package for Intel's D455 depth and T265 tracking cameras
+
+
+
+Motor Library Used:
+
+
+
+    Phoenix

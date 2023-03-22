@@ -1,15 +1,18 @@
-// File that allows motors to receive inputs from publishers subscribed to the cmd_vel node
+// File that allows motors to receive inputs from publishers subscribed to the cmd_vel node (move_base)
 
-// Exact same as listenerMotor.cpp except turn speed is dropped, topic subscribed to is now cmd_vel
-// and there is an initial function that spins the robot around to find the QR code
+// Exact same as manualDrive.cpp except turn speed is dropped, the topic subscribed to is now cmd_vel
+// and there will be an initial function that spins the robot around to find the QR code
+
+// ros includes
+#include "ros/ros.h"
+#include "geometry_msgs/Twist.h"
+
+// motor includes
 #define Phoenix_No_WPI // remove WPI dependencies
 #include "ctre/Phoenix.h"
 #include "ctre/phoenix/platform/Platform.h"
 #include "ctre/phoenix/unmanaged/Unmanaged.h"
 #include "ctre/phoenix/cci/Unmanaged_CCI.h"
-
-#include "ros/ros.h"
-#include "geometry_msgs/Twist.h"
 
 using namespace ctre::phoenix;
 using namespace ctre::phoenix::platform;
@@ -36,8 +39,7 @@ void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 int main(int argc, char **argv) 
 {	
 
-	// double initialPO = 0.2;
-	// bool localizationPhase = true;
+	// Will eventually have motors spin for a certain amount of time to fully localize
 
 	ros::init(argc, argv, "autoWheels");
 	ros::NodeHandle n;

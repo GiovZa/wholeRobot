@@ -2,26 +2,27 @@
 // You must know how classes work in cpp before proceeding
 
 // There is a ton of checks to see if sentinel = p_cmd because we must be able to kill the motors at any point in any function
-// If we change the 'mode' of the robot. Ex. we don't want to dig anymore, we stop the dig function midrun
+// if we change the 'mode' of the robot. Ex. we don't want to dig anymore, we stop the dig function midrun
 
 // Look at falcon_tests to see how motor functions and variables work in CTRE library
-#include <gen2bot/processManagerClass.h>
+
+// Import our header for auger class
+#include <gen2bot/augerOperationsClass.h>
+
+// default C++ libraries 
 #include <iostream>
 #include <chrono> 
 #include <thread>
-#include <mutex>
-#include <gen2bot/augerOperationsClass.h>
 
+// allows us to use parameters from ROS, so basically I can use config/PID.yaml
 #include "ros/ros.h"
-#include "std_msgs/String.h"
 
+// motor library includes
 #define Phoenix_No_WPI // remove WPI dependencies
 #include "ctre/Phoenix.h"
 #include "ctre/phoenix/platform/Platform.h"
 #include "ctre/phoenix/unmanaged/Unmanaged.h"
 #include "ctre/phoenix/cci/Unmanaged_CCI.h"
-
-#include <iostream>
 
 using namespace ctre::phoenix;
 using namespace ctre::phoenix::platform;

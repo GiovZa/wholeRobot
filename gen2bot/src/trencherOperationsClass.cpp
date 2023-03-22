@@ -38,7 +38,7 @@ TalonSRX linAct2(32);
 TalonSRXConfiguration linActMM;
 
 // ballscrew motor initialized (extends and contracts motor)
-TalonFX bScrew(21);
+TalonFX bScrew(11);
 TalonFXConfiguration bScrewMM;
 
 // spins the conveyor belt (spins the scoopers)
@@ -46,9 +46,9 @@ TalonFX trencher(41);
 TalonFXConfiguration trencherMM;
 
 // deposit bucket motor
-TalonFX bucket1(51);
-TalonFX bucket2(52);
-TalonFXConfiguration bucketMM;
+TalonSRX bucket1(51);
+TalonSRX bucket2(52);
+TalonSRXConfiguration bucketMM;
 
 trencherOperationsClass::trencherOperationsClass(ros::NodeHandle nh)
 	: sentinel(),
@@ -71,69 +71,67 @@ void trencherOperationsClass::config(ros::NodeHandle nh)
 	bScrewMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
 
 	// Gets parameter /notDT/bscrew_cfg/motionCruiseVelocity in ros and assigns its value to bScrewMM.motionCruiseVelocity variable
-    nh.getParam("/notDT/bscrew_cfg/motionCruiseVelocity", bScrewMM.motionCruiseVelocity);
+    nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/motionCruiseVelocity", bScrewMM.motionCruiseVelocity);
 
-    nh.getParam("/notDT/bscrew_cfg/motionAcceleration", bScrewMM.motionAcceleration);
-    nh.getParam("/notDT/bscrew_cfg/motionCurveStrength", bScrewMM.motionCurveStrength);
+    nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/motionAcceleration", bScrewMM.motionAcceleration);
+    nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/motionCurveStrength", bScrewMM.motionCurveStrength);
 
-    nh.getParam("/notDT/bscrew_cfg/clearPositionOnLimitF", bScrewMM.clearPositionOnLimitF);
+    nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/clearPositionOnLimitF", bScrewMM.clearPositionOnLimitF);
 
-    nh.getParam("/notDT/bscrew_cfg/slot0/kI", bScrewMM.slot0.kI);
-    nh.getParam("/notDT/bscrew_cfg/slot0/kP", bScrewMM.slot0.kP);
-	nh.getParam("/notDT/bscrew_cfg/drivePosition", bsDrivePosition);
-	nh.getParam("/notDT/bscrew_cfg/depositPosition", bsDepositPosition);
-	nh.getParam("/notDT/bscrew_cfg/digPosition", bsDigPosition);
+    nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/slot0/kI", bScrewMM.slot0.kI);
+    nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/slot0/kP", bScrewMM.slot0.kP);
+	nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/drivePosition", bsDrivePosition);
+	nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/depositPosition", bsDepositPosition);
+	nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/digPosition", bsDigPosition);
 
 	// configures the ballscrew motor
 	bScrew.ConfigAllSettings(bScrewMM);
 
 	linActMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonSRXFeedbackDevice::Analog;
-	nh.getParam("/notDT/linact_cfg/motionCruiseVelocity", linActMM.motionCruiseVelocity);
-    nh.getParam("/notDT/linact_cfg/motionAcceleration", linActMM.motionAcceleration);
-    nh.getParam("/notDT/linact_cfg/motionCurveStrength", linActMM.motionCurveStrength);
+	nh.getParam("/miningOperationsTrencherPOL/linact_cfg/motionCruiseVelocity", linActMM.motionCruiseVelocity);
+    nh.getParam("/miningOperationsTrencherPOL/linact_cfg/motionAcceleration", linActMM.motionAcceleration);
+    nh.getParam("/miningOperationsTrencherPOL/linact_cfg/motionCurveStrength", linActMM.motionCurveStrength);
 
-    nh.getParam("/notDT/linact_cfg/slot0/kP", linActMM.slot0.kP);
-    nh.getParam("/notDT/linact_cfg/slot0/kI", linActMM.slot0.kI);
+    nh.getParam("/miningOperationsTrencherPOL/linact_cfg/slot0/kP", linActMM.slot0.kP);
+    nh.getParam("/miningOperationsTrencherPOL/linact_cfg/slot0/kI", linActMM.slot0.kI);
 
-	nh.getParam("/notDT/linact_cfg/drivePosition", laDrivePosition);
-	nh.getParam("/notDT/linact_cfg/depositPosition", laDepositPosition);
-	nh.getParam("/notDT/linact_cfg/digPosition", laDigPosition);
+	nh.getParam("/miningOperationsTrencherPOL/linact_cfg/drivePosition", laDrivePosition);
+	nh.getParam("/miningOperationsTrencherPOL/linact_cfg/depositPosition", laDepositPosition);
+	nh.getParam("/miningOperationsTrencherPOL/linact_cfg/digPosition", laDigPosition);
 
 	// Confggure the linear actuator motor
 	linAct1.ConfigAllSettings(linActMM);
 	linAct2.ConfigAllSettings(linActMM);
 
 	// Setup follower
-	linAct2.SetInverted(true);
 	linAct2.Set(ControlMode::Follower, 31);
 
-	bucketMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
-	nh.getParam("/notDT/bucket_cfg/motionCruiseVelocity", bucketMM.motionCruiseVelocity);
-    nh.getParam("/notDT/bucket_cfg/motionAcceleration", bucketMM.motionAcceleration);
-    nh.getParam("/notDT/bucket_cfg/motionCurveStrength", bucketMM.motionCurveStrength);
+	bucketMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonSRXFeedbackDevice::Analog;
+	nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/motionCruiseVelocity", bucketMM.motionCruiseVelocity);
+    nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/motionAcceleration", bucketMM.motionAcceleration);
+    nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/motionCurveStrength", bucketMM.motionCurveStrength);
 
-    nh.getParam("/notDT/bucket_cfg/slot0/kP", bucketMM.slot0.kP);
-    nh.getParam("/notDT/bucket_cfg/slot0/kI", bucketMM.slot0.kI);
+    nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/slot0/kP", bucketMM.slot0.kP);
+    nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/slot0/kI", bucketMM.slot0.kI);
 
-	nh.getParam("/notDT/bucket_cfg/drivePosition", buDrivePosition);
-	nh.getParam("/notDT/bucket_cfg/depositPosition", buDepositPosition);
-	nh.getParam("/notDT/bucket_cfg/digPosition", buDigPosition);
+	nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/drivePosition", buDrivePosition);
+	nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/depositPosition", buDepositPosition);
+	nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/digPosition", buDigPosition);
 
 	// Configure the bucket1 motor
 	bucket1.ConfigAllSettings(bucketMM);
 	bucket2.ConfigAllSettings(bucketMM);
-	bucket2.SetInverted(true);
 	bucket2.Set(ControlMode::Follower, 51);
 
 	trencherMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
-	nh.getParam("/notDT/trencher_cfg/motionCruiseVelocity", trencherMM.motionCruiseVelocity);
-    nh.getParam("/notDT/trencher_cfg/motionAcceleration", trencherMM.motionAcceleration);
-    nh.getParam("/notDT/trencher_cfg/motionCurveStrength", trencherMM.motionCurveStrength);
+	nh.getParam("/miningOperationsTrencherPOL/trencher_cfg/motionCruiseVelocity", trencherMM.motionCruiseVelocity);
+    nh.getParam("/miningOperationsTrencherPOL/trencher_cfg/motionAcceleration", trencherMM.motionAcceleration);
+    nh.getParam("/miningOperationsTrencherPOL/trencher_cfg/motionCurveStrength", trencherMM.motionCurveStrength);
 
-    nh.getParam("/notDT/trencher_cfg/slot0/kP", trencherMM.slot0.kP);
-    nh.getParam("/notDT/trencher_cfg/slot0/kI", trencherMM.slot0.kI);
+    nh.getParam("/miningOperationsTrencherPOL/trencher_cfg/slot0/kP", trencherMM.slot0.kP);
+    nh.getParam("/miningOperationsTrencherPOL/trencher_cfg/slot0/kI", trencherMM.slot0.kI);
 
-	nh.getParam("/notDT/trencher_cfg/drivePosition", trencherZeroPosition);
+	nh.getParam("/miningOperationsTrencherPOL/trencher_cfg/drivePosition", trencherZeroPosition);
 
 	// Configure the trencher motor
 	trencher.ConfigAllSettings(trencherMM);
@@ -180,7 +178,7 @@ void trencherOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh)
 		linAct1.Set(ControlMode::PercentOutput, .7);
 
 		// Need to know which direction bucket goes
-		// bucket1.Set(ControlMode::PercentOutput, .7);
+		bucket1.Set(ControlMode::PercentOutput, .7);
 
 		// waits 10 seconds for motors to reach upper limit and sets that position to zero
 		for ( int i = 0; i < 10; i++)
@@ -198,7 +196,7 @@ void trencherOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh)
 		bScrew.SetSelectedSensorPosition(0.0);
 		linAct1.SetSelectedSensorPosition(0.0);
 		trencher.SetSelectedSensorPosition(0.0);
-		// bucket1.SetSelectedSensorPosition(0.0);
+		bucket1.SetSelectedSensorPosition(0.0);
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
 		if (sentinel != p_cmd)

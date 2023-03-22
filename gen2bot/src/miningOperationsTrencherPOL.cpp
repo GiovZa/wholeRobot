@@ -1,4 +1,4 @@
-// Script that runs mining operation
+// Script that runs mining operation for POL video at Iowa 
 // This file works with processManagerClass.h and trencherOperationsClass.h and processManagerClass.cpp and trencherOperationsClass.cpp
 #include <gen2bot/trencherOperationsClass.h>
 #include <gen2bot/processManagerClass.h>
@@ -8,10 +8,7 @@
 #include <mutex>
 #include <cstdlib>
 
-#include "std_srvs/Empty.h"
 #include "ros/ros.h"
-#include "std_msgs/String.h"
-#include "std_msgs/Int8.h"
 
 #include <iostream>
 
@@ -77,16 +74,6 @@ void zero(int &p_cmd, trencherOperationsClass trencherOperations, ros::NodeHandl
 void config(trencherOperationsClass trencherOperations, ros::NodeHandle nh)
 {
 	trencherOperations.config(nh);
-}
-
-void moveToDig(int &p_cmd, trencherOperationsClass trencherOperations, ros::NodeHandle nh)
-{
-	goToDrive(p_cmd, trencherOperations, nh);
-}
-
-void moveToDeposit(int &p_cmd, trencherOperationsClass trencherOperations, ros::NodeHandle nh)
-{
-	goToDrive(p_cmd, trencherOperations, nh);
 }
 
 void updateProcess(const int &msg)

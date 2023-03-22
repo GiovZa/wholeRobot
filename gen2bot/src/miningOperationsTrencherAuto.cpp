@@ -1,5 +1,8 @@
 // Script that runs mining operation
 // This file works with ProcessManager.h and trencherOperationsClass.h and ProcessManager.cpp and trencherOperationsClass.cpp
+
+// I think this file is a bust
+
 #include <gen2bot/trencherOperationsClass.h>
 #include <gen2bot/processManagerClass.h>
 #include <iostream>
@@ -8,9 +11,7 @@
 #include <mutex>
 #include <cstdlib>
 
-#include "std_srvs/Empty.h"
 #include "ros/ros.h"
-#include "std_msgs/String.h"
 #include "std_msgs/Int8.h"
 
 #include <iostream>

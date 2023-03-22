@@ -1,3 +1,6 @@
+// This file is just testing ways to go about having a singular node manage what publishes to robot_process and what doesn't
+// This can be ignored for now because it is half baked
+
 #include "std_srvs/Empty.h"
 #include "ros/ros.h"
 #include "std_msgs/String.h"

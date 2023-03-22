@@ -1,7 +1,9 @@
 This src folder has all the C++ scripting code.
 
-To learn how the code works, start with falcon_tests.cpp, then listenerMotor.cpp, listenerMotorAuto.cpp, 
-and finally miningOperationsAuger.cpp and augerOperationsClass.cpp simultaneously with processManagerClass.cpp
+To learn how the code works, start with falcon_tests.cpp, then motorTest.cpp, manualDrive.cpp, autoDrive.cpp
+and finally miningOperationsTrencherPOL.cpp.cpp and trencherOperationsClass.cpp simultaneously with processManagerClass.cpp
+
+IGNORE ALL OTHER .cpp FILES FOR NOW!!!!! THEY ARE HALF-BAKED GARBAGE THAT WILL PROBABLY BE DELETED
 
 Currently has:
 

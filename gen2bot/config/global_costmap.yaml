@@ -11,9 +11,9 @@
 # How we have it set up, the global frame uses Intel's VIO (Visual IMU Odometry) to get global to odom
 
 # TF Tree diagram:
-#                                  -> base_link -> base_footprint
-# We have map -> camera_pose_frame
-#                                  -> camera_link -> all camera sensors -> object_22 (QR code)
+#                                                -> base_link -> base_footprint
+# We have camera_odom_frame -> camera_odom_frame
+#                                                -> camera_pose_frame -> all camera sensors -> object_22 (QR code)
 global_frame: camera_odom_frame
 
 # We don't want it to track unknown space because otherwise it will assume the space immediately in

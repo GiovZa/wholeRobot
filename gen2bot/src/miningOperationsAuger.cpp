@@ -5,12 +5,12 @@
 #include <iostream>
 #include <chrono> 
 #include <thread>
+
+// mutex creates threads
 #include <mutex>
 
+// allows ros parameters
 #include "ros/ros.h"
-#include "std_msgs/String.h"
-
-#include <iostream>
 
 // Search up pointers in cpp, mutex, and threads in cpp before continuing
 
@@ -137,9 +137,7 @@ int main(int argc, char** argv)
 		case 5:
 			config(augerOperations, nh);
 			p_cmd = 0;
-			break;
-		case 6:
-			
+			break;	
 		default:
 			break;
 		}

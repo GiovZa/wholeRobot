@@ -5,7 +5,9 @@
 # twistWithCovariancePose, which is what robot_localization takes in, so it allows us to take
 # in estimates from move_base for sensor fusion
 
-# Now added onto to allow manual inputs from notDTTalker.py and listenerMotor.cpp to give twist too
+# ISSUE: WE ARE USING 2 PUBLISHERS TO SEND TwistWithCovarianceStamped, WE MIGHT BE ABLE TO MAKE THIS WITH ONE PUB.
+
+# Now added onto to allow manual inputs from controllerInputs.py and manualDrive.cpp to give twist too
 
 # Imports a pure Python client library for ROS
 import rospy
@@ -52,16 +54,16 @@ def twist_callback(msg):
 if __name__ == '__main__':
     rospy.init_node('twist_with_covariance_converter')
     
-    # Subscribe to cmd_vel topic
+    # Subscribe to cmd_vel topic, which is published by move_base
     twist_sub1 = rospy.Subscriber('cmd_vel', Twist, twist_callback)
     
-    # Publish TwistWithCovarianceStamped message
+    # Publish TwistWithCovarianceStamped message to robot_localization
     twist_with_covariance_pub1 = rospy.Publisher('twist_with_covariance1', TwistWithCovarianceStamped, queue_size=10)
 
     # Subscribe to cmd_vel topic
     twist_sub2 = rospy.Subscriber('manual_inputs', Twist, twist_callback)
     
-    # Publish TwistWithCovarianceStamped message
+    # Publish TwistWithCovarianceStamped message to robot_localization
     twist_with_covariance_pub2 = rospy.Publisher('twist_with_covariance2', TwistWithCovarianceStamped, queue_size=10)
 
     rospy.spin()

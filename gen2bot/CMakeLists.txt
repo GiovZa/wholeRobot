@@ -32,12 +32,13 @@ include
 ${catkin_INCLUDE_DIRS}
 )
 
-# Makes the python script executable with "rosrun motor_control_gen2bot motorTalker.py" command or whichever python file it is
+# Makes the python script executable with "rosrun gen2bot motorTester.py" command or whichever python file it is
  catkin_install_python(PROGRAMS
-   scripts/controllerInputs.py
-   scripts/move_base_client.py
-   scripts/wheelTester.py
-   scripts/twistConvertor.py
+  scripts/controllerInputs.py
+  scripts/autoInputs.py
+  scripts/move_base_client.py
+  scripts/motorTester.py
+  scripts/twistConvertor.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
@@ -53,28 +54,26 @@ endif()
 add_library(CTRE_Phoenix SHARED IMPORTED)
 set_target_properties(CTRE_Phoenix PROPERTIES IMPORTED_LOCATION ${PHOENIX_LIBS_DIR}/libCTRE_Phoenix.so)
 
-# Makes the C++ script executable with "rosrun motor_control_gen2bot falcon_tets" command
+# Makes the C++ script executable with "rosrun gen2bot falcon_tests" command
 add_executable(falcon_tests src/falcon_tests.cpp)
 target_link_libraries(falcon_tests
-  CTRE_Phoenix
-  ${catkin_LIBRARIES}
+  CTRE_Phoenix # Motor library
+  ${catkin_LIBRARIES} 
 )
 
-# Makes the C++ script executable with "rosrun motor_control_gen2bot listenerMotor" command
 add_executable(manualDrive src/manualDrive.cpp)
 target_link_libraries(manualDrive 
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
 
-# Makes the C++ script executable with "rosrun motor_control_gen2bot listenerMotorAuto" command
 add_executable(autoDrive src/autoDrive.cpp)
 target_link_libraries(autoDrive
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
 
-# Makes the C++ scripts executable with "rosrun motor_control_gen2bot notDT" command
+# Makes the C++ scripts executable with "rosrun gen2bot miningOperationsAuger" command
 add_executable(
 miningOperationsAuger
 
@@ -89,7 +88,6 @@ target_link_libraries(miningOperationsAuger
   ${catkin_LIBRARIES}
 )
 
-# Makes the C++ scripts executable with "rosrun motor_control_gen2bot notDT" command
 add_executable(
 miningOperationsTrencherManual
 
@@ -104,7 +102,6 @@ target_link_libraries(miningOperationsTrencherManual
   ${catkin_LIBRARIES}
 )
 
-# Makes the C++ scripts executable with "rosrun motor_control_gen2bot notDT" command
 add_executable(
 miningOperationsTrencherPOL
 
@@ -129,13 +126,12 @@ target_link_libraries(manualAutoSelection
   ${catkin_LIBRARIES}
 )
 
-# node for testing wheels
 add_executable(
-wheelTest
+motorTest
 
-src/wheelTest.cpp 
+src/motorTest.cpp 
 )
-target_link_libraries(wheelTest
+target_link_libraries(motorTest
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )

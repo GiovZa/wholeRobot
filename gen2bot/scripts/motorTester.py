@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 # This specifies exactly which python interpreter will be used to run the file
 
-#This script subscribes to joystick publisher and then creates 2 publishers. 1 
-# for notDT and 1 for wheels, notDT.cpp and listenerMotor.cpp are linked with this file
+#This script is meant to be ran with motorTest.cpp and manualDrive.cpp to test manual control of trencher
 
 # Imports a pure Python client library for ROS
 import rospy
 
-from geometry_msgs.msg import Twist
-
 # This expresses velocity in free space broken into its linear and angular parts.
-from std_msgs.msg import Int8
+from geometry_msgs.msg import Twist
 
 # Reports the state of a joysticks axes and buttons. (Controller package)
 from sensor_msgs.msg import Joy
@@ -29,13 +26,12 @@ class JoystickPublisherWheel:
         when you are not pressing the trigger. Divide by 2 because 
         motorPercentOutput can accept a maximum value of 1. RT is right trigger.
         '''
-        LT = -(message.axes[5] + 1.0) / 2
-        RT = -(message.axes[4] + 1.0) / 2
+        if message.buttons[0] == 1.0: # when pressing a motors will spin based on trigger inputs
+            LT = -(message.axes[5] + 1.0) / 2
+            RT = -(message.axes[4] + 1.0) / 2 
         return (RT - LT)
 
-        # Function that keeps getting called on by publisher
     def callbackWheel(self, message):
-        # CONFIRMED DRIVETRAIN PUB
 
 	# twist() now can take in linear and angular values set by twist
         twist = Twist()
@@ -47,9 +43,7 @@ class JoystickPublisherWheel:
         twist.angular.z = message.axes[0]
         self.pub.publish(twist)
 
-
-# Intializes everything
-def start():
+if __name__ == '__main__':
     # Name of node
     rospy.init_node('talker')
 
@@ -57,12 +51,8 @@ def start():
     pubWheels = rospy.Publisher('chatter', Twist, queue_size=5)
     joystickWheel = JoystickPublisherWheel(pubWheels)
 
-# subscribed to joystick inputs on topic "joy"
+    # subscribed to joystick inputs on topic "joy"
     rospy.Subscriber("joy", Joy, joystickWheel.callbackWheel)
 
     # starts the node
     rospy.spin()
-    
-if __name__ == '__main__':
-        #start the initialize controller script
-       start()

@@ -1,8 +1,8 @@
 #pragma once
 
-// This class is for declaring functions to run mining motors
+// This class is for declaring functions to run auger motors
 
-// include ros header to be able to use and pass node handles
+// include ros to be able to use and pass node handles, which helps us access ROS params
 #include "ros/ros.h"
 
 // class of all motors that are not apart of drivetrain (wheels)
@@ -13,12 +13,13 @@ class augerOperationsClass
 // I don't want to worry about data encapsulation and don't need to here
 public:
 
-	// This is a constructor, look 'constructor in cpp' up to learn more
+	// This is a constructor, look up 'constructor in cpp' to learn more
 	augerOperationsClass(ros::NodeHandle nh);
 
 	// functions of this class
 
-	// function that zeroes trencher1 of initialization
+	// function that zeroes auger when ROS runs, zeroing means putting motors at
+	// a limit switch (something that limits how far motor can move in one direction)
 	void zero(int& p_cmd, ros::NodeHandle  nh);
 
 	// functions that run the motors

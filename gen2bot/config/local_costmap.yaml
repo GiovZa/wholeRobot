@@ -2,7 +2,7 @@
 
 # Global frame for local_costmap MUST be odom frame which is a combination of all the sensors
 # from robot_localization and gets the updated position of the robot right now, we have the 
-# camera_pose_frame acting as the odom frame 
+# camera_odom_frame acting as the odom frame but in the future we need to implement robot_localization to update
 global_frame: camera_odom_frame
 
 # Rolling window set to true means the frame will follow the robot, which is needed for local planners

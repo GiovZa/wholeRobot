@@ -4,24 +4,21 @@
 # to understand parameters and purpose of robot_localization ekf
 
 # Ok, so we need both absolute and relative postion for robot. Absolute is based off map's fixed frame
-# and relative is based off odom's frame. Absolute typically uses GPS, SLAM, etc. and relative uses
-# IMU, visual odometry, and wheel encoders. While our cameras usually give relative position, I made it so
-# it's initial position is the map position, making it absolute since the cam SLAM algorithm jumps to dif.
-# positions based on features it sees on the map, which we don't want for local. So this file makes it so
-# we make a local odom frame that uses IMU and odometry from cameras (might need to remove odometry since
-# that could be what jumps), move_base estimations, and eventually wheel encoders so it doesn't teleport. 
-# This probably fixes TF issues.
+# and relative is based off odom's fixed frame. Absolute typically uses GPS, SLAM, etc. for discrete 
+# (big changes in position) updates and relative uses IMU, visual odometry, and wheel encoders for continous 
+# (small changes in position) updates. Intel's algorithm does both continuous and discrete, so we need to make 2 
+# robot_localization nodes that publishes both map to odom (discrete) and odom to base_link (continuous)
 
 # in hertz, how quick to update pose estimation of base_link, might need to update to like 240 for gyro sensor
 frequency: 60
 
-# makes the pose estimate expand into the Z axies, which is required for our robot that will
+# makes the pose estimate expand into the Z axis, which is required for our robot that will
 # move on hills and craters and bumps and such
-two_d_mode: false
+# will test how it works when true, might save tons of computational power for no big cost
+two_d_mode: true
 
-# Define tf frames for static map, odom_frame (updated position tf), and robot's frame
-# Our odom frame is camera_pose_frame as Intel makes this frame give absolute position 
-# relative to the map frame. World frame set to camera_pose_frame makes it so 
+# Define tf frames for static map, odom_frame (fixed frame where robot spawns in), and robot's frame
+# if world_frame = odom, publishes odom to base_link, if world_frame = map, publishes map to odom
 world_frame: camera_pose_frame
 map_frame: map
 odom_frame: camera_pose_frame
@@ -55,6 +52,8 @@ odom0_config: [true, true, true,
                true, true, true,
                true, true, true,
                true, true, true]
+
+# Both of these can't be true
 odom0_differential: true
 odom0_relative: true
 
@@ -86,6 +85,7 @@ odom0_relative: true
 
 
 # Publishes change in position of either odom to robot or map to odom, we have it for odom to robot
+# based on what we set as the world frame
 publish_tf: true
 
 # gives range of time tf can call upon, so if it takes too long to publish tfs, it will pull from

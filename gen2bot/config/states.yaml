@@ -1,4 +1,6 @@
 # This file tells ROS what state/phase the robot is currently on using parameters. Ex. dig, deposit, move
+# As of March 21, only ongoingDigPhase, ongoingDepositPhase, and manualMode are being used by autoInputs.py and
+# dig and deposit functions in trencherOperationsClass.cpp
 
 localizationPhase: false 
 

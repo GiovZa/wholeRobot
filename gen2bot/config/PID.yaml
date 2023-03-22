@@ -4,9 +4,9 @@
 # Besides how to tune the motors with gif above, I suggest some more research but to sum it up,
 # you want to generally use P and then a tiny bit of I to tune motors and I Zone to limit range of I
 # you get to use Phoenix Motors' encoders that keeps track of position. If you use percent output,
-# it has only a bad guess for how far it travels but with PID, you can have it reach the exact 
+# it just spins at a percentage of maximum voltage but with PID, you can have it reach the exact 
 # spot you want consistently with efficient movement too
-# To sum: PID = smart motors; PercentOutput = dumb guesses
+# To sum: PID = smart motors; PercentOutput = dumb motors
 
 # Current PID config for wheels
 wheel_cfg:
@@ -24,11 +24,11 @@ wheel_cfg:
     maxIntegralAccumulator: 16000
   }
 
-# Ballscrew configuration, the ballscrew is what extends the auger to deposit and mine
+# Ballscrew configuration, the ballscrew is what extends the trencher to deposit and mine
 # How I have it set up, the ballscrew has a zero position when it is all the way inside
 bscrew_cfg:
 
-  # drive position is when the auger is all the way tucked inside the sheath
+  # drive position is when the trencher is all the way tucked inside the center of the robot
   drivePosition: 0
 
   # the other positions are negative because motor spins counterclockwise, which is in -
