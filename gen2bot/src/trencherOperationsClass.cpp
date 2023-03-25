@@ -175,39 +175,154 @@ void trencherOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh)
 		config(nh);
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 		bScrew.Set(ControlMode::PercentOutput, .7);
+		
+		
+		
+		// ZERO THE LINEAR ACTUATOR
+		// Create fault object
+		Faults laFaults;
+
+		int linMax = 700;
+
+		// Make the linAct run, (direction unknown)
 		linAct1.Set(ControlMode::PercentOutput, .7);
 
-		// Need to know which direction bucket goes
+		do {
+			
+			// Populates the fault object with the current fault status of the motor controller
+			linAct1.GetFaults(laFaults);
+
+			// If forward limit switch triggered, set that to be max position
+			if (laFaults.ForwardLimitSwitch) {
+				linAct1.SetSelectedSensorPosition(linMax);
+				break;
+			}
+
+			// If reverse limit switch triggered (drive position), set that to be 0 position
+			if (laFaults.ReverseLimitSwitch) {
+				linAct1.SetSelectedSensorPosition(0);
+				break;
+			}
+
+		} while(true);
+
+		// Move the linAct to dig position so that the bScrew and bucket can be zeroed
+		while (linAct1.GetSelectedSensorPosition() != laDigPosition){
+			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+			linAct1.Set(ControlMode::Position, laDigPosition);
+			if (sentinel != p_cmd)
+					{ 
+						stop();
+						return;
+					}
+					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+		
+		// Make sure the linAct doesn't move
+		linAct1.Set(ControlMode::Velocity, 0);
+
+
+		// ZERO THE BUCKET
+		Faults buFaults;
+		int buMax = 600;
 		bucket1.Set(ControlMode::PercentOutput, .7);
 
-		// waits 10 seconds for motors to reach upper limit and sets that position to zero
-		for ( int i = 0; i < 10; i++)
-			{
-				if (sentinel != p_cmd)
-				{ 
-					stop();
-					return;
-				}
-				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-				std::cout << "Waited " << i+1 << " seconds for bscrew to 0: " << std::endl;
-				std::cout << "Waited " << i+1 << " seconds for linAct1 to 0: " << std::endl;
-			}
-		stop();
-		bScrew.SetSelectedSensorPosition(0.0);
-		linAct1.SetSelectedSensorPosition(0.0);
-		trencher.SetSelectedSensorPosition(0.0);
-		bucket1.SetSelectedSensorPosition(0.0);
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-		if (sentinel != p_cmd)
-			{ 
-				stop();
-				return;
-			}
-		std::cout << "BS Position: " << bScrew.GetSelectedSensorPosition(0) << std::endl;
-		std::cout << "LA Position: " << linAct1.GetSelectedSensorPosition(0) << std::endl;
+		do {
 			
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			// Populates the fault object with the current fault status of the motor controller
+			bucket1.GetFaults(buFaults);
+
+			// If forward limit switch triggered, set that to be max position
+			if (buFaults.ForwardLimitSwitch) {
+				bucket1.SetSelectedSensorPosition(buMax);
+				break;
+			}
+
+			// If reverse limit switch triggered, set that to be 0 position
+			if (buFaults.ReverseLimitSwitch) {
+				bucket1.SetSelectedSensorPosition(0);
+				break;
+			}
+
+		} while(true);
+
+		// Move the bucket back to zero position (dig position)
+		while (bucket1.GetSelectedSensorPosition() != buDigPosition){
+			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+			bucket1.Set(ControlMode::Position, buDigPosition);
+			if (sentinel != p_cmd)
+					{ 
+						stop();
+						return;
+					}
+					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+
+		// Make sure the bucket doesn't move
+		bucket1.Set(ControlMode::Velocity, 0);
+		std::cout << "Bucket Position: " << bScrew.GetSelectedSensorPosition() << std::endl;
+
+		// ZERO THE BALL SCREW
+		Faults bsFaults;
+		int bsMax = 300;
+		bucket1.Set(ControlMode::PercentOutput, .7);
+
+		do {
+			
+			// Populates the fault object with the current fault status of the motor controller
+			bScrew.GetFaults(bsFaults);
+
+			// If forward limit switch triggered, set that to be max position
+			if (bsFaults.ForwardLimitSwitch) {
+				bScrew.SetSelectedSensorPosition(bsMax);
+				break;
+			}
+
+			// If reverse limit switch triggered, set that to be 0 position
+			if (bScrew.ReverseLimitSwitch) {
+				bScrew.SetSelectedSensorPosition(0);
+				break;
+			}
+
+		} while(true);
+
+		// ZERO THE TRENCHER
+		trencher.SetSelectedSensorPosition(0);
+
+		// Move the bScrew back to zero position (Fully retracted / Drive position)
+		while (bScrew.GetSelectedSensorPosition() != bsDrivePosition){
+			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+			bScrew.Set(ControlMode::Position, bsDrivePosition);
+			if (sentinel != p_cmd)
+					{ 
+						stop();
+						return;
+					}
+					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+
+		// Make sure the bScrew doesn't move
+		bScrew.Set(ControlMode::Velocity, 0);
+		std::cout << "Ball Screw Position: " << bScrew.GetSelectedSensorPosition() << std::endl;
+
+		
+
+		// Move the Linear Actuator back to drive position
+		while(linAct1.GetSelectedSensorPosition() != laDrivePosition){
+			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+			linAct1.Set(ControlMode::Position, laDrivePosition);
+			if (sentinel != p_cmd)
+					{ 
+						stop();
+						return;
+					}
+					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+
+		// Make sure the linAct doesn't move
+		linAct1.Set(ControlMode::Velocity, 0);
+		std::cout << "Linear Actuator Position: " << linAct1.GetSelectedSensorPosition() << std::endl;
+
 
 		stop();
 
