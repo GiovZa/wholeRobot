@@ -201,6 +201,7 @@ void trencherOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh)
 			// If reverse limit switch triggered (drive position), set that to be 0 position
 			if (laFaults.ReverseLimitSwitch) {
 				linAct1.SetSelectedSensorPosition(0);
+				linAct1.SetInverted(true); // Positive direction is increasing encoder ticks
 				break;
 			}
 
@@ -241,6 +242,7 @@ void trencherOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh)
 			// If reverse limit switch triggered, set that to be 0 position
 			if (buFaults.ReverseLimitSwitch) {
 				bucket1.SetSelectedSensorPosition(0);
+				bucket1.SetInverted(true); // Positive direction is increasing encoder ticks
 				break;
 			}
 
@@ -281,6 +283,7 @@ void trencherOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh)
 			// If reverse limit switch triggered, set that to be 0 position
 			if (bScrew.ReverseLimitSwitch) {
 				bScrew.SetSelectedSensorPosition(0);
+				bScrew.SetInverted(true); // Positive direction is increasing encoder ticks
 				break;
 			}
 
