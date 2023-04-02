@@ -1,0 +1,17 @@
+<launch>
+
+<!-- Tests if motors move on new trencher bot -->
+
+  <!-- Node that takes ROS inputs of joystick to move motors in wheels-->
+  <node name="manual_wheels" pkg="gen2bot" type="manualDrive" output="screen"/>
+
+  <!-- loads states.yaml's parameters-->
+  <rosparam file="$(find gen2bot)/config/states.yaml" command="load"/> 
+
+  <!-- Node that contains all motor functions that don't relate to driving -->
+  <node pkg="gen2bot" type="miningOperationsTrencherPOL" name="miningOperationsTrencherPOL" output="screen">
+    <param name="wheel_multiplier" value="1.1" type="double"/>
+    <rosparam file="$(find gen2bot)/config/PID.yaml" command="load"/> 
+  </node> 
+
+</launch>

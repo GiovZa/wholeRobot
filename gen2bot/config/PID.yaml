@@ -33,8 +33,8 @@ bscrew_cfg:
 
   # the other positions are negative because motor spins counterclockwise, which is in -
   # direction of 0. These are just currently arbitrary positions
-  depositPosition: -4000000
-  digPosition: -1000000
+  depositPosition: 0
+  digPosition: 9720000
 
   # this is the duration of time the motors will spin, it is currently not being used however
   miliseconds: 1000
@@ -57,13 +57,13 @@ bscrew_cfg:
 linact_cfg:
 
   # auger is parallel to ground
-  drivePosition: -14 # 0
+  drivePosition: 0 # 0
 
   # auger is all the way up
-  depositPosition: 0 # 10
+  depositPosition: 650 # 10
 
   # auger is all the way down
-  digPosition: -80 # -60
+  digPosition: 550 # -60
   miliseconds: 1000
 
   # Probably won't be using this
@@ -72,19 +72,19 @@ linact_cfg:
   motionCurveStrength: 0
 
   slot0: {
-    kP: 42, #45
-    kI: 0.0008 #0.001 # 0.0001
+    kP: 20, #45
+    kI: 0.0002 #0.001 # 0.0001
   }
 
 bucket_cfg:
   # auger is parallel to ground
-  drivePosition: -14 # 0
+  drivePosition: 30 # 0
 
   # auger is all the way up
-  depositPosition: 0 # 10
+  depositPosition: 840 # 10
 
   # auger is all the way down
-  digPosition: -80 # -60
+  digPosition: 0 # -60
   miliseconds: 1000
 
   # Probably won't be using this
@@ -93,19 +93,19 @@ bucket_cfg:
   motionCurveStrength: 0
 
   slot0: {
-    kP: 42, #45
-    kI: 0.0008 #0.001 # 0.0001
+    kP: 20, #45
+    kI: 0.0002 #0.001 # 0.0001
   }
 
 trencher_cfg:
   # auger is parallel to ground
-  drivePosition: -14 # 0
+  drivePosition: 0 # 0
 
   # auger is all the way up
   depositPosition: 0 # 10
 
   # auger is all the way down
-  digPosition: -80 # -60
+  digPosition: 0 # -60
   miliseconds: 1000
 
   # Probably won't be using this

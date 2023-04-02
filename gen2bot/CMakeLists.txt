@@ -39,6 +39,7 @@ ${catkin_INCLUDE_DIRS}
   scripts/move_base_client.py
   scripts/motorTester.py
   scripts/twistConvertor.py
+  scripts/controllerInputsMar.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
@@ -88,19 +89,19 @@ target_link_libraries(miningOperationsAuger
   ${catkin_LIBRARIES}
 )
 
-add_executable(
-miningOperationsTrencherManual
+#add_executable(
+#miningOperationsTrencherManual
 
-src/miningOperationsTrencherManual.cpp 
-src/processManagerClass.cpp 
-include/gen2bot/processManagerClass.h
-src/trencherOperationsClass.cpp 
-include/gen2bot/trencherOperationsClass.h
-)
-target_link_libraries(miningOperationsTrencherManual
-  CTRE_Phoenix
-  ${catkin_LIBRARIES}
-)
+#src/miningOperationsTrencherManual.cpp 
+#src/processManagerClass.cpp 
+#include/gen2bot/processManagerClass.h
+#src/trencherOperationsClass.cpp 
+#include/gen2bot/trencherOperationsClass.h
+#)
+#target_link_libraries(miningOperationsTrencherManual
+#  CTRE_Phoenix
+#  ${catkin_LIBRARIES}
+#)
 
 add_executable(
 miningOperationsTrencherPOL
@@ -112,6 +113,34 @@ src/trencherOperationsClass.cpp
 include/gen2bot/trencherOperationsClass.h
 )
 target_link_libraries(miningOperationsTrencherPOL
+  CTRE_Phoenix
+  ${catkin_LIBRARIES}
+)
+
+add_executable(
+miningOperationsTrencheMar
+
+src/miningOperationsTrencheMar.cpp 
+src/processManagerClass.cpp 
+include/gen2bot/processManagerClass.h
+src/trencherOperationsClassMar.cpp 
+include/gen2bot/trencherOperationsClassMar.h
+)
+target_link_libraries(miningOperationsTrencheMar
+  CTRE_Phoenix
+  ${catkin_LIBRARIES}
+)
+
+add_executable(
+miningOperationsTrencheMar2
+
+src/miningOperationsTrencheMar2.cpp 
+src/processManagerClass.cpp 
+include/gen2bot/processManagerClass.h
+src/trencherOperationsClassMar.cpp 
+include/gen2bot/trencherOperationsClassMar.h
+)
+target_link_libraries(miningOperationsTrencheMar2
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )

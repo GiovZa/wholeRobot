@@ -184,8 +184,8 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
   <!-- loads states.yaml's parameters-->
   <rosparam file="$(find gen2bot)/config/states.yaml" command="load"/> 
 
-  <!--<node name="mb_client" pkg="gen2bot" type="move_base_client.py" output="screen"/>
-  <node name="miningOperationsTrencherPOL" pkg="gen2bot" type="miningOperationsTrencherPOL" output="screen"/>-->
+  <node name="mb_client" pkg="gen2bot" type="move_base_client.py" output="screen"/>
+  <node name="miningOperationsTrencherPOL" pkg="gen2bot" type="miningOperationsTrencherPOL" output="screen"/>
 
 
 </launch>

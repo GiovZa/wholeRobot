@@ -58,6 +58,17 @@ void dig(int &p_cmd, trencherOperationsClass trencherOperations, ros::NodeHandle
 	}
 }
 
+void turnTrench(int &p_cmd, trencherOperationsClass trencherOperations, ros::NodeHandle nh)
+{
+	int sentinel = p_cmd;
+	ROS_INFO("turnTrencher");
+	while (p_cmd == sentinel)
+	{
+		trencherOperations.turnTrencher(p_cmd, nh);
+		p_cmd = 0;
+	}
+}
+
 void zero(int &p_cmd, trencherOperationsClass trencherOperations, ros::NodeHandle nh)
 {
 	int sentinel = p_cmd;
@@ -119,23 +130,33 @@ int main(int argc, char **argv)
 		case 0:
 			break;
 		case 1:
+			std::cout << "running driveMode" << std::endl;
 			goToDrive(p_cmd, trencherOperations, nh);
 			p_cmd = 0;
 			break;
 		case 2:
+			std::cout << "running dig" << std::endl;
 			dig(p_cmd, trencherOperations, nh);
 			p_cmd = 0;
 			break;
 		case 3:
+			std::cout << "running deposit" << std::endl;
 			deposit(p_cmd, trencherOperations, nh);
 			p_cmd = 0;
 			break;
 		case 4:
+			std::cout << "running zero" << std::endl;
 			zero(p_cmd, trencherOperations, nh);
 			p_cmd = 0;
 			break;
 		case 5:
+			std::cout << "running config" << std::endl;
 			config(trencherOperations, nh);
+			p_cmd = 0;
+			break;
+		case 6:
+			std::cout << "running trencher" << std::endl;
+			turnTrench(p_cmd, trencherOperations, nh);
 			p_cmd = 0;
 			break;
 		default:

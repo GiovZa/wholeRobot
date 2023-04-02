@@ -52,16 +52,16 @@ TalonSRXConfiguration bucketMM;
 
 trencherOperationsClass::trencherOperationsClass(ros::NodeHandle nh)
 	: sentinel(),
-	  laDrivePosition(-16),
-	  laDepositPosition(0),
-	  laDigPosition(-30),
+	  laDrivePosition(0),
+	  laDepositPosition(650),
+	  laDigPosition(500),
 	  bsDrivePosition(0),
 	  bsDepositPosition(-2000000),
 	  bsDigPosition(-4000000),
-	  buDrivePosition(0),
+	  buDrivePosition(30),
 	  buDepositPosition(0),
 	  buDigPosition(0),
-	  trencherZeroPosition(0)
+	  trencherZeroPosition(1000) // arbitrary
 {	
 	config(nh);
 }
@@ -69,6 +69,7 @@ trencherOperationsClass::trencherOperationsClass(ros::NodeHandle nh)
 void trencherOperationsClass::config(ros::NodeHandle nh)
 {
 	bScrewMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
+
 
 	// Gets parameter /notDT/bscrew_cfg/motionCruiseVelocity in ros and assigns its value to bScrewMM.motionCruiseVelocity variable
     nh.getParam("/miningOperationsTrencherPOL/bscrew_cfg/motionCruiseVelocity", bScrewMM.motionCruiseVelocity);
@@ -99,7 +100,7 @@ void trencherOperationsClass::config(ros::NodeHandle nh)
 	nh.getParam("/miningOperationsTrencherPOL/linact_cfg/depositPosition", laDepositPosition);
 	nh.getParam("/miningOperationsTrencherPOL/linact_cfg/digPosition", laDigPosition);
 
-	// Confggure the linear actuator motor
+	// Configure the linear actuator motor
 	linAct1.ConfigAllSettings(linActMM);
 	linAct2.ConfigAllSettings(linActMM);
 
@@ -135,29 +136,23 @@ void trencherOperationsClass::config(ros::NodeHandle nh)
 
 	// Configure the trencher motor
 	trencher.ConfigAllSettings(trencherMM);
+
+	linAct1.SetSensorPhase(true);
+	linAct2.SetSensorPhase(true);
+	bucket1.SetSensorPhase(true);
+	bucket2.SetSensorPhase(true);
+	linAct1.SetInverted(true);
+	linAct2.SetInverted(true);
+	bucket1.SetInverted(true);
+	bucket2.SetInverted(true);
+	bScrew.SetInverted(true);
 }
 
-void trencherOperationsClass::stop()
-{
-	bScrew.Set(ControlMode::Velocity, 0);
-	linAct1.Set(ControlMode::Velocity, 0);
-	bucket1.Set(ControlMode::Velocity, 0);	
-	trencher.Set(ControlMode::Velocity, 0);	
-
-	bScrew.Set(ControlMode::PercentOutput, 0);
-	linAct1.Set(ControlMode::PercentOutput, 0);	
-	bucket1.Set(ControlMode::PercentOutput, 0);
-	trencher.Set(ControlMode::PercentOutput, 0);
-}
-
-// a function that checks to see if ProcessManager has changed modes, and if so motors should be killed
-void trencherOperationsClass::checkSentinel(int& p_cmd)
-{
-	if (sentinel != p_cmd)
+	void trencherOperationsClass::stop()
 	{
 		bScrew.Set(ControlMode::Velocity, 0);
 		linAct1.Set(ControlMode::Velocity, 0);
-		bucket1.Set(ControlMode::Velocity, 0);
+		bucket1.Set(ControlMode::Velocity, 0);	
 		trencher.Set(ControlMode::Velocity, 0);	
 
 		bScrew.Set(ControlMode::PercentOutput, 0);
@@ -165,23 +160,39 @@ void trencherOperationsClass::checkSentinel(int& p_cmd)
 		bucket1.Set(ControlMode::PercentOutput, 0);
 		trencher.Set(ControlMode::PercentOutput, 0);
 	}
-}
+
+// a function that checks to see if ProcessManager has changed modes, and if so motors should be killed
+	void trencherOperationsClass::checkSentinel(int& p_cmd)
+	{
+		if (sentinel != p_cmd)
+		{
+			/*
+			bScrew.Set(ControlMode::Velocity, 0);
+			linAct1.Set(ControlMode::Velocity, 0);
+			bucket1.Set(ControlMode::Velocity, 0);
+			trencher.Set(ControlMode::Velocity, 0);	
+			*/
+
+			bScrew.Set(ControlMode::PercentOutput, 0);
+			linAct1.Set(ControlMode::PercentOutput, 0);	
+			bucket1.Set(ControlMode::PercentOutput, 0);
+			trencher.Set(ControlMode::PercentOutput, 0);
+		}
+	}
 
 // Reassigns absolute position so motors know where they are
-void trencherOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh) 
+	void trencherOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh) 
 	{
 		sentinel = p_cmd;
 
-		config(nh);
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		bScrew.Set(ControlMode::PercentOutput, .7);
-		linAct1.Set(ControlMode::PercentOutput, .7);
+		bScrew.Set(ControlMode::PercentOutput, -.7);
 
 		// Need to know which direction bucket goes
-		bucket1.Set(ControlMode::PercentOutput, .7);
+		bucket1.Set(ControlMode::PercentOutput, -.6);
 
 		// waits 10 seconds for motors to reach upper limit and sets that position to zero
-		for ( int i = 0; i < 10; i++)
+		for ( int i = 0; i < 15; i++)
 			{
 				if (sentinel != p_cmd)
 				{ 
@@ -190,8 +201,20 @@ void trencherOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh)
 				}
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 				std::cout << "Waited " << i+1 << " seconds for bscrew to 0: " << std::endl;
+				std::cout << "Waited " << i+1 << " seconds for bucket to 0: " << std::endl;
+			}
+		linAct1.Set(ControlMode::PercentOutput, -.7);
+		for ( int i = 0; i < 15; i++)
+			{
+				if (sentinel != p_cmd)
+				{ 
+					stop();
+					return;
+				}
+				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 				std::cout << "Waited " << i+1 << " seconds for linAct1 to 0: " << std::endl;
 			}
+
 		stop();
 		bScrew.SetSelectedSensorPosition(0.0);
 		linAct1.SetSelectedSensorPosition(0.0);
@@ -204,8 +227,10 @@ void trencherOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh)
 				stop();
 				return;
 			}
-		std::cout << "BS Position: " << bScrew.GetSelectedSensorPosition(0) << std::endl;
-		std::cout << "LA Position: " << linAct1.GetSelectedSensorPosition(0) << std::endl;
+		std::cout << "BS Position: " << bScrew.GetSelectedSensorPosition() << std::endl;
+		std::cout << "LA Position: " << linAct1.GetSelectedSensorPosition() << std::endl;
+		std::cout << "Bucket Position: " << bucket1.GetSelectedSensorPosition() << std::endl;
+		std::cout << "Trencher Position: " << trencher.GetSelectedSensorPosition() << std::endl;
 			
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
@@ -214,46 +239,17 @@ void trencherOperationsClass::zero(int& p_cmd, ros::NodeHandle  nh)
 	}
 
 // trencher is all the way tucked in and parallel to ground
-void trencherOperationsClass::driveMode(int& p_cmd, ros::NodeHandle  nh) 
+	void trencherOperationsClass::driveMode(int& p_cmd, ros::NodeHandle  nh) 
 	{
 		sentinel = p_cmd;
-
-		config(nh);
 		
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		std::cout << "Checking while loop in driveMode: " << std::endl;
-		std::cout << "BalLS and linAct1 pos: " << bScrew.GetSelectedSensorPosition() << linAct1.GetSelectedSensorPosition() << std::endl;
+		std::cout << "Starting driveMode: " << std::endl;
+		std::cout << "BalLS and linAct1 pos: " << bScrew.GetSelectedSensorPosition() << " " << linAct1.GetSelectedSensorPosition() << std::endl;
 	
-		trencher.Set(ControlMode::Velocity, 0);
-
-		if (sentinel != p_cmd)
-			{ 
-				stop();
-				return;
-			}
-
-		while(bScrew.GetSelectedSensorPosition() != bsDrivePosition || linAct1.GetSelectedSensorPosition() != laDrivePosition || bucket1.GetSelectedSensorPosition() != buDrivePosition)
+		bucket1.Set(ControlMode::Position, buDrivePosition); // 30
+		while(bucket1.GetSelectedSensorPosition() < 27 || bucket1.GetSelectedSensorPosition() > 33)
 		{
-		
-			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-			bScrew.Set(ControlMode::Position, bsDrivePosition);
-			trencher.Set(ControlMode::Velocity, 0);
-
-			// If in dig position, cycle the trencher once.
-			if (linAct1.GetSelectedSensorPosition() <= (laDigPosition + 10) && bScrew.GetSelectedSensorPosition() == bsDrivePosition && bucket1.GetSelectedSensorPosition() == buDigPosition)
-			{	
-				trencher.Set(ControlMode::Position, 10000);
-			}
-			
-			// bucket moves first
-			bucket1.Set(ControlMode::Position, buDrivePosition);
-
-			// If the ball screw retracted and bucket in drive position, start moving the linAct
-			if (bScrew.GetSelectedSensorPosition() == bsDrivePosition && bucket1.GetSelectedSensorPosition() == buDrivePosition)
-			{
-				linAct1.Set(ControlMode::Position, laDrivePosition);
-			}
-
 			if (sentinel != p_cmd)
 			{ 
 				stop();
@@ -261,6 +257,63 @@ void trencherOperationsClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
+		bucket1.Set(ControlMode::PercentOutput, 0);
+		if (sentinel != p_cmd)
+			{ 
+				stop();
+				return;
+			}
+
+		bScrew.Set(ControlMode::Position, bsDrivePosition); // 
+		/* int cycle = 1000;
+		int completeCycle = trencher.GetSelectedSensorPosition() % cycle;
+		trencher.Set(ControlMode::Position, trencher.GetSelectedSensorPosition() + completeCycle); */ // 
+
+
+		// NEED TO FIND VALUES FOR BSCREW!!!!!!
+
+
+
+		// while(bScrew.GetSelectedSensorPosition() < 9600000 && (trencher.GetSelectedSensorPosition() % cycle) < (cycle - 30) && (trencher.GetSelectedSensorPosition() % cycle) > 30)
+
+		while(bScrew.GetSelectedSensorPosition() < 9600000)
+		{
+			
+			if (sentinel != p_cmd)
+			{ 
+				stop();
+				return;
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+		if (sentinel != p_cmd)
+			{ 
+				stop();
+				return;
+			}
+		
+		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+		bScrew.Set(ControlMode::PercentOutput, 0);
+		trencher.Set(ControlMode::PercentOutput, 0);
+
+		linAct1.Set(ControlMode::Position, laDrivePosition);
+
+		while(linAct1.GetSelectedSensorPosition() > laDrivePosition + 10)
+		{
+			if (sentinel != p_cmd)
+			{ 
+				stop();
+				return;
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+
+		if (sentinel != p_cmd)
+		{ 
+			stop();
+			return;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		
 		stop();
 	}
@@ -268,172 +321,129 @@ void trencherOperationsClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 	void trencherOperationsClass::deposit(int& p_cmd, ros::NodeHandle  nh)
 	{
 		sentinel = p_cmd;
-
-		config(nh);
 		
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		std::cout << "Checking while loop in depositMode: " << std::endl;
-		std::cout << "BalLS and linAct1 pos: " << bScrew.GetSelectedSensorPosition() << linAct1.GetSelectedSensorPosition() << std::endl;
-		
+		std::cout << "Beginning depositMode: " << std::endl;
 
-		// If robot is in drive position, go to deposit position.
-		if(bScrew.GetSelectedSensorPosition() == bsDrivePosition && linAct1.GetSelectedSensorPosition() == laDrivePosition && bucket1.GetSelectedSensorPosition() == buDrivePosition)
+		linAct1.Set(ControlMode::Position, laDepositPosition);
+
+		while(linAct1.GetSelectedSensorPosition() < laDepositPosition - 10)
 		{
-			
-			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-			// Move the linAct first
-			linAct1.Set(ControlMode::Position, laDepositPosition);
-			std::this_thread::sleep_for(std::chrono::milliseconds(000));
-
 			if (sentinel != p_cmd)
 			{ 
 				stop();
 				return;
 			}
-
-			// Move the bucket to deposit position
-			while((linAct1.GetSelectedSensorPosition() != laDepositPosition) || (bucket1.GetSelectedSensorPosition() != buDepositPosition))
-			{
-				
-				ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-				// Move the bucket only when the linAct has passed a certain point.
-				if (linAct1.GetSelectedSensorPosition() < (laDepositPosition + 10))
-				{
-					bucket1.Set(ControlMode::Position, buDepositPosition);
-				}
-				
-				std::cout << "LinAct pos: " << linAct1.GetSelectedSensorPosition() << std::endl;
-				std::cout << "Bucket pos: " << bucket1.GetSelectedSensorPosition() << std::endl;
-
-				if (sentinel != p_cmd)
-				{ 
-					stop();
-					return;
-				}
-				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-			}
-
-			// For now, no timer to let gravel fall into sieve, if mech says otherwise, uncomment
-			// std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-
-			bucket1.Set(ControlMode::Position, buDrivePosition);
-
-			
-			while(bucket1.GetSelectedSensorPosition() != buDrivePosition || linAct1.GetSelectedSensorPosition() != laDrivePosition)
-			{
-				
-				ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-				// Move the linAct only when the bucket has passed a certain point.
-				if (bucket1.GetSelectedSensorPosition() < (buDrivePosition + 10))
-				{
-					linAct1.Set(ControlMode::Position, laDrivePosition);
-				}
-				
-				std::cout << "LinAct pos: " << linAct1.GetSelectedSensorPosition() << std::endl;
-				std::cout << "Bucket pos: " << bucket1.GetSelectedSensorPosition() << std::endl;
-
-				if (sentinel != p_cmd)
-				{ 
-					stop();
-					return;
-				}
-				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-			}
-
-			if (sentinel != p_cmd)
-				{ 
-					stop();
-					return;
-				}
-			
-			ROS_INFO("drive mode complete, enabling ongoingDepositPhase if auto engaged: ");
-
-			bool checkAutoDeposit;
-    		nh.getParam("manualMode", checkAutoDeposit);
-			if(!checkAutoDeposit)
-			{
-				bool checkDeposit = true;
-    			nh.setParam("ongoingDepositPhase", checkDeposit);
-			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
-		stop();
+
+		bucket1.Set(ControlMode::Position, buDepositPosition);
+
+		while(bucket1.GetSelectedSensorPosition() < buDepositPosition - 10)
+		{
+			if (sentinel != p_cmd)
+			{ 
+				stop();
+				return;
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+
+		if (sentinel != p_cmd)
+		{ 
+			stop();
+			return;
+		}
+		
+		driveMode(p_cmd, nh);
+		
+		/*ROS_INFO("drive mode complete, enabling ongoingDepositPhase if auto engaged: ");
+
+		bool checkAutoDeposit;
+	nh.getParam("manualMode", checkAutoDeposit);
+		if(!checkAutoDeposit)
+		{
+			bool checkDeposit = true;
+		nh.setParam("ongoingDepositPhase", checkDeposit);
+		}
+		} */
 	}
 
 	void trencherOperationsClass::dig(int& p_cmd, ros::NodeHandle  nh)
 	{
 		sentinel = p_cmd;
-
-		config(nh);
 		
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		std::cout << "Checking while loop in digMode: " << std::endl;
-		std::cout << "BallS and linAct1 pos: " << bScrew.GetSelectedSensorPosition() << linAct1.GetSelectedSensorPosition() << std::endl;
+		std::cout << "Beginning in digMode: " << std::endl;
 
-		if(bScrew.GetSelectedSensorPosition() == bsDrivePosition && linAct1.GetSelectedSensorPosition() == laDrivePosition && bucket1.GetSelectedSensorPosition() == buDrivePosition)
-			{
-				
-				ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+		bucket1.Set(ControlMode::Position, buDigPosition);
 
-				linAct1.Set(ControlMode::Position, laDigPosition);
-				std::this_thread::sleep_for(std::chrono::milliseconds(000));
-
-				bucket1.Set(ControlMode::Position, buDigPosition);
-
-				if (sentinel != p_cmd)
-				{ 
-					stop();
-					return;
-				}
-
-				while((bScrew.GetSelectedSensorPosition() != (bsDigPosition - 300)) || (linAct1.GetSelectedSensorPosition() != laDigPosition) && (bucket1.GetSelectedSensorPosition() != buDigPosition))
-				{
-					
-					ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-					// Move the ball screw after the linAct has rotated past a certain point
-					if (linAct1.GetSelectedSensorPosition() < (laDigPosition + 10))
-					{
-						bScrew.Set(ControlMode::Position, bsDigPosition);
-					}
-					std::cout << "Bscrew pos: " << bScrew.GetSelectedSensorPosition() << std::endl;
-					std::cout << "LinAct pos: " << linAct1.GetSelectedSensorPosition() << std::endl;
-					std::cout << "Bucket pos: " << bucket1.GetSelectedSensorPosition() << std::endl;
-
-					if (sentinel != p_cmd)
-					{ 
-						stop();
-						return;
-					}
-					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-				}
-
-				// Turn the trencher on
-				//trencher.Set(ControlMode::Velocity, 0.1);
-
-			}	
-
+		while(bucket1.GetSelectedSensorPosition() > buDigPosition + 5)
+		{
 			if (sentinel != p_cmd)
-				{ 
-					stop();
-					return;
-				}
-
-			driveMode(p_cmd, nh);
-			
-			ROS_INFO("drive mode complete, enabling ongoingDigPhase if auto engaged: ");
-			bool checkAutoDig;
-    		nh.getParam("manualMode", checkAutoDig);
-			if(!checkAutoDig)
-			{
-				bool checkDig = true;
-    			nh.setParam("ongoingDigPhase", checkDig);
+			{ 
+				stop();
+				return;
 			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
 
+		linAct1.Set(ControlMode::Position, laDigPosition);
 
+		while(linAct1.GetSelectedSensorPosition() < laDigPosition - 10)
+		{
+			if (sentinel != p_cmd)
+			{ 
+				stop();
+				return;
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+
+		trencher.Set(ControlMode::PercentOutput, .3);
+		bScrew.Set(ControlMode::PercentOutput, .5);
+
+		while(bScrew.GetSelectedSensorPosition() < bsDigPosition - 100000)
+		{
+			if (sentinel != p_cmd)
+			{ 
+				stop();
+				return;
+			}
+		}
 
 		stop();
+		
+		driveMode(p_cmd, nh);	
+
+		if (sentinel != p_cmd)
+			{ 
+				stop();
+				return;
+			}
+		/*
+		driveMode(p_cmd, nh);
+		
+		ROS_INFO("drive mode complete, enabling ongoingDigPhase if auto engaged: ");
+		bool checkAutoDig;
+	nh.getParam("manualMode", checkAutoDig);
+		if(!checkAutoDig)
+		{
+			bool checkDig = true;
+		nh.setParam("ongoingDigPhase", checkDig);
+		}
+
+
+
+		stop(); */
 	}
 
+	void trencherOperationsClass::turnTrencher(int& p_cmd, ros::NodeHandle nh)
+	{
+		sentinel = p_cmd;
+		while(sentinel == p_cmd)
+		{
+			trencher.Set(ControlMode::PercentOutput, .3);
+		}
+		stop();
+	}

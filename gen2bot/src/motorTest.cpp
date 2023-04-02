@@ -10,13 +10,12 @@ This file acts as the subscriber to /motorControlGen2Bot/motor_control_gen2bot/s
 #include "ctre/phoenix/unmanaged/Unmanaged.h"
 #include "ctre/phoenix/cci/Unmanaged_CCI.h"
 
-// ROS header includes
-#include "ros/ros.h"
-#include "geometry_msgs/Twist.h"
-
 //librarys for timing 
+#include <string>
+#include <iostream>
 #include <chrono>
 #include <thread>
+#include <unistd.h>
 
 // CTRE namespaces
 using namespace ctre::phoenix;
@@ -32,13 +31,14 @@ TalonFX talRght(21);
 TalonFXConfiguration wheelMM;
 
 // linear actuator initialized (points trencher up and down)
-TalonSRX linAct1(31, interface);
+TalonSRX linAct1(31);
 TalonSRX linAct2(32);
 TalonSRXConfiguration linActMM;
 
 // ballscrew motor initialized (extends and contracts motor)
 TalonFX bScrew(11);
-TalonFXConfiguration bScrewMM;
+TalonFXConfiguration bScrewMM; // negative direction is towards 0 position, all others are positive 
+// to reach 0 position
 
 // spins the conveyor belt (spins the scoopers)
 TalonFX trencher(41);
@@ -48,6 +48,7 @@ TalonFXConfiguration trencherMM;
 TalonSRX bucket1(51);
 TalonSRX bucket2(52);
 TalonSRXConfiguration bucketMM;
+
 
 void getCurrentPosition(int x)
 {
@@ -74,12 +75,7 @@ void getCurrentPosition(int x)
 		std::cout << "Bucket motor 1 position: " << bucket1.GetSelectedSensorPosition() << std::endl;
 		std::cout << "Bucket motor 2 position: " << bucket2.GetSelectedSensorPosition() << std::endl;
 	}
-
-	int repeatCheck;
-	std::cout << "Want to get position again? (1 yes, 2 no): ";
-	if(repeatCheck == 1)
-		getCurrentPosition(x);
-
+	return;
 }
 
 void setCurrentPositionZero(int x)
@@ -96,7 +92,7 @@ void setCurrentPositionZero(int x)
 	if(x == 31)
 	{
 		linAct1.SetSelectedSensorPosition(0);
-        linAct2.SetSelectedSensorPosition(0);
+        	linAct2.SetSelectedSensorPosition(0);
 	}
 	if(x == 41)
 	{
@@ -105,9 +101,10 @@ void setCurrentPositionZero(int x)
 	if(x == 51)
 	{
 		bucket1.SetSelectedSensorPosition(0);
-        bucket2.SetSelectedSensorPosition(0);
+        	bucket2.SetSelectedSensorPosition(0);
 	}
 	std::cout << "Motors set to zero" << std::endl;
+	return;
 }
 
 void sendToPosition(int x)
@@ -116,13 +113,13 @@ void sendToPosition(int x)
 
 	std::cout << "Enter wanted position: " << std::endl;
 	std::cin >> position;
+	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
 	if (x == 11)
 	{
 		bScrew.Set(ControlMode::Position, position);
 	}
 
-	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 	if (x == 21)
 	{
 		talRght.Set(ControlMode::Position, position);
@@ -131,7 +128,7 @@ void sendToPosition(int x)
 	if (x == 31)
 	{
 		linAct1.Set(ControlMode::Position, position);
-        linAct2.Set(ControlMode::Position, position);
+        	linAct2.Set(ControlMode::Position, position);
 	}
 	if (x == 41)
 	{
@@ -140,9 +137,10 @@ void sendToPosition(int x)
 	if (x == 51)
 	{
 		bucket1.Set(ControlMode::Position, position);
-        bucket2.Set(ControlMode::Position, position);
+        	//bucket2.Set(ControlMode::Position, position);
 	}
 	std::cout << "Position set to: " << position << std::endl;
+	return;
 }
 
 void zero(int x)
@@ -162,7 +160,7 @@ void zero(int x)
 	if (x == 31)
 	{
 		linAct1.Set(ControlMode::Velocity, 0);
-        linAct2.Set(ControlMode::Velocity, 0);
+        	linAct2.Set(ControlMode::Velocity, 0);
 	}
 	if (x == 41)
 	{
@@ -171,10 +169,11 @@ void zero(int x)
 	if (x == 51)
 	{
 		bucket1.Set(ControlMode::Velocity, 0);
-        bucket2.Set(ControlMode::Velocity, 0);
+        	//bucket2.Set(ControlMode::Velocity, 0);
 	}
 
 	std::cout << "Zeroed motors" << std::endl;
+	return;
 }
 
 void config(int x)
@@ -282,127 +281,100 @@ void config(int x)
 		bucket1.ConfigAllSettings(bucketMM);
 		bucket2.ConfigAllSettings(bucketMM);
 	}
+	return;
 }
 
 //sets percent output 
 void setPO(int x)
 {
-	int percentOutput = 0;
+	double percentOutput = 0;
 	int more = 1;
 	int duration_sec = 3;
 
 	if (x == 11)
 	{
-		while (more == 1)
-		{
-			std::cout << "set PO: ";
-			std::cin >> percentOutput;
+		std::cout << "set PO: ";
+		std::cin >> percentOutput;
 
-			std::cout << "set timer in seconds (3 as default): ";
-			std::cin >> duration_sec;			
+		std::cout << "set timer in seconds (3 as default): ";
+		std::cin >> duration_sec;			
 
-			bScrew.Set(ControlMode::PercentOutput, percentOutput);
-			
-			std::this_thread::sleep_for(std::chrono::milliseconds(duration_sec));
+		bScrew.Set(ControlMode::PercentOutput, percentOutput);
+		
+		std::this_thread::sleep_for(std::chrono::milliseconds(duration_sec * 1000));
 
-			bScrew.Set(ControlMode::PercentOutput, 0);
-
-			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)" << std::endl;
-			std::cin >> more;
-		}
+		bScrew.Set(ControlMode::PercentOutput, 0);
 	}
 
 	if (x == 21)
 	{
-		while (more == 1)
-		{
-			std::cout << "set PO: ";
-			std::cin >> percentOutput;
+		std::cout << "set PO: ";
+		std::cin >> percentOutput;
 
 
-			std::cout << "set timer in seconds (3 as default): ";
-			std::cin >> duration_sec;	
+		std::cout << "set timer in seconds (3 as default): ";
+		std::cin >> duration_sec;	
 
-			talLeft.Set(ControlMode::PercentOutput, percentOutput);
-			talRght.Set(ControlMode::PercentOutput, percentOutput);		
-			
-			std::this_thread::sleep_for(std::chrono::milliseconds(duration_sec));
+		talLeft.Set(ControlMode::PercentOutput, percentOutput);
+		talRght.Set(ControlMode::PercentOutput, percentOutput);		
+		
+		std::this_thread::sleep_for(std::chrono::milliseconds(duration_sec * 1000));
 
-			talLeft.Set(ControlMode::PercentOutput, 0);
-			talRght.Set(ControlMode::PercentOutput, 0);
-
-			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)" << std::endl;
-			std::cin >> more;		
-		}
+		talLeft.Set(ControlMode::PercentOutput, 0);
+		talRght.Set(ControlMode::PercentOutput, 0);
 	}
 
 	if (x == 31)
 	{
-		while (more == 1)
-		{
-			std::cout << "set PO: ";
-			std::cin >> percentOutput;
+		std::cout << "set PO: ";
+		std::cin >> percentOutput;
 
-			std::cout << "set timer in seconds (3 as default): ";
-			std::cin >> duration_sec;			
+		std::cout << "set timer in seconds (3 as default): ";
+		std::cin >> duration_sec;			
 
-			linAct1.Set(ControlMode::PercentOutput, percentOutput);
-			linAct2.Set(ControlMode::PercentOutput, percentOutput);
-			
-			std::this_thread::sleep_for(std::chrono::milliseconds(duration_sec));
+		linAct1.Set(ControlMode::PercentOutput, percentOutput);
+		linAct2.Set(ControlMode::PercentOutput, percentOutput);
+		
+		std::this_thread::sleep_for(std::chrono::milliseconds(duration_sec * 1000));
 
-			linAct1.Set(ControlMode::PercentOutput, 0);
-			linAct2.Set(ControlMode::PercentOutput, 0);
-
-			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)" << std::endl;
-			std::cin >> more;
-		}
+		linAct1.Set(ControlMode::PercentOutput, 0);
+		linAct2.Set(ControlMode::PercentOutput, 0);
 	}
 	if (x == 41)
 	{
-		while (more == 1)
-		{
-			std::cout << "set PO: ";
-			std::cin >> percentOutput;
+		std::cout << "set PO: ";
+		std::cin >> percentOutput;
 
-			std::cout << "set timer in seconds (3 as default): ";
-			std::cin >> duration_sec;	
+		std::cout << "set timer in seconds (3 as default): ";
+		std::cin >> duration_sec;	
 
-			trencher.Set(ControlMode::PercentOutput, percentOutput);
+		trencher.Set(ControlMode::PercentOutput, percentOutput);
+	
 		
-			
-			std::this_thread::sleep_for(std::chrono::milliseconds(duration_sec));
+		std::this_thread::sleep_for(std::chrono::milliseconds(duration_sec * 1000));
 
-			trencher.Set(ControlMode::PercentOutput, 0);
-
-			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)" << std::endl;
-			std::cin >> more;
-		}
+		trencher.Set(ControlMode::PercentOutput, 0);
 	}
 	if (x == 51)
 	{
-		while (more == 1)
-		{
-			std::cout << "set PO: ";
-			std::cin >> percentOutput;
 
-			std::cout << "set timer in seconds (3 as default): ";
-			std::cin >> duration_sec;	
+		std::cout << "set PO: ";
+		std::cin >> percentOutput;
 
-			bucket1.Set(ControlMode::PercentOutput, percentOutput);
-			bucket2.Set(ControlMode::PercentOutput, percentOutput);		
-			
-			std::this_thread::sleep_for(std::chrono::milliseconds(duration_sec));
-			
-			bucket1.Set(ControlMode::PercentOutput, 0);
-			bucket2.Set(ControlMode::PercentOutput, 0);
+		std::cout << "set timer in seconds (3 as default): ";
+		std::cin >> duration_sec;	
 
-			std::cout << "Would you like to run this again? (enter 1 for yes, 0 for no)" << std::endl;
-			std::cin >> more;
-		}
+		bucket1.Set(ControlMode::PercentOutput, percentOutput);
+		//bucket2.Set(ControlMode::PercentOutput, percentOutput);		
+		
+		std::this_thread::sleep_for(std::chrono::milliseconds(duration_sec * 1000));
+		
+		bucket1.Set(ControlMode::PercentOutput, 0);
+		//bucket2.Set(ControlMode::PercentOutput, 0);
 	}
+	return;
 }
-
+/*
 // Takes in the outputs sent from notDTTalker.py's published messages
 void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
@@ -426,60 +398,72 @@ void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 	// and left horizontal axis' turning speed
 	talRght.Set(ControlMode::PercentOutput, (x + z) / 2 );
 	talLeft.Set(ControlMode::PercentOutput, (x - z) / 2 );
-}
+} */
 
-int main(int argc, char **argv) 
+int main() 
 {	
 	// Initialize ROS subscriber node called "motors" that subscribes to "chatter" topic
-	ros::init(argc, argv, "motors");
-	ros::NodeHandle n;
-	ros::Subscriber sub = n.subscribe("chatter", 10000, chatterCallback);
+	// ros::Subscriber sub = n.subscribe("chatter", 10000, chatterCallback);
+	std::cout << "Proof file has changed 03/28/23!!! " << std::endl;
+	linAct1.SetSensorPhase(true);
+	linAct2.SetSensorPhase(true);
+	bucket1.SetSensorPhase(true);
+	bucket2.SetSensorPhase(true); // uncommenting leads to only left bucket moving
+	linAct1.SetInverted(true);
+	linAct2.SetInverted(true);
+	bucket1.SetInverted(true);
+	bucket2.SetInverted(true);
 
-	 int p_cmd = 0;
-	 int motorNumber = 0;
+	//bucket2.SetInverted(true);
+	bucket2.Set(ControlMode::Follower, 51);
+	std::cout << "Proof file has changed!!! " << std::endl;
+	int p_cmd = 0;
+	int motorNumber = 0;
 	do{
+		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 		std::cout << "getCurrentPosition: 1\n setCurrentPosition: 2\n sendToPosition: 3\n config: 4\n Zero: 5\n setPO: 6\n";
 		std::cout << "Enter p_cmd: " << std::endl;
 		std::cin >> p_cmd;
 		std::cout << "Wheels: 21\nLinear actuators: 31\nBallscrew: 11\nTrencher: 41\nBuckets: 51\n";
 		std::cout << "Enter motor number: " << std::endl;
 		std::cin >> motorNumber;
-
 		switch (p_cmd)
 		{
 		case 0:
 			break;
 		case 1:
+			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 			getCurrentPosition(motorNumber);
 			p_cmd = 0;
 			break;
 		case 2:
+			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 			setCurrentPositionZero(motorNumber);
 			p_cmd = 0;
 			break;
 		case 3:
+			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 			sendToPosition(motorNumber);
 			p_cmd = 0;
 			break;
 		case 4:
+			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 			config(motorNumber);
 			p_cmd = 0;
 			break;
 		case 5:
+			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 			zero(motorNumber);
 			p_cmd = 0;
 			break;
 		case 6:
-		    setPO(motorNumber);
+			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+			setPO(motorNumber);
 			p_cmd = 0;
 			break;
 		default:
 			break;
 		}
 	} while(p_cmd == 0);
-
-
-  	ros::spin();
-
 	return 0;
 }

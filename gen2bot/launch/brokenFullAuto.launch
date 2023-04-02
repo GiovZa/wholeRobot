@@ -203,7 +203,7 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
   </node>
 
   <!-- Node that contains all motor functions that don't relate to driving -->
-  <node pkg="gen2bot" type="miningOperationsTrencherAuto" name="mining_operations" output="screen">
+  <node pkg="gen2bot" type="miningOperationsTrencherPOL" name="mining_operations" output="screen">
     <param name="wheel_multiplier" value="1.1" type="double"/>
     <rosparam file="$(find gen2bot)/config/PID.yaml" command="load"/> 
   </node> 
@@ -211,7 +211,7 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
   <!-- loads states.yaml's parameters-->
   <rosparam file="$(find gen2bot)/config/states.yaml" command="load"/> 
 
- <node pkg="gen2bot" type="move_base_client.py" name="move_base_client.py" output="screen">
- </node> 
+ <!-- <node pkg="gen2bot" type="move_base_client.py" name="move_base_client.py" output="screen">
+ </node> -->
 
 </launch>

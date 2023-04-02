@@ -33,15 +33,15 @@ void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
 	// Set X and Z to linear and turn respectively
 	double x = msg->linear.x;
 	double z = msg->angular.z;
-	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(1000);
 	
 	// Must flip right motor because it is facing the other way
 	talRght.SetInverted(true);
 
 	// Set each motor to spin at a percent of max speed relative to triggers' linear speed
 	// and left stick horizontal axis' turning speed
-	talRght.Set(ControlMode::PercentOutput, (-x + z)/4 );
-	talLeft.Set(ControlMode::PercentOutput, (-x - z)/4 );
+	talRght.Set(ControlMode::PercentOutput, (-x + z)*.25 );
+	talLeft.Set(ControlMode::PercentOutput, (-x - z)*.25 );
 }
 
 int main(int argc, char **argv) 

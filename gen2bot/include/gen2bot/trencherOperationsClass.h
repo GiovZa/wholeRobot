@@ -23,6 +23,8 @@ public:
 
 	void config(ros::NodeHandle nh);
 
+	void turnTrencher(int& p_cmd, ros::NodeHandle  nh);
+
 
 	int sentinel;
 
