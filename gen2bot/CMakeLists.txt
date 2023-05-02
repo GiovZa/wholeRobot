@@ -103,19 +103,19 @@ target_link_libraries(miningOperationsAuger
 #  ${catkin_LIBRARIES}
 #)
 
-add_executable(
-miningOperationsTrencherPOL
+#add_executable(
+#miningOperationsTrencherPOL
 
-src/miningOperationsTrencherPOL.cpp 
-src/processManagerClass.cpp 
-include/gen2bot/processManagerClass.h
-src/trencherOperationsClass.cpp 
-include/gen2bot/trencherOperationsClass.h
-)
-target_link_libraries(miningOperationsTrencherPOL
-  CTRE_Phoenix
-  ${catkin_LIBRARIES}
-)
+#src/miningOperationsTrencherPOL.cpp 
+#src/processManagerClass.cpp 
+#include/gen2bot/processManagerClass.h
+#src/trencherOperationsClass.cpp 
+#include/gen2bot/trencherOperationsClass.h
+#)
+#target_link_libraries(miningOperationsTrencherPOL
+#  CTRE_Phoenix
+#  ${catkin_LIBRARIES}
+#)
 
 add_executable(
 miningOperationsTrencheMar
@@ -161,6 +161,22 @@ motorTest
 src/motorTest.cpp 
 )
 target_link_libraries(motorTest
+  CTRE_Phoenix
+  ${catkin_LIBRARIES}
+)
+
+# Brian's test!!!
+
+add_executable(
+brianMine
+
+src/miningOperationsTrencherPOL.cpp 
+src/processManagerClass.cpp 
+include/gen2bot/processManagerClass.h
+src/TOCVelocity.cpp 
+include/gen2bot/TOCVelocity.h
+)
+target_link_libraries(brianMine
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )

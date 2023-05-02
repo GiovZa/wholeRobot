@@ -63,31 +63,31 @@ class JoystickPublisher:
                                 rospy.loginfo("Configuring motors")
                                 self.pub.publish(Int8)
 
-                        elif(message.axes[6] == 1.0): # left DPad 
+                        elif(message.axes[6] == 1): # left DPad 
                                 rospy.set_param('manualMode', True)
 
                                 rospy.loginfo("auto mode disengaged")
                                 rospy.loginfo("manual mode engaged")
 
-                        elif(message.axes[6] == -1.0): # right DPad
+                        elif(message.axes[6] == -1): # right DPad
                                 rospy.set_param('manualMode', False)
 
                                 rospy.loginfo("manual mode disengaged")
                                 rospy.loginfo("auto mode engaged")
 
-                        elif(message.buttons[10] == 1.0): # menu button
+                        elif(message.buttons[10] == 1): # menu button
                                 Int8 = 6 #navigation to dig
 
                                 rospy.loginfo("Initiating autonomous navigation towards dig goal")
                                 self.pub.publish(Int8)
 
-                        elif(message.buttons[11] == 1.0): # start button
+                        elif(message.buttons[11] == 1): # start button
                                 Int8 = 7 #navigation to deposit
 
                                 rospy.loginfo("Initiating autonomous navigation towards deposit goal")
                                 self.pub.publish(Int8)
 
-                if(message.axes[7] == -1.0): # Down DPad
+                if(message.axes[7] == -1): # Down DPad
                         Int8 = 0 #kill any function running
                         self.pub.publish(Int8)   
                         rospy.loginfo("Killing current function: ")
@@ -131,7 +131,7 @@ class JoystickPublisherWheel:
         self.pub.publish(twist)
 
     
-if __name__ == '__main__':
+def start():
         # Name of node
         rospy.init_node('manualRobotProcess')
 
@@ -153,3 +153,6 @@ if __name__ == '__main__':
         # starts the node
         rospy.spin()
 
+if __name__ == '__main__':
+        #start the initialize controller script
+       start()

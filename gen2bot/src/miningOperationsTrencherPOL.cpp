@@ -1,16 +1,13 @@
 // Script that runs mining operation for POL video at Iowa 
 // This file works with processManagerClass.h and trencherOperationsClass.h and processManagerClass.cpp and trencherOperationsClass.cpp
-#include <gen2bot/trencherOperationsClass.h>
+#include <gen2bot/TOCVelocity.h>
 #include <gen2bot/processManagerClass.h>
 #include <iostream>
 #include <chrono>
 #include <thread>
 #include <mutex>
-#include <cstdlib>
 
 #include "ros/ros.h"
-
-#include <iostream>
 
 // Search up pointers in cpp, mutex, and threads in cpp before continuing
 
@@ -21,7 +18,7 @@ int data;
 // For each function, we have to pass in the memory address of p_cmd so that we can see if it's value
 // changes outside the function and thus, kill the function. We must also pass the NotDT object to run it's
 // motor functions, and lastly, we must pass in nodehandle to have access to ros parameters
-void goToDrive(int &p_cmd, trencherOperationsClass trencherOperations, ros::NodeHandle nh)
+void goToDrive(int &p_cmd, TOCVelocity trencherOperations, ros::NodeHandle nh)
 {
 	int sentinel = p_cmd;
 	ROS_INFO("goToDrive");
@@ -36,7 +33,7 @@ void goToDrive(int &p_cmd, trencherOperationsClass trencherOperations, ros::Node
 	}
 }
 
-void deposit(int &p_cmd, trencherOperationsClass trencherOperations, ros::NodeHandle nh)
+void deposit(int &p_cmd, TOCVelocity trencherOperations, ros::NodeHandle nh)
 {
 	int sentinel = p_cmd;
 	ROS_INFO("goToDeposit");
@@ -47,7 +44,7 @@ void deposit(int &p_cmd, trencherOperationsClass trencherOperations, ros::NodeHa
 	}
 }
 
-void dig(int &p_cmd, trencherOperationsClass trencherOperations, ros::NodeHandle nh)
+void dig(int &p_cmd, TOCVelocity trencherOperations, ros::NodeHandle nh)
 {
 	int sentinel = p_cmd;
 	ROS_INFO("goToDig");
@@ -58,7 +55,7 @@ void dig(int &p_cmd, trencherOperationsClass trencherOperations, ros::NodeHandle
 	}
 }
 
-void turnTrench(int &p_cmd, trencherOperationsClass trencherOperations, ros::NodeHandle nh)
+/*void turnTrench(int &p_cmd, TOCVelocity trencherOperations, ros::NodeHandle nh)
 {
 	int sentinel = p_cmd;
 	ROS_INFO("turnTrencher");
@@ -67,22 +64,22 @@ void turnTrench(int &p_cmd, trencherOperationsClass trencherOperations, ros::Nod
 		trencherOperations.turnTrencher(p_cmd, nh);
 		p_cmd = 0;
 	}
-}
+}*/
 
-void zero(int &p_cmd, trencherOperationsClass trencherOperations, ros::NodeHandle nh)
+void zero(int &p_cmd, TOCVelocity trencherOperations, ros::NodeHandle nh)
 {
 	int sentinel = p_cmd;
 	ROS_INFO("zero");
 	while (p_cmd == sentinel)
 	{
-		trencherOperations.zero(p_cmd, nh);
+		trencherOperations.zero3(p_cmd, nh);
 		std::cout << "Exit trencherOperations.zero with sentinel, notDTsentinel, z "
 				  << " and p_cmd: " << sentinel << " " << trencherOperations.sentinel << " " << p_cmd << std::endl;
 		p_cmd = 0;
 	}
 }
 
-void config(trencherOperationsClass trencherOperations, ros::NodeHandle nh)
+void config(TOCVelocity trencherOperations, ros::NodeHandle nh)
 {
 	trencherOperations.config(nh);
 }
@@ -106,7 +103,7 @@ int main(int argc, char **argv)
 
 	ros::NodeHandle nh;
 
-	trencherOperationsClass trencherOperations(nh);
+	TOCVelocity trencherOperations(nh);
 
 	int p_cmd = 0;
 	int *ptr = &p_cmd;
@@ -154,11 +151,11 @@ int main(int argc, char **argv)
 			config(trencherOperations, nh);
 			p_cmd = 0;
 			break;
-		case 6:
+		/*case 6:
 			std::cout << "running trencher" << std::endl;
 			turnTrench(p_cmd, trencherOperations, nh);
 			p_cmd = 0;
-			break;
+			break;*/
 		default:
 			break;
 		}

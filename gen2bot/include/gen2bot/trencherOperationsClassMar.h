@@ -14,9 +14,9 @@ public:
 	void rightLinActForward(int& p_cmd, ros::NodeHandle  nh);
 	void rightBucketForward(int& p_cmd, ros::NodeHandle  nh);
 	void rightBucketBack(int& p_cmd, ros::NodeHandle  nh);
-	void spinScoops(int &p_cmd, ros::NodeHandle nh);
-
-
+	void bucketsBack(int& p_cmd, ros::NodeHandle  nh);
+	void bucketsForward(int& p_cmd, ros::NodeHandle  nh);
+	
 	void leftLinActBack(int& p_cmd, ros::NodeHandle  nh);
 	void leftLinActForward(int& p_cmd, ros::NodeHandle  nh);
 	void leftBucketForward(int& p_cmd, ros::NodeHandle  nh);
@@ -24,6 +24,7 @@ public:
 	void ballScrewIn(int &p_cmd, ros::NodeHandle nh);
 	void ballScrewOut(int &p_cmd, ros::NodeHandle nh);
 
+	void spinScoops(int &p_cmd, ros::NodeHandle nh);
 	void scoopsBScrew(int &p_cmd, ros::NodeHandle nh);
 	void linActsForward(int &p_cmd, ros::NodeHandle nh);
 	void linActsBack(int &p_cmd, ros::NodeHandle nh);

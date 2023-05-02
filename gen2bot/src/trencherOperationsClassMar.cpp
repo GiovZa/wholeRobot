@@ -82,7 +82,7 @@ void trencherOperationsClass::config(ros::NodeHandle nh)
 		ROS_INFO("rightLinActBackClass");
 		// Probably don't need while loops, can't test if it's fine without it though
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		linAct1.Set(ControlMode::PercentOutput, -.6);
+		linAct1.Set(ControlMode::PercentOutput, -.5);
 		while (p_cmd == sentinel)
 		{
 			ROS_INFO("Inside While loop");
@@ -106,7 +106,7 @@ void trencherOperationsClass::config(ros::NodeHandle nh)
 		sentinel = p_cmd;
 		ROS_INFO("rightLinActForwardClass");
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		linAct1.Set(ControlMode::PercentOutput, .6);
+		linAct1.Set(ControlMode::PercentOutput, .5);
 		while (p_cmd == sentinel)
 		{
 			ROS_INFO("Inside While loop");
@@ -176,7 +176,7 @@ void trencherOperationsClass::config(ros::NodeHandle nh)
 		sentinel = p_cmd;
 		ROS_INFO("spinScoopsClass");
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		trencher.Set(ControlMode::PercentOutput, .6);
+		trencher.Set(ControlMode::PercentOutput, .4);
 		while (p_cmd == sentinel)
 		{
 			
@@ -197,7 +197,7 @@ void trencherOperationsClass::config(ros::NodeHandle nh)
 		sentinel = p_cmd;
 		ROS_INFO("leftLinActBackClass");
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		linAct2.Set(ControlMode::PercentOutput, -.6);
+		linAct2.Set(ControlMode::PercentOutput, -.5);
 		while (p_cmd == sentinel)
 		{
 			// For each function from notDTClass, we must pass in p_cmd so that we can constantly
@@ -222,7 +222,7 @@ void trencherOperationsClass::config(ros::NodeHandle nh)
 		sentinel = p_cmd;
 		ROS_INFO("leftLinActForwardClass");
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		linAct2.Set(ControlMode::PercentOutput, .6);
+		linAct2.Set(ControlMode::PercentOutput, .5);
 		while (p_cmd == sentinel)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -289,7 +289,7 @@ void trencherOperationsClass::config(ros::NodeHandle nh)
 		sentinel = p_cmd;
 		ROS_INFO("ballScrewInClass");
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		bScrew.Set(ControlMode::PercentOutput, .6);
+		bScrew.Set(ControlMode::PercentOutput, .8);
 		while (p_cmd == sentinel)
 		{
 			ROS_INFO("Inside While loop");	
@@ -311,7 +311,7 @@ void trencherOperationsClass::config(ros::NodeHandle nh)
 		sentinel = p_cmd;
 		ROS_INFO("ballScrewOutClass");
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		bScrew.Set(ControlMode::PercentOutput, -.6);
+		bScrew.Set(ControlMode::PercentOutput, -.8);
 		while (p_cmd == sentinel)
 		{
 			ROS_INFO("Inside While loop");	
@@ -334,7 +334,7 @@ void trencherOperationsClass::config(ros::NodeHandle nh)
 		ROS_INFO("scoopsBScrewClass");
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 		trencher.Set(ControlMode::PercentOutput, .6);
-		bScrew.Set(ControlMode::PercentOutput, .6);
+		bScrew.Set(ControlMode::PercentOutput, .8);
 		while (p_cmd == sentinel)
 		{
 			ROS_INFO("Inside While loop");	
@@ -355,8 +355,8 @@ void trencherOperationsClass::config(ros::NodeHandle nh)
 		sentinel = p_cmd;
 		ROS_INFO("linActsForwardClass");
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		linAct1.Set(ControlMode::PercentOutput, .6);
-		linAct2.Set(ControlMode::PercentOutput, .6);
+		linAct1.Set(ControlMode::PercentOutput, .5);
+		linAct2.Set(ControlMode::PercentOutput, .5);
 		while (p_cmd == sentinel)
 		{
 			ROS_INFO("Inside While loop");
@@ -377,8 +377,8 @@ void trencherOperationsClass::config(ros::NodeHandle nh)
 		sentinel = p_cmd;
 		ROS_INFO("linActsBackClass");
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		linAct1.Set(ControlMode::PercentOutput, -.6);
-		linAct2.Set(ControlMode::PercentOutput, -.6);
+		linAct1.Set(ControlMode::PercentOutput, -.5);
+		linAct2.Set(ControlMode::PercentOutput, -.5);
 		while (p_cmd == sentinel)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -389,6 +389,50 @@ void trencherOperationsClass::config(ros::NodeHandle nh)
 		}
 		linAct1.Set(ControlMode::PercentOutput, 0);
 		linAct2.Set(ControlMode::PercentOutput, 0);
+		ROS_INFO("Motor(s) shut off");
+		ROS_INFO("p_cmd out of loop: %d", p_cmd);
+		ROS_INFO("sentinel out of loop: %d", sentinel);
+	}
+
+	void trencherOperationsClass::bucketsForward(int& p_cmd, ros::NodeHandle nh)
+	{
+		sentinel = p_cmd;
+		ROS_INFO("bucketsForwardClass");
+		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+		bucket1.Set(ControlMode::PercentOutput, .4);
+		bucket2.Set(ControlMode::PercentOutput, .4);
+		while (p_cmd == sentinel)
+		{
+			ROS_INFO("Inside While loop");
+			ROS_INFO("p_cmd: %d", p_cmd);
+			ROS_INFO("sentinel: %d", sentinel);
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			// After function ends, put p_cmd in default value so process knows function has ended
+		}
+		bucket1.Set(ControlMode::PercentOutput, 0);
+		bucket2.Set(ControlMode::PercentOutput, 0);
+		ROS_INFO("Motor(s) shut off");
+		ROS_INFO("p_cmd out of loop: %d", p_cmd);
+		ROS_INFO("sentinel out of loop: %d", sentinel);
+	}
+
+	void trencherOperationsClass::bucketsBack(int& p_cmd, ros::NodeHandle nh)
+	{
+		sentinel = p_cmd;
+		ROS_INFO("bucketsBackClass");
+		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+		bucket1.Set(ControlMode::PercentOutput, -.4);
+		bucket2.Set(ControlMode::PercentOutput, -.4);
+		while (p_cmd == sentinel)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			ROS_INFO("Inside While loop");
+			ROS_INFO("p_cmd: %d", p_cmd);
+			ROS_INFO("sentinel: %d", sentinel);
+			// After function ends, put p_cmd in default value so process knows function has ended
+		}
+		bucket1.Set(ControlMode::PercentOutput, 0);
+		bucket2.Set(ControlMode::PercentOutput, 0);
 		ROS_INFO("Motor(s) shut off");
 		ROS_INFO("p_cmd out of loop: %d", p_cmd);
 		ROS_INFO("sentinel out of loop: %d", sentinel);

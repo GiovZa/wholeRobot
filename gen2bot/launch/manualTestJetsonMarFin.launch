@@ -17,7 +17,7 @@
 
 
   <!-- Node that contains all motor functions that don't relate to driving -->
-  <node pkg="gen2bot" type="miningOperationsTrencheMar" name="rightSideMiningAndTrencher" output="screen">
+  <node pkg="gen2bot" type="miningOperationsTrencheMar" name="MiningAndTrencher" output="screen">
   </node>
 
   <!-- Node that contains all motor functions that don't relate to driving -->

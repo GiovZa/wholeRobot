@@ -32,100 +32,145 @@ class JoystickPublisher:
 
         # function checks for controller inputs and runs a motor function based on which button is pressed
         def callback(self, message):
-                if(message.buttons[0] == 1): # A button
-                        Int8 = 1 #left linear actuator back
-                        
-                        rospy.loginfo("left linear actuator back")
-                        self.pub.publish(Int8)			
+                if(message.buttons[6] == 1 and message.buttons[7] == 1 and message.axes[7] == 1.0):
+                        if(message.buttons[0] == 1.0): # A button
+                                Int8 = 1 #left linear actuator back
+                                
+                                rospy.loginfo("left linear actuator back")
+                                self.pub.publish(Int8)			
 
-                elif(message.buttons[3] == 1): # X button
-                        Int8 = 3 #DriveMode
+                        elif(message.buttons[3] == 1.0): # X button
+                                Int8 = 3 #DriveMode
 
-                        rospy.loginfo("left linear actuator forward")
-                        self.pub.publish(Int8)
+                                rospy.loginfo("left linear actuator forward")
+                                self.pub.publish(Int8)
 
-                elif(message.axes[6] == 1.0): # left DPad 
-                        Int8 = 7 #config
+                        elif(message.buttons[1] == 1.0): # B button
+                                Int8 = 2 #Dig
 
-                        rospy.loginfo("left bucket forward")
-                        self.pub.publish(Int8)
-
-                elif(message.axes[7] == -1): # down dpad
-                        Int8 = 8 #config
-
-                        rospy.loginfo("left bucket back")
-                        self.pub.publish(Int8)
-
-                elif(message.buttons[6] == 1.0): # left bumper
-                        Int8 = 9 #navigation to deposit
-
-                        rospy.loginfo("ballscrew in")
-                        self.pub.publish(Int8)
-
-                elif(message.buttons[7] == 1.0): # right bumper
-                        Int8 = 10 #navigation to deposit
-
-                        rospy.loginfo("ballscrew out")
-                        self.pub.publish(Int8)
-
-		elif(message.buttons[1] == 1): # B button
-                        Int8 = 2 #Dig
-
-                        rospy.loginfo("right linear actuator back")
-                        self.pub.publish(Int8)
+                                rospy.loginfo("right linear actuator back")
+                                self.pub.publish(Int8)
 
 
-                elif(message.buttons[4] == 1): # Y button
-                        Int8 = 4 #Zero
+                        elif(message.buttons[4] == 1.0): # Y button
+                                Int8 = 4 #Zero
 
-                        rospy.loginfo("right linear actuator forward")
-                        self.pub.publish(Int8)
+                                rospy.loginfo("right linear actuator forward")
+                                self.pub.publish(Int8)
 
+                        elif(message.buttons[10] == 1.0): # Back button
+                                Int8 = 13 #navigation to deposit
 
-                elif(message.axes[7] == 1): # Up dpad
-                        Int8 = 5 #config
-
-                        rospy.loginfo("right bucket forward")
-                        self.pub.publish(Int8)
-
-
-                elif(message.axes[6] == -1.0): # right DPad
-                        Int8 = 6 #config
-
-                        rospy.loginfo("right bucket back")
-                        self.pub.publish(Int8)
+                                rospy.loginfo("both lin acts Forward")
+                                self.pub.publish(Int8)
 
 
-                elif(message.buttons[11] == 1.0): # start button
-                        Int8 = 11 #navigation to deposit
+                        elif(message.buttons[11] == 1.0): # Start button
+                                Int8 = 14 #navigation to deposit
 
-                        rospy.loginfo("Spinning scoops")
-                        self.pub.publish(Int8)
+                                rospy.loginfo("both lin acts Back")
+                                self.pub.publish(Int8)
 
+                        else:
 
-		elif(message.buttons[10] == 1.0): # back button
-                        Int8 = 12 #navigation to deposit
+                                Int8 = 0 #config
 
-                        rospy.loginfo("Spinning scoops and bScrew")
-                        self.pub.publish(Int8)
-
-		elif(message.buttons[12] == 1.0): # Xbox button
-                        Int8 = 13 #navigation to deposit
-
-                        rospy.loginfo("both lin acts Forward")
-                        self.pub.publish(Int8)
+                                rospy.loginfo("publishing nothing")
+                                self.pub.publish(Int8)
 
 
-		elif(message.buttons[14] == 1.0): # Right Joy button
-                        Int8 = 14 #navigation to deposit
 
-                        rospy.loginfo("both lin acts Back")
+                if(message.buttons[6] == 1 and message.buttons[7] == 1 and message.axes[6] == 1.0):
+
+                        if(message.buttons[0] == 1.0): # A button
+                                Int8 = 9 #navigation to deposit
+
+                                rospy.loginfo("ballscrew in")
+                                self.pub.publish(Int8)
+
+                        elif(message.buttons[3] == 1.0): # X button
+                                Int8 = 10 #navigation to deposit
+
+                                rospy.loginfo("ballscrew out")
+                                self.pub.publish(Int8)
+
+                        elif(message.buttons[4] == 1.0): # Y button
+                                Int8 = 11 #navigation to deposit
+
+                                rospy.loginfo("Spinning scoops")
+                                self.pub.publish(Int8)
+
+
+                        elif(message.buttons[11] == 1.0): # Start button
+                                Int8 = 12 #navigation to deposit
+
+                                rospy.loginfo("Spinning scoops and bScrew")
+                                self.pub.publish(Int8)
+
+                        else:
+
+                                Int8 = 0 #config
+
+                                rospy.loginfo("publishing nothing")
+                                self.pub.publish(Int8)
+
+
+                if(message.buttons[6] == 1 and message.buttons[7] == 1 and message.axes[7] == -1.0):
+
+                        if(message.buttons[3] == 1.0): # X button
+                                Int8 = 7 #config
+
+                                rospy.loginfo("left bucket forward")
+                                self.pub.publish(Int8)
+
+                        elif(message.buttons[0] == 1.0): # A button
+                                Int8 = 8 #config
+
+                                rospy.loginfo("left bucket back")
+                                self.pub.publish(Int8)
+
+
+                        elif(message.buttons[4] == 1.0): # Y button
+                                Int8 = 5 #config
+
+                                rospy.loginfo("right bucket forward")
+                                self.pub.publish(Int8)
+
+
+                        elif(message.buttons[1] == 1.0): #  B button
+                                Int8 = 6 #config
+
+                                rospy.loginfo("right bucket back")
+                                self.pub.publish(Int8)
+
+                        elif(message.buttons[10] == 1.0): # Back button
+                                Int8 = 15 #navigation to deposit
+
+                                rospy.loginfo("both buckets Forward")
+                                self.pub.publish(Int8)
+
+
+                        elif(message.buttons[11] == 1.0): # Start button
+                                Int8 = 16 #navigation to deposit
+
+                                rospy.loginfo("both buckets Back")
+                                self.pub.publish(Int8)
+
+                        else:
+
+                                Int8 = 0 #config
+
+                                rospy.loginfo("publishing nothing")
+                                self.pub.publish(Int8)
+
+                if(message.axes[6] == -1.0): # Right Dpad
+
+                        Int8 = 0 #config
+
+                        rospy.loginfo("publishing nothing")
                         self.pub.publish(Int8)
 			
-                else:
-                        Int8 = 0 #Dig
-                        rospy.loginfo("Publishing nothing")
-                        self.pub.publish(Int8)
+
                 '''
                 1 = driveMode, 2 = dig, 3 = deposit, 4 = zero, 5 = config, 6 = starting digNav, 7 = starting depNav
                 8 = digNaving, 9 = depNaving, 10 = end of dig, 11 = end of deposit

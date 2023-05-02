@@ -128,7 +128,7 @@ void sendToPosition(int x)
 	if (x == 31)
 	{
 		linAct1.Set(ControlMode::Position, position);
-        	linAct2.Set(ControlMode::Position, position);
+        	// linAct2.Set(ControlMode::Position, position);
 	}
 	if (x == 41)
 	{

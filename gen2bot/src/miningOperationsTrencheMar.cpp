@@ -125,6 +125,20 @@ void linActsBack(int &p_cmd, ros::NodeHandle nh, trencherOperationsClass trenche
 	trencherOperations.linActsBack(p_cmd, nh);
 }
 
+void bucketsBack(int &p_cmd, ros::NodeHandle nh, trencherOperationsClass trencherOperations)
+{
+	int sentinel = p_cmd;
+	ROS_INFO("bucketsBack");
+	trencherOperations.bucketsBack(p_cmd, nh);
+}
+
+void bucketsForward(int &p_cmd, ros::NodeHandle nh, trencherOperationsClass trencherOperations)
+{
+	int sentinel = p_cmd;
+	ROS_INFO("bucketsForward");
+	trencherOperations.bucketsForward(p_cmd, nh);
+}
+
 void updateProcess(const int &msg)
 {
 	std::lock_guard<std::mutex> lock(data_mutex);
@@ -237,6 +251,16 @@ int main(int argc, char **argv)
 		case 14:
 			std::cout << "Spinning both linacts back" << std::endl;
 			linActsBack(p_cmd, nh, trencherOperations);
+			p_cmd = 0;
+			break;
+		case 15:
+			std::cout << "Spinning both buckets forward" << std::endl;
+			bucketsForward(p_cmd, nh, trencherOperations);
+			p_cmd = 0;
+			break;
+		case 16:
+			std::cout << "Spinning both buckets back" << std::endl;
+			bucketsBack(p_cmd, nh, trencherOperations);
 			p_cmd = 0;
 			break;
 
