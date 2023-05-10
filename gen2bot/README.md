@@ -2,7 +2,7 @@ Structure of Gen2bot Package:
 
 
 
-    config: Holds parameters (basically variables in the ROS server) for launch files
+    config: Holds parameters (basically global variables in the ROS server) for launch files
 
     include: Holds header files for C++
 
@@ -10,11 +10,11 @@ Structure of Gen2bot Package:
 
     lib: Where shared objects are stored, in this case it is our Phoenix Motors Library
 
-    scripts: Where python files are
+    scripts: Where python files are found
 
     sessions: Where our image of the qr code is stored for object recognition node
 
-    src: Where source C++ files are 
+    src: Where source C++ files are found
 
     CMakeLists.txt: Where our files get built and compiled
 

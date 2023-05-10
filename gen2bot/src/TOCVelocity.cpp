@@ -51,6 +51,7 @@ TalonSRX bucket1(51);
 TalonSRX bucket2(52);
 TalonSRXConfiguration bucketMM;
 
+
 TOCVelocity::TOCVelocity(ros::NodeHandle nh)
 	: sentinel(),
 	  laDrivePosition(0),
@@ -62,7 +63,8 @@ TOCVelocity::TOCVelocity(ros::NodeHandle nh)
 	  buDrivePosition(-50),
 	  buDepositPosition(-100),
 	  buDigPosition(0),
-	  trencherZeroPosition(0)
+	  trencherZeroPosition(0),
+	  mBuffer(2)
 {	
 	config(nh);
 }
@@ -142,11 +144,11 @@ void TOCVelocity::config(ros::NodeHandle nh)
 	// Configure the trencher motor
 	trencher.ConfigAllSettings(trencherMM);
 
-	// Configure the limit switches
-	linAct1.ConfigForwardLimitSwitchSource(LimitSwitchSource_FeedbackConnector, LimitSwitchNormal_NormallyOpen);
-    linAct2.ConfigReverseLimitSwitchSource(LimitSwitchSource_FeedbackConnector, LimitSwitchNormal_NormallyOpen);
-	bucket1.ConfigForwardLimitSwitchSource(LimitSwitchSource_FeedbackConnector, LimitSwitchNormal_NormallyOpen);
-    bucket2.ConfigReverseLimitSwitchSource(LimitSwitchSource_FeedbackConnector, LimitSwitchNormal_NormallyOpen);
+	// // Configure the limit switches
+	// linAct1.ConfigForwardLimitSwitchSource(LimitSwitchSource_FeedbackConnector, LimitSwitchNormal_NormallyOpen);
+    // linAct2.ConfigReverseLimitSwitchSource(LimitSwitchSource_FeedbackConnector, LimitSwitchNormal_NormallyOpen);
+	// bucket1.ConfigForwardLimitSwitchSource(LimitSwitchSource_FeedbackConnector, LimitSwitchNormal_NormallyOpen);
+    // bucket2.ConfigReverseLimitSwitchSource(LimitSwitchSource_FeedbackConnector, LimitSwitchNormal_NormallyOpen);
 
 	// Configure sensor phase of motors
     linAct1.SetSensorPhase(true);
@@ -165,12 +167,15 @@ void TOCVelocity::stop()
 	bScrew.Set(ControlMode::Velocity, 0);
 	linAct1.Set(ControlMode::Velocity, 0);
 	linAct2.Set(ControlMode::Velocity, 0);
-	bucket1.Set(ControlMode::Velocity, 0);	
+	bucket1.Set(ControlMode::Velocity, 0);
+	bucket2.Set(ControlMode::Velocity, 0);		
 	trencher.Set(ControlMode::Velocity, 0);	
 
 	bScrew.Set(ControlMode::PercentOutput, 0);
 	linAct1.Set(ControlMode::PercentOutput, 0);	
+	linAct2.Set(ControlMode::PercentOutput, 0);	
 	bucket1.Set(ControlMode::PercentOutput, 0);
+	bucket2.Set(ControlMode::PercentOutput, 0);
 	trencher.Set(ControlMode::PercentOutput, 0);
 }
 
@@ -181,759 +186,357 @@ void TOCVelocity::checkSentinel(int& p_cmd)
 	{
 		bScrew.Set(ControlMode::Velocity, 0);
 		linAct1.Set(ControlMode::Velocity, 0);
+		linAct2.Set(ControlMode::Velocity, 0);
 		bucket1.Set(ControlMode::Velocity, 0);
+		bucket2.Set(ControlMode::Velocity, 0);
 		trencher.Set(ControlMode::Velocity, 0);	
 
 		bScrew.Set(ControlMode::PercentOutput, 0);
 		linAct1.Set(ControlMode::PercentOutput, 0);	
+		linAct2.Set(ControlMode::PercentOutput, 0);	
 		bucket1.Set(ControlMode::PercentOutput, 0);
+		bucket2.Set(ControlMode::PercentOutput, 0);
 		trencher.Set(ControlMode::PercentOutput, 0);
 	}
 }
 
-// Makes sure the trencher doesn't physically break itself
-// void TOCVelocity::isSafe(int& p_cmd)
-// {
-	// if((linAct1.GetSelectedSensorPosition() - linAct2.GetSelectedSensorPosition() >= 5) )
-	// {
-	// 	linAct1.Set(ControlMode::Velocity, linAct2.GetSelectedSensorVelocity(0));
+// Makes sure the linear actuators of linAct and bucket aren't moving when they are misaligned.
+void TOCVelocity::isSafe(int& p_cmd)
+{	
+	sentinel = p_cmd;
 
-	// 	if (sentinel != p_cmd)
-	// 		{ 
-	// 			stop();
-	// 			return;
-	// 		}
-	// 	std::this_thread::sleep_for(std::chrono::milliseconds(500));
-	// }
-
-
-	// if (bucket1.GetSelectedSensorPosition() - bucket2.GetSelectedSensorPosition() >= 5)
-	// {
-	// 	bucket1.Set(ControlMode::Velocity, bucket2.GetSelectedSensorVelocity(0));
-
-		// 	if (sentinel != p_cmd)
-		// 	{ 
-	// 			stop();
-	// 			return;
-	// 		}
-	// 	std::this_thread::sleep_for(std::chrono::milliseconds(500));
-	// }
+	if (!(isNear(linAct1.GetSelectedSensorPosition(), linAct2.GetSelectedSensorPosition(), 5)) 
+		|| !(isNear(bucket1.GetSelectedSensorPosition(), bucket2.GetSelectedSensorPosition(), 5)))
+	{
+		stop();
+		return;
+	}
+	
+	if (sentinel != p_cmd)
+	{ 
+		stop();
+		return;
+	}
 
 
-// }
+}
 
 
+// Velocity and acceleration should always be positive inputs. Position can be positive or negative.
+void TOCVelocity::ConfigMotionMagic(TalonFX* talon1, int vel, int accel, int pos)
+{
+	talon1->ConfigMotionAcceleration(abs(accel));
 
-    void TOCVelocity::zeroStart(int& p_cmd, ros::NodeHandle  nh)
-    {
-		std::cout << "Running zeroStart" << std::endl;
-
-        sentinel = p_cmd;
-
-		config(nh);
-		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-        linAct1.SetSelectedSensorPosition(0);
-        linAct2.SetSelectedSensorPosition(0);
-        bucket1.SetSelectedSensorPosition(0);
-        bucket2.SetSelectedSensorPosition(0);
-        bScrew.SetSelectedSensorPosition(0);
-        trencher.SetSelectedSensorPosition(0);
+	talon1->ConfigMotionCruiseVelocity(abs(vel));
+	
+	talon1->Set(ControlMode::MotionMagic, pos);
+}
 
 
-        stop();
-    }
+void TOCVelocity::ConfigMotionMagic(TalonSRX* talon1, TalonSRX* talon2, int vel, int accel, int pos)
+{
+	talon1->ConfigMotionAcceleration(abs(accel));
+	talon2->ConfigMotionAcceleration(abs(accel));
 
+	talon1->ConfigMotionCruiseVelocity(abs(vel));
+	talon2->ConfigMotionCruiseVelocity(abs(vel));
+	
+
+	talon1->Set(ControlMode::MotionMagic, pos);
+	talon2->Set(ControlMode::MotionMagic, pos);
+}
+
+
+void TOCVelocity::displayData()
+{
+	displayData(&bucket1, &bucket2, "bucket");
+	displayData(&linAct1, &linAct2, "linAct");
+	displayData(&bScrew, "bScrew");
+}
+
+void TOCVelocity::displayData(TalonFX* talon1, std::string name)
+{
+	std::cout << name << " Position: " << talon1->GetSelectedSensorPosition() << std::endl;
+	std::cout << name << " Velocity: " << talon1->GetSelectedSensorVelocity(0) << std::endl;
+}
+
+void TOCVelocity::displayData(TalonSRX* talon1, TalonSRX* talon2, std::string name)
+{
+	std::cout << name << "1 Position: " << talon1->GetSelectedSensorPosition() << std::endl;
+	std::cout << name << "2 Position: " << talon2->GetSelectedSensorPosition() << std::endl;
+	std::cout << name << "1 Velocity: " << talon1->GetSelectedSensorVelocity(0) << std::endl;
+	std::cout << name << "2 Velocity: " << talon2->GetSelectedSensorVelocity(0) << std::endl;
+}
+
+
+bool TOCVelocity::ReverseLimitSwitchTriggered(TalonFX* talon1, std::string name)
+{
+	
+	if (talon1->GetSelectedSensorVelocity(0) == 0) 
+	{
+		std::cout << "Reverse limit switch for "<< name << " triggered." << std::endl;
+
+		talon1->Set(ControlMode::Velocity, 0);
+		talon1->SetSelectedSensorPosition(0);
+
+		return true;
+	}
+	
+	else
+	{
+		return false;
+	}
+}
+
+
+bool TOCVelocity::ReverseLimitSwitchTriggered(TalonSRX* talon1, TalonSRX* talon2, std::string name)
+{
+	if (talon1->GetSelectedSensorVelocity(0) == 0 && talon2->GetSelectedSensorVelocity(0) == 0) 
+	{
+		std::cout << "Reverse limit switch for "<< name << "1 triggered." << std::endl;
+		std::cout << "Reverse limit switch for "<< name << "2 triggered." << std::endl;
+
+		talon1->Set(ControlMode::Velocity, 0);
+		talon2->Set(ControlMode::Velocity, 0);
+		talon1->SetSelectedSensorPosition(0);
+		talon2->SetSelectedSensorPosition(0);
+		
+
+		return true;
+	}
+
+	else
+	{
+		return false;
+	}
+}
+
+
+bool TOCVelocity::isNear(int a, int b, int tolerance) {
+    return abs(a - b) <= tolerance;
+}
+
+bool TOCVelocity::TargetPositionReached(TalonFX* talon1, int pos, std::string name)
+{
+	if (isNear(talon1->GetSelectedSensorPosition(), pos, mBuffer))
+
+	{
+		return true;
+		std::cout << name << " is in desired position." << std::endl;
+	}
+	else 
+	{
+		return false;
+	}
+}
+
+bool TOCVelocity::TargetPositionReached(TalonSRX* talon1, TalonSRX* talon2, int pos, std::string name)
+{
+	if (isNear(talon1->GetSelectedSensorPosition(), pos, mBuffer) && isNear(talon2->GetSelectedSensorPosition(), pos, mBuffer))
+	{
+		return true;
+		std::cout << name << " is in desired position." << std::endl;
+		std::cout << name << " is in desired position." << std::endl;
+	}
+	else 
+	{
+		return false;
+	}
+}
+
+bool TOCVelocity::CheckMode(int laPos, int buPos, int bsPos)
+{
+	if (isNear(linAct1.GetSelectedSensorPosition(), laPos, mBuffer) &&  isNear(linAct2.GetSelectedSensorPosition(), laPos, mBuffer)
+		&& isNear(bucket1.GetSelectedSensorPosition(), buPos, mBuffer) &&  isNear(bucket2.GetSelectedSensorPosition(), buPos, mBuffer)
+		&& isNear(bScrew.GetSelectedSensorPosition(), bsPos, mBuffer))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+
+void TOCVelocity::zeroStart(int& p_cmd, ros::NodeHandle  nh)
+{
+	std::cout << "Running zeroStart" << std::endl;
+
+	sentinel = p_cmd;
+
+	config(nh);
+	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+
+	linAct1.SetSelectedSensorPosition(0);
+	linAct2.SetSelectedSensorPosition(0);
+	bucket1.SetSelectedSensorPosition(0);
+	bucket2.SetSelectedSensorPosition(0);
+	bScrew.SetSelectedSensorPosition(0);
+	trencher.SetSelectedSensorPosition(0);
+
+	std::cout << "START" << std::endl;
+	displayData();
+
+	stop();
+}
 
 // Reassigns absolute position so motors know where they are
-	void TOCVelocity::zero(int& p_cmd, ros::NodeHandle  nh) 
-	{
-		sentinel = p_cmd;
+void TOCVelocity::zero(int& p_cmd, ros::NodeHandle  nh) 
+{
+	std::cout << "Running zero" << std::endl;
+	zeroStart(p_cmd, nh);
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	sentinel = p_cmd;
 
-		config(nh);
-		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(50000);
+	config(nh);
+	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+	
+	// ZERO THE LINEAR ACTUATOR
+
+	std::cout << "Zeroing the Linear Actuator" << std::endl;
+
+
+	ConfigMotionMagic(&linAct1, &linAct2, 10, 5, -800);
+	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+	do {
 		
-		// ZERO THE LINEAR ACTUATOR
-		// Create fault object
-		Faults laFaults;
-
-		int linMax = 700;
-
-		// Make the linAct run, (direction unknown)
-		std::cout << "Running percent output for linAct" << std::endl;
-		linAct1.Set(ControlMode::PercentOutput, -.5);
-
-		if (!laFaults.ReverseLimitSwitch)
-		{
-			do {
-				ctre::phoenix::unmanaged::Unmanaged::FeedEnable(50000);
-				
-				std::cout << "LinAct1 Position: " << linAct1.GetSelectedSensorPosition() << std::endl;
-				std::cout << "LinAct2 Position: " << linAct2.GetSelectedSensorPosition() << std::endl;
-				std::cout << "LinAct1 Velocity: " << linAct1.GetSelectedSensorVelocity(0) << std::endl;
-				std::cout << "LinAct2 Velocity: " << linAct2.GetSelectedSensorVelocity(0) << std::endl;
-
-				// Populates the fault object with the current fault status of the motor controller
-				linAct1.GetFaults(laFaults);
-
-				// If forward limit switch triggered, set that to be max position
-				if (laFaults.ForwardLimitSwitch) {
-					linAct1.SetSelectedSensorPosition(linMax);
-					linAct1.Set(ControlMode::PercentOutput, 0);
-					
-					break;
-				}
-
-				// If reverse limit switch triggered (drive position), set that to be 0 position
-				if (laFaults.ReverseLimitSwitch) {
-					linAct1.SetSelectedSensorPosition(0);
-					linAct1.SetInverted(true); // Positive direction is increasing encoder ticks
-					linAct1.Set(ControlMode::PercentOutput, 0);
-					std::cout << "linAct is zeroed" << std::endl;
-
-					break;
-				}
-
-				std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-
-			} while(true);
-		}
-		else
-		{
-			std::cout << "linAct is zeroed" << std::endl;
-			linAct1.SetSelectedSensorPosition(0);
-			linAct1.Set(ControlMode::PercentOutput, 0);
-			std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-		}
-		
-
-		std::cout << "Moving linAct to dig position" << std::endl;
-		// Move the linAct to dig position so that the bScrew and bucket can be zeroed
-		while (linAct1.GetSelectedSensorPosition() > laDigPosition + 10 || linAct1.GetSelectedSensorPosition() < laDigPosition - 10){
-			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-			std::cout << "LinAct1 Position: " << linAct1.GetSelectedSensorPosition() << std::endl;
-			std::cout << "LinAct2 Position: " << linAct2.GetSelectedSensorPosition() << std::endl;
-			std::cout << "LinAct1 Velocity: " << linAct1.GetSelectedSensorVelocity(0) << std::endl;
-			std::cout << "LinAct2 Velocity: " << linAct2.GetSelectedSensorVelocity(0) << std::endl;
-
-			if (linAct1.GetSelectedSensorPosition() > laDigPosition){
-				linAct1.Set(ControlMode::Velocity, -20);
-			}
-			
-			if (linAct1.GetSelectedSensorPosition() < laDigPosition){
-				linAct1.Set(ControlMode::Velocity, 20);
-			}
-
-			if (sentinel != p_cmd)
-			{ 
-
-				stop();
-				return;
-			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-		}
-		
-		// Let linAct decelerate
-		linAct1.Set(ControlMode::Velocity, 0);
-
-
-		// ZERO THE BUCKET
-
-		std::cout << "Zeroing the bucket" << std::endl;
-
-		// Faults buFaults;
-		// int buMax = 600;
-		// bucket1.Set(ControlMode::PercentOutput, .5);
-
-		// do {
-		// 	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-
-		// 	std::cout << "bucket1 Position: " << bucket1.GetSelectedSensorPosition() << std::endl;
-		// 	std::cout << "bucket2 Position: " << bucket2.GetSelectedSensorPosition() << std::endl;
-		// 	std::cout << "bucket1 Velocity: " << bucket1.GetSelectedSensorVelocity(0) << std::endl;
-		// 	std::cout << "bucket2 Velocity: " << bucket2.GetSelectedSensorVelocity(0) << std::endl;
-
-		// 	// Populates the fault object with the current fault status of the motor controller
-		// 	bucket1.GetFaults(buFaults);
-
-		// 	// If forward limit switch triggered, set that to be max position
-		// 	if (buFaults.ForwardLimitSwitch) {
-		// 		bucket1.SetSelectedSensorPosition(buMax);
-		// 		bucket1.Set(ControlMode::PercentOutput, 0);
-		// 		break;
-		// 	}
-
-		// 	// If reverse limit switch triggered, set that to be 0 position
-		// 	if (buFaults.ReverseLimitSwitch) {
-		// 		bucket1.SetSelectedSensorPosition(0);
-		// 		bucket1.SetInverted(true); // Positive direction is increasing encoder ticks
-		// 		bucket1.Set(ControlMode::PercentOutput, 0);
-		// 		break;
-		// 	}
-
-		// } while(true);
-
-		// // Move the bucket back to zero position (dig position)
-		// while (bucket1.GetSelectedSensorPosition() > buDigPosition + 10 || bucket1.GetSelectedSensorPosition() < buDigPosition - 10 ){
-		// 	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-
-
-		// 	if (bucket1.GetSelectedSensorPosition() > buDigPosition){
-		// 		bucket1.Set(ControlMode::Velocity, -20);
-		// 	}
-			
-		// 	if (bucket1.GetSelectedSensorPosition() < buDigPosition){
-		// 		bucket1.Set(ControlMode::Velocity, 20);
-		// 	}
-
-			
-
-		// 	if (sentinel != p_cmd)
-        //     { 
-        //         stop();
-        //         return;
-        //     }
-        //     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		// }
-
-		// // Let bucket decelerate
-		// bucket1.Set(ControlMode::Velocity, 0);
-		// std::cout << "Bucket Position: " << bScrew.GetSelectedSensorPosition() << std::endl;
-
-		// // ZERO THE BALL SCREW
-		// Faults bsFaults;
-		// int bsMax = 300;
-		// bucket1.Set(ControlMode::PercentOutput, .5);
-
-		// do {
-			
-		// 	// Populates the fault object with the current fault status of the motor controller
-		// 	bScrew.GetFaults(bsFaults);
-
-		// 	// If forward limit switch triggered, set that to be max position
-		// 	if (bsFaults.ForwardLimitSwitch) {
-		// 		bScrew.SetSelectedSensorPosition(bsMax);
-		// 		bucket1.Set(ControlMode::PercentOutput, .5);
-		// 		break;
-		// 	}
-
-		// 	// If reverse limit switch triggered, set that to be 0 position
-		// 	if (bsFaults.ReverseLimitSwitch) {
-		// 		bScrew.SetSelectedSensorPosition(0);
-		// 		bScrew.SetInverted(true); // Positive direction is increasing encoder ticks
-		// 		bucket1.Set(ControlMode::PercentOutput, .5);
-		// 		break;
-		// 	}
-
-		// } while(true);
-
-		// // Move the bScrew back to zero position (Fully retracted / Drive position)
-		// while (bScrew.GetSelectedSensorPosition() != bsDrivePosition){
-		// 	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-		// 	bScrew.Set(ControlMode::Position, bsDrivePosition);
-
-		// 	if (sentinel != p_cmd)
-		// 	{ 
-		// 		stop();
-		// 		return;
-		// 	}
-		// 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		// }
-
-		// // Make sure bScrew is zero.
-		// bScrew.Set(ControlMode::Velocity, 0);
-		// std::cout << "Ball Screw Position: " << bScrew.GetSelectedSensorPosition() << std::endl;
-
-		
-
-		// // Move the Linear Actuator back to drive position
-		// while(linAct1.GetSelectedSensorPosition() != laDrivePosition){
-		// 	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		// 	linAct1.Set(ControlMode::Velocity, -20);
-		// 	if (sentinel != p_cmd)
-		// 	{ 
-		// 		stop();
-		// 		return;
-		// 	}
-		// 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		// }
-
-		// // Make sure the linAct doesn't move
-		// linAct1.Set(ControlMode::Velocity, 0);
-		// std::cout << "Linear Actuator Position: " << linAct1.GetSelectedSensorPosition() << std::endl;
-
-
-		stop();
-
-	}
-
-
-// Reassigns absolute position so motors know where they are
-	void TOCVelocity::zero2(int& p_cmd, ros::NodeHandle  nh) 
-	{
-		std::cout << "Running zero2" << std::endl;
-		sentinel = p_cmd;
-
-		config(nh);
-		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		
-		// ZERO THE LINEAR ACTUATOR
-
-		int linMax = 700;
-
-		// Make the linAct run, (direction unknown)
-		std::cout << "Running percent output for linAct" << std::endl;
-		linAct1.Set(ControlMode::PercentOutput, -.5);
-
-		do {
-			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-			
-			std::cout << "LinAct1 Position: " << linAct1.GetSelectedSensorPosition() << std::endl;
-			std::cout << "LinAct2 Position: " << linAct2.GetSelectedSensorPosition() << std::endl;
-			std::cout << "LinAct1 Velocity: " << linAct1.GetSelectedSensorVelocity(0) << std::endl;
-			std::cout << "LinAct2 Velocity: " << linAct2.GetSelectedSensorVelocity(0) << std::endl;
-
-			// If forward limit switch triggered, set that to be max position
-			if (linAct1.GetSensorCollection().IsFwdLimitSwitchClosed()) {
-				linAct1.SetSelectedSensorPosition(linMax);
-				linAct1.Set(ControlMode::PercentOutput, 0);
-				
-				break;
-			}
-
-			// If reverse limit switch triggered (drive position), set that to be 0 position
-			if (linAct1.GetSensorCollection().IsRevLimitSwitchClosed()) {
-				linAct1.SetSelectedSensorPosition(0);
-				linAct1.SetInverted(true); // Positive direction is increasing encoder ticks
-				linAct1.Set(ControlMode::PercentOutput, 0);
-
-				break;
-			}
-
-		} while(true);
-
-		std::cout << "Move linAct to dig position" << std::endl;
-
-		// Move the linAct to dig position so that the bScrew and bucket can be zeroed
-		while (linAct1.GetSelectedSensorPosition() > laDigPosition + 10 || linAct1.GetSelectedSensorPosition() < laDigPosition - 10){
-			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-			std::cout << "LinAct1 Position: " << linAct1.GetSelectedSensorPosition() << std::endl;
-			std::cout << "LinAct2 Position: " << linAct2.GetSelectedSensorPosition() << std::endl;
-			std::cout << "LinAct1 Velocity: " << linAct1.GetSelectedSensorVelocity(0) << std::endl;
-			std::cout << "LinAct2 Velocity: " << linAct2.GetSelectedSensorVelocity(0) << std::endl;
-
-			if (linAct1.GetSelectedSensorPosition() > laDigPosition){
-				linAct1.Set(ControlMode::Velocity, -20);
-			}
-			
-			if (linAct1.GetSelectedSensorPosition() < laDigPosition){
-				linAct1.Set(ControlMode::Velocity, 20);
-			}
-
-			if (sentinel != p_cmd)
-					{ 
-						stop();
-						return;
-					}
-					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		}
-		
-		// Let linAct decelerate
-		linAct1.Set(ControlMode::Velocity, 0);
-
-
-		// ZERO THE BUCKET
-		
-		std::cout << "Zeroing the bucket" << std::endl;
-
-		int buMax = 600;
-		bucket1.Set(ControlMode::PercentOutput, .5);
-
-		do {
-			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-			std::cout << "bucket1 Position: " << bucket1.GetSelectedSensorPosition() << std::endl;
-			std::cout << "bucket2 Position: " << bucket2.GetSelectedSensorPosition() << std::endl;
-			std::cout << "bucket1 Velocity: " << bucket1.GetSelectedSensorVelocity(0) << std::endl;
-			std::cout << "bucket2 Velocity: " << bucket2.GetSelectedSensorVelocity(0) << std::endl;
-
-			// If forward limit switch triggered, set that to be max position
-			if (bucket1.GetSensorCollection().IsFwdLimitSwitchClosed()) {
-				bucket1.SetSelectedSensorPosition(buMax);
-				bucket1.Set(ControlMode::PercentOutput, 0);
-				break;
-			}
-
-			// If reverse limit switch triggered, set that to be 0 position
-			if (bucket1.GetSensorCollection().IsRevLimitSwitchClosed()) {
-				bucket1.SetSelectedSensorPosition(0);
-				bucket1.SetInverted(true); // Positive direction is increasing encoder ticks
-				bucket1.Set(ControlMode::PercentOutput, 0);
-				break;
-			}
-
-		} while(true);
-
-		// Move the bucket back to zero position (dig position)
-		while (bucket1.GetSelectedSensorPosition() > buDigPosition + 10 || bucket1.GetSelectedSensorPosition() < buDigPosition - 10 ){
-			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-			std::cout << "bucket1 Position: " << bucket1.GetSelectedSensorPosition() << std::endl;
-			std::cout << "bucket2 Position: " << bucket2.GetSelectedSensorPosition() << std::endl;
-			std::cout << "bucket1 Velocity: " << bucket1.GetSelectedSensorVelocity(0) << std::endl;
-			std::cout << "bucket2 Velocity: " << bucket2.GetSelectedSensorVelocity(0) << std::endl;
-
-			if (bucket1.GetSelectedSensorPosition() > buDigPosition){
-				bucket1.Set(ControlMode::Velocity, -20);
-			}
-			
-			if (bucket1.GetSelectedSensorPosition() < buDigPosition){
-				bucket1.Set(ControlMode::Velocity, 20);
-			}
-
-			
-
-			if (sentinel != p_cmd)
-            { 
-                stop();
-                return;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		}
-
-		// Let bucket decelerate
-		bucket1.Set(ControlMode::Velocity, 0);
-		std::cout << "Bucket Position: " << bScrew.GetSelectedSensorPosition() << std::endl;
-
-		// ZERO THE BALL SCREW
-		Faults bsFaults;
-		int bsMax = 300;
-		bucket1.Set(ControlMode::PercentOutput, .5);
-
-		do {
-			
-			// Populates the fault object with the current fault status of the motor controller
-			bScrew.GetFaults(bsFaults);
-
-			// If forward limit switch triggered, set that to be max position
-			if (bsFaults.ForwardLimitSwitch) {
-				bScrew.SetSelectedSensorPosition(bsMax);
-				bucket1.Set(ControlMode::PercentOutput, .5);
-				break;
-			}
-
-			// If reverse limit switch triggered, set that to be 0 position
-			if (bsFaults.ReverseLimitSwitch) {
-				bScrew.SetSelectedSensorPosition(0);
-				bScrew.SetInverted(true); // Positive direction is increasing encoder ticks
-				bucket1.Set(ControlMode::PercentOutput, .5);
-				break;
-			}
-
-		} while(true);
-
-
-		// Move the bScrew back to zero position (Fully retracted / Drive position)
-		while (bScrew.GetSelectedSensorPosition() != bsDrivePosition){
-			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-			bScrew.Set(ControlMode::Position, bsDrivePosition);
-
-			if (sentinel != p_cmd)
-			{ 
-				stop();
-				return;
-			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		}
-
-		// Make sure bScrew is zero.
-		bScrew.Set(ControlMode::Velocity, 0);
-		std::cout << "Ball Screw Position: " << bScrew.GetSelectedSensorPosition() << std::endl;
-
-		
-
-		// Move the Linear Actuator back to drive position
-		while(linAct1.GetSelectedSensorPosition() != laDrivePosition){
-			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-			linAct1.Set(ControlMode::Velocity, -20);
-			if (sentinel != p_cmd)
-			{ 
-				stop();
-				return;
-			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		}
-
-		// Make sure the linAct doesn't move
-		linAct1.Set(ControlMode::Velocity, 0);
-		std::cout << "Linear Actuator Position: " << linAct1.GetSelectedSensorPosition() << std::endl;
-
-
-		stop();
-
-	}
-
-	template<typename T>
-	void TOCVelocity::displayData(T* talon1, T* talon2, std::string name)
-	{
-		std::cout << name << "1 Position: " << talon1->GetSelectedSensorPosition() << std::endl;
-		std::cout << name << "2 Position: " << talon2->GetSelectedSensorPosition() << std::endl;
-		std::cout << name << "1 Velocity: " << talon1->GetSelectedSensorVelocity(0) << std::endl;
-		std::cout << name << "2 Velocity: " << talon2->GetSelectedSensorVelocity(0) << std::endl;
-		
-	}
-
-
-	// Velocity and acceleration should always be positive inputs. Position can be positive or negative.
-	template<typename T>
-	void TOCVelocity::ConfigMotionMagic(T* talon1, T* talon2, int vel, int accel, int pos)
-	{
-		talon1->ConfigMotionAcceleration(abs(accel));
-		talon2->ConfigMotionAcceleration(abs(accel));
-
-		talon1->ConfigMotionCruiseVelocity(abs(vel));
-		talon2->ConfigMotionCruiseVelocity(abs(vel));
-		
-
-		talon1->Set(ControlMode::MotionMagic, pos);
-		talon2->Set(ControlMode::MotionMagic, pos);
-	}
-
-    // Reassigns absolute position so motors know where they are
-	void TOCVelocity::zero3(int& p_cmd, ros::NodeHandle  nh) 
-	{
-		std::cout << "Running zero3" << std::endl;
-        zeroStart(p_cmd, nh);
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-		std::cout << "START" << std::endl;
-		// std::cout << "LinAct1 Position: " << linAct1.GetSelectedSensorPosition() << std::endl;
-		// std::cout << "LinAct2 Position: " << linAct2.GetSelectedSensorPosition() << std::endl;
-		// std::cout << "LinAct1 Velocity: " << linAct1.GetSelectedSensorVelocity(0) << std::endl;
-		// std::cout << "LinAct2 Velocity: " << linAct2.GetSelectedSensorVelocity(0) << std::endl;
 		displayData(&linAct1, &linAct2, "linAct");
 
-		sentinel = p_cmd;
+		if (sentinel != p_cmd)
+		{ 
+			stop();
+			return;
+		}
 
-		config(nh);
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+
+	} while(!ReverseLimitSwitchTriggered(&linAct1, &linAct2, "linAct"));
+
+	std::cout << "Finished zeroing the linAct" << std::endl;
+	
+	// Move the linAct to dig position so that the bScrew and bucket can be zeroed
+	while (!TargetPositionReached(&linAct1, &linAct2, laDigPosition, "linAct")){
+		std::cout << "Moving to dig position: " << laDigPosition << std::endl;
+		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+
+
+		ConfigMotionMagic(&linAct1, &linAct2, 10, 5, laDigPosition);
+
+
+		displayData(&linAct1, &linAct2, "linAct");
+
+		if (sentinel != p_cmd)
+		{ 
+			stop();
+			return;
+		}
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	}
+	
+	std::cout << "LINACT FINAL: " << std::endl;
+	displayData(&linAct1, &linAct2, "linAct");
+	
+
+
+	// ZERO THE BUCKET
+	
+	std::cout << "Zeroing the bucket" << std::endl;
+
+	ConfigMotionMagic(&bucket1, &bucket2, 10, 5, -300);
+
+	do 
+	{
+		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+
+		displayData(&bucket1, &bucket2, "bucket");
+
+		if (sentinel != p_cmd)
+		{ 
+			stop();
+			return;
+		}
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+	} while(!ReverseLimitSwitchTriggered(&bucket1, &bucket2, "bucket"));
+
+	// Move the bucket back to zero position (dig position)
+	while (!TargetPositionReached(&bucket1, &bucket2, buDigPosition, "bucket")){
+		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+
+		ConfigMotionMagic(&bucket1, &bucket2, 10, 5, buDigPosition);
+
+		displayData(&bucket1, &bucket2, "bucket");
+
+		if (sentinel != p_cmd)
+		{ 
+			stop();
+			return;
+		}
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	}
+
+	std::cout << "BUCKET FINAL: " << std::endl;
+	displayData(&bucket1, &bucket2, "bucket");
+
+
+
+	// ZERO THE BALL SCREW
+
+	std::cout << "Zeroing the bScrew" << std::endl;
+
+	ConfigMotionMagic(&bucket1, &bucket2, 10, 5, -500);
+
+	do 
+	{	
+		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+
+		displayData(&bScrew, "bScrew");
+
+		if (sentinel != p_cmd)
+		{ 
+			stop();
+			return;
+		}
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	
+	} while(!ReverseLimitSwitchTriggered(&bScrew, "bScrew"));
+
+
+	std::cout << "BSCREW FINAL: " << std::endl;
+	displayData(&bScrew, "bScrew");
+
+
+	// Move the Linear Actuator back to drive position
+	while(!TargetPositionReached(&linAct1, &linAct2, laDrivePosition, "linAct")){
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 		
-		// ZERO THE LINEAR ACTUATOR
+		ConfigMotionMagic(&linAct1, &linAct2, 10, 5, laDrivePosition);
 
-		std::cout << "Zeroing the Linear Actuator" << std::endl;
-		// Make the linAct run towards drive position.
-		// linAct1.Set(ControlMode::Velocity, -20);
-		// linAct2.Set(ControlMode::Velocity, -20);
+		displayData(&linAct1, &linAct2, "linAct");
 
-		ConfigMotionMagic(&linAct1, &linAct2, 10, 5, -800);
-		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-
-		do {
-			// std::cout << "LinAct1 Position: " << linAct1.GetSelectedSensorPosition() << std::endl;
-			// std::cout << "LinAct2 Position: " << linAct2.GetSelectedSensorPosition() << std::endl;
-			// std::cout << "LinAct1 Velocity: " << linAct1.GetSelectedSensorVelocity(0) << std::endl;
-			// std::cout << "LinAct2 Velocity: " << linAct2.GetSelectedSensorVelocity(0) << std::endl;
-			displayData(&linAct1, &linAct2, "linAct");
-			
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-
-			// If reverse limit switch triggered (drive position), set that to be 0 position
-			if (linAct1.GetSelectedSensorVelocity(0) == 0 && linAct2.GetSelectedSensorVelocity(0) == 0) 
-            {
-				std::cout << "Reverse limit switch for linAct triggered" << std::endl;
-
-                linAct1.Set(ControlMode::Velocity, 0);
-				linAct2.Set(ControlMode::Velocity, 0);
-				linAct1.SetSelectedSensorPosition(0);
-				linAct2.SetSelectedSensorPosition(0);
-				//linAct1.SetInverted(true); // Positive direction is increasing encoder ticks
-				
-
-				break;
-			}
-
-		} while(true);
-
-		std::cout << "Finished zeroing the linAct" << std::endl;
-		
-		// Move the linAct to dig position so that the bScrew and bucket can be zeroed
-		while (linAct1.GetSelectedSensorPosition() != laDigPosition && linAct2.GetSelectedSensorPosition() != laDigPosition){
-			std::cout << "Moving to dig position: " << laDigPosition << std::endl;
-			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-			//linAct2.Set(ControlMode::Follower, 31);
-			// linAct1.ConfigMotionAcceleration(5);
-			// linAct2.ConfigMotionAcceleration(5);
-			// linAct1.ConfigMotionCruiseVelocity(10);
-			// linAct2.ConfigMotionCruiseVelocity(10);
-			
-
-			// linAct1.Set(ControlMode::MotionMagic, laDigPosition);
-			// linAct2.Set(ControlMode::MotionMagic, laDigPosition);
-
-			ConfigMotionMagic(&linAct1, &linAct2, 10, 5, laDigPosition);
-
-			std::cout << "LinAct1 Position: " << linAct1.GetSelectedSensorPosition() << std::endl;
-			std::cout << "LinAct2 Position: " << linAct2.GetSelectedSensorPosition() << std::endl;
-			std::cout << "LinAct1 Velocity: " << linAct1.GetSelectedSensorVelocity(0) << std::endl;
-			std::cout << "LinAct2 Velocity: " << linAct2.GetSelectedSensorVelocity(0) << std::endl;
-			
-
-			// linAct1.Set(ControlMode::Position, laDigPosition);
-			// linAct2.Set(ControlMode::Position, laDigPosition);
-
-			// if (linAct1.GetSelectedSensorPosition() > laDigPosition && linAct2.GetSelectedSensorPosition() > laDigPosition){
-			// 	linAct1.Set(ControlMode::Velocity, -20);
-			// 	linAct2.Set(ControlMode::Velocity, -20);
-			// 	std::cout << "moving down with digPos: " << laDigPosition << std::endl;
-
-			// }
-			
-			// if (linAct1.GetSelectedSensorPosition() < laDigPosition && linAct2.GetSelectedSensorPosition() < laDigPosition){
-			// 	linAct1.Set(ControlMode::Velocity, 20);
-			// 	linAct2.Set(ControlMode::Velocity, 20);
-			// 	std::cout << "moving up" << std::endl;
-
-			// }
-
-			if (sentinel != p_cmd)
-			{ 
-						stop();
-						return;
-			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		}
-		
-		std::cout << "LinAct1 Final Position: " << linAct1.GetSelectedSensorPosition() << std::endl;
-		std::cout << "LinAct2 Final Position: " << linAct2.GetSelectedSensorPosition() << std::endl;
-		std::cout << "LinAct1 Final Velocity: " << linAct1.GetSelectedSensorVelocity(0) << std::endl;
-		std::cout << "LinAct2 Final Velocity: " << linAct2.GetSelectedSensorVelocity(0) << std::endl;
-
-		// Let linAct decelerate
-		linAct1.Set(ControlMode::Velocity, 0);
-        
-
-
-		// ZERO THE BUCKET
-		
-		std::cout << "Zeroing the Bucket" << std::endl;
-
-		bucket1.Set(ControlMode::Velocity, -20);
-
-		do {
-			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-			std::cout << "bucket1 Position: " << bucket1.GetSelectedSensorPosition() << std::endl;
-			std::cout << "bucket2 Position: " << bucket2.GetSelectedSensorPosition() << std::endl;
-			std::cout << "bucket1 Velocity: " << bucket1.GetSelectedSensorVelocity(0) << std::endl;
-			std::cout << "bucket2 Velocity: " << bucket2.GetSelectedSensorVelocity(0) << std::endl;
-
-			// If reverse limit switch triggered, set that to be 0 position
-			if (bucket1.GetSelectedSensorVelocity(0) == 0) {
-
-				std::cout << "Reverse limit switch for bucket triggered" << std::endl;
-
-				bucket1.SetSelectedSensorPosition(0);
-				//bucket1.SetInverted(true); // Positive direction is increasing encoder ticks
-				bucket1.Set(ControlMode::PercentOutput, 0);
-				break;
-			}
-
-		} while(true);
-
-		// Move the bucket back to zero position (dig position)
-		while (bucket1.GetSelectedSensorPosition() > buDigPosition + 10 || bucket1.GetSelectedSensorPosition() < buDigPosition - 10 ){
-			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-			if (bucket1.GetSelectedSensorPosition() > buDigPosition){
-				bucket1.Set(ControlMode::Velocity, -20);
-			}
-			
-			if (bucket1.GetSelectedSensorPosition() < buDigPosition){
-				bucket1.Set(ControlMode::Velocity, 20);
-			}
-
-			
-
-			if (sentinel != p_cmd)
-            { 
-                stop();
-                return;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		if (sentinel != p_cmd)
+		{ 
+			stop();
+			return;
 		}
 
-		// Let bucket decelerate
-		bucket1.Set(ControlMode::Velocity, 0);
-		std::cout << "Bucket Position: " << bScrew.GetSelectedSensorPosition() << std::endl;
-
-
-		/*
-		// ZERO THE BALL SCREW
-
-		bScrew.Set(ControlMode::Velocity, -10);
-
-		do {
-			
-			std::cout << "bScrew Position: " << bScrew.GetSelectedSensorPosition() << std::endl;
-			std::cout << "bScrew Position: " << bScrew.GetSelectedSensorPosition() << std::endl;
-
-			if (bScrew.GetSelectedSensorVelocity(0) == 0) {
-				bScrew.SetSelectedSensorPosition(0);
-				bucket1.Set(ControlMode::PercentOutput, 0);
-				break;
-			}
-
-		} while(true);
-
-
-		// Move the bScrew back to zero position (Fully retracted / Drive position)
-		while (bScrew.GetSelectedSensorPosition() != bsDrivePosition){
-			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-			bScrew.Set(ControlMode::Position, bsDrivePosition);
-
-			if (sentinel != p_cmd)
-			{ 
-				stop();
-				return;
-			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		}
-
-		// Make sure bScrew is zero.
-		bScrew.Set(ControlMode::Velocity, 0);
-		std::cout << "Ball Screw Position: " << bScrew.GetSelectedSensorPosition() << std::endl;
-
-		
-
-		// Move the Linear Actuator back to drive position
-		while(linAct1.GetSelectedSensorPosition() != laDrivePosition){
-			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-			linAct1.Set(ControlMode::Velocity, -20);
-			if (sentinel != p_cmd)
-			{ 
-				stop();
-				return;
-			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		}
-
-		// Make sure the linAct doesn't move
-		linAct1.Set(ControlMode::Velocity, 0);
-		std::cout << "Linear Actuator Position: " << linAct1.GetSelectedSensorPosition() << std::endl;
-
-		*/
-		stop();
-
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
+
+	std::cout << "LINACT FINAL: " << std::endl;
+	displayData(&linAct1, &linAct2, "linAct");
+
+	
+	stop();
+
+}
 
 
 
@@ -945,8 +548,8 @@ void TOCVelocity::driveMode(int& p_cmd, ros::NodeHandle  nh)
 		config(nh);
 		
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		std::cout << "Checking while loop in driveMode: " << std::endl;
-		std::cout << "BalLS and linAct1 pos: " << bScrew.GetSelectedSensorPosition() << linAct1.GetSelectedSensorPosition() << std::endl;
+		std::cout << "Moving to driveMode: " << std::endl;
+		
 	
 		trencher.Set(ControlMode::Velocity, 0);
 
@@ -956,44 +559,32 @@ void TOCVelocity::driveMode(int& p_cmd, ros::NodeHandle  nh)
 				return;
 			}
 
-		while(bScrew.GetSelectedSensorPosition() != bsDrivePosition || linAct1.GetSelectedSensorPosition() != laDrivePosition || bucket1.GetSelectedSensorPosition() != buDrivePosition)
+		// While not in drive mode,
+		while(!CheckMode(laDrivePosition, buDrivePosition, bsDrivePosition))
 		{
 		
 			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-			bScrew.Set(ControlMode::Position, bsDrivePosition);
+
 			trencher.Set(ControlMode::Velocity, 0);
 
-			// If in dig position, cycle the trencher once.
-			if (linAct1.GetSelectedSensorPosition() <= (laDigPosition + 10) && bScrew.GetSelectedSensorPosition() == bsDrivePosition && bucket1.GetSelectedSensorPosition() == buDigPosition)
-			{	
-				trencher.Set(ControlMode::Position, 10000);
-			}
+			// If in dig position and bScrew retracted, cycle the trencher once.
+			// if (CheckMode(laDigPosition, buDigPosition, bsDrivePosition))
+			// {	
+			// 	trencher.Set(ControlMode::Position, 10000);
+			// 	std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+			// }
 			
 			// bucket moves first
-            if (bucket1.GetSelectedSensorPosition() > buDrivePosition + 10)
-                {
-                    bucket1.Set(ControlMode::Velocity, -20);
-                }
-                else
-                {
-                    bucket1.Set(ControlMode::Velocity, 0);
-                    //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-                    //bucket1.Set(ControlMode::Position, buDrivePosition);
-                }
+			ConfigMotionMagic(&bucket1, &bucket2, 10, 5, buDrivePosition);
+
+			// bScrew moves
+            ConfigMotionMagic(&bScrew, 10, 5, bsDrivePosition);
 
 			// If the ball screw retracted and bucket in drive position, start moving the linAct
-			if (bScrew.GetSelectedSensorPosition() == bsDrivePosition && bucket1.GetSelectedSensorPosition() == buDrivePosition)
+			if (TargetPositionReached(&bScrew, bsDrivePosition, "bScrew") && TargetPositionReached(&bucket1, &bucket2, buDrivePosition, "bucket"))
 			{
-				if (linAct1.GetSelectedSensorPosition() > laDrivePosition + 10)
-                    {
-                        linAct1.Set(ControlMode::Velocity, -20);
-                    }
-                    else
-                    {
-                        linAct1.Set(ControlMode::Velocity, 0);
-                        //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-                        //linAct1.Set(ControlMode::Position, laDrivePosition);
-                    }
+				ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+				ConfigMotionMagic(&linAct1, &linAct2, 10, 5, laDrivePosition);
 			}
 
 			if (sentinel != p_cmd)
@@ -1001,7 +592,11 @@ void TOCVelocity::driveMode(int& p_cmd, ros::NodeHandle  nh)
 				stop();
 				return;
 			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+			
+			displayData();
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 			
 			
 		}
@@ -1011,64 +606,108 @@ void TOCVelocity::driveMode(int& p_cmd, ros::NodeHandle  nh)
 
 	}
 
-	void TOCVelocity::deposit(int& p_cmd, ros::NodeHandle  nh)
+
+void TOCVelocity::deposit(int& p_cmd, ros::NodeHandle  nh)
+{
+	sentinel = p_cmd;
+
+	config(nh);
+	
+	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+	
+	std::cout << "Moving to depositMode: " << std::endl;
+
+	// If robot is in drive position, go to deposit position.
+	if(CheckMode(laDrivePosition, buDrivePosition, bsDrivePosition))
 	{
-		sentinel = p_cmd;
-
-		config(nh);
 		
-		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		std::cout << "Checking while loop in depositMode: " << std::endl;
-		std::cout << "BalLS and linAct1 pos: " << bScrew.GetSelectedSensorPosition() << linAct1.GetSelectedSensorPosition() << std::endl;
-		
+		// while not in deposit position.
+		while(!CheckMode(laDepositPosition, buDepositPosition, bsDepositPosition))
+		{
+			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
-		// If robot is in drive position, go to deposit position.
-		if(bScrew.GetSelectedSensorPosition() == bsDrivePosition && linAct1.GetSelectedSensorPosition() == laDrivePosition && bucket1.GetSelectedSensorPosition() == buDrivePosition)
+
+			// Move the linAct first
+			ConfigMotionMagic(&linAct1, &linAct2, 10, 5, laDrivePosition);
+
+			// Move the bucket when the linAct has reached deposit position
+			if (TargetPositionReached(&linAct1, &linAct2, laDepositPosition, "linAct"))
+			{
+				ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+			
+				ConfigMotionMagic(&bucket1, &bucket2, 10, 5, buDepositPosition);
+				
+			}
+
+
+			if (sentinel != p_cmd)
+			{ 
+				stop();
+				return;
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+
+		// For now, no timer to let gravel fall into sieve, if mech says otherwise, uncomment
+		// std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+
+
+		// Move back to drive position
+		
+		driveMode(p_cmd, nh);
+
+		if (sentinel != p_cmd)
+		{ 
+			stop();
+			return;
+		}
+
+		displayData();
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+		
+	}
+
+	stop();
+}
+
+void TOCVelocity::dig(int& p_cmd, ros::NodeHandle  nh)
+{
+	sentinel = p_cmd;
+
+	config(nh);
+	
+	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+	std::cout << "Moving to digMode: " << std::endl;
+
+	// If robot is in driveMode, go to digMode.
+	if(CheckMode(laDrivePosition, buDrivePosition, bsDrivePosition))
 		{
 			
-
-			// Move the bucket to deposit position
-			while((linAct1.GetSelectedSensorPosition() != laDepositPosition) || (bucket1.GetSelectedSensorPosition() != buDepositPosition))
+			// While not in digMode,
+			while(!CheckMode(laDigPosition, buDigPosition, bsDigPosition))
 			{
 				ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
+				// Move the linAct first
+				ConfigMotionMagic(&linAct1, &linAct2, 10, 5, laDigPosition);
+				
 
-                // Move the linAct first
-                if (linAct1.GetSelectedSensorPosition() < laDepositPosition - 10)
-                {
-                    linAct1.Set(ControlMode::Velocity, 20);
-                }
-                else
-                {
-                    linAct1.Set(ControlMode::Velocity, 0);
-                    //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-                    //linAct1.Set(ControlMode::Position, buDepositPosition);
-                }
+				// Move the bucket
+				ConfigMotionMagic(&bucket1, &bucket2, 10, 5, buDigPosition);
+				
 
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-
-				ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-				// Move the bucket only when the linAct has passed a certain point.
-				if (linAct1.GetSelectedSensorPosition() > (laDepositPosition - 20))
+				// Move the ball screw after the linAct has rotated past a certain point
+				if (TargetPositionReached(&linAct1, &linAct2, laDigPosition, "linAct"))
 				{
-                    if (bucket1.GetSelectedSensorPosition() < buDepositPosition - 10)
-                    {
-                        bucket1.Set(ControlMode::Velocity, 20);
-                    }
-                    else
-                    {
-                        bucket1.Set(ControlMode::Velocity, 0);
-                        //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-                        //bucket1.Set(ControlMode::Position, buDepositPosition);
-                    }
-					
+					ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+
+					ConfigMotionMagic(&bScrew, 10, 5, bsDigPosition);
+					// Turn the trencher on
+					//trencher.Set(ControlMode::Velocity, 1);
 				}
 				
-				std::cout << "LinAct pos: " << linAct1.GetSelectedSensorPosition() << std::endl;
-				std::cout << "Bucket pos: " << bucket1.GetSelectedSensorPosition() << std::endl;
-
+				
 				if (sentinel != p_cmd)
 				{ 
 					stop();
@@ -1077,178 +716,22 @@ void TOCVelocity::driveMode(int& p_cmd, ros::NodeHandle  nh)
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 			}
 
-			// For now, no timer to let gravel fall into sieve, if mech says otherwise, uncomment
-			// std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
+			// Move back to drive position
+			
+			driveMode(p_cmd, nh);
 
-            // Move back to drive position
-			while(bucket1.GetSelectedSensorPosition() != buDrivePosition || linAct1.GetSelectedSensorPosition() != laDrivePosition)
-			{
-				
-				ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-                // Move the bucket first
-                if (bucket1.GetSelectedSensorPosition() > buDrivePosition + 10)
-                    {
-                        bucket1.Set(ControlMode::Velocity, -20);
-                    }
-                    else
-                    {
-                        bucket1.Set(ControlMode::Velocity, 0);
-                        //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-                        //bucket1.Set(ControlMode::Position, buDrivePosition);
-                    }
-
-
-				// Move the linAct only when the bucket has passed a certain point.
-				if (bucket1.GetSelectedSensorPosition() < (buDrivePosition + 10))
-				{
-					if (linAct1.GetSelectedSensorPosition() > laDrivePosition + 10)
-                    {
-                        linAct1.Set(ControlMode::Velocity, -20);
-                    }
-                    else
-                    {
-                        linAct1.Set(ControlMode::Velocity, 0);
-                        //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-                        //linAct1.Set(ControlMode::Position, laDrivePosition);
-                    }
-				}
-				
-				std::cout << "LinAct pos: " << linAct1.GetSelectedSensorPosition() << std::endl;
-				std::cout << "Bucket pos: " << bucket1.GetSelectedSensorPosition() << std::endl;
-
-				if (sentinel != p_cmd)
-				{ 
-					stop();
-					return;
-				}
-				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			if (sentinel != p_cmd)
+			{ 
+				stop();
+				return;
 			}
-		}
-	
-		stop();
-	}
 
-	void TOCVelocity::dig(int& p_cmd, ros::NodeHandle  nh)
-	{
-		sentinel = p_cmd;
-
-		config(nh);
-		
-		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-		std::cout << "Checking while loop in digMode: " << std::endl;
-		std::cout << "BallS and linAct1 pos: " << bScrew.GetSelectedSensorPosition() << linAct1.GetSelectedSensorPosition() << std::endl;
-
-		if(bScrew.GetSelectedSensorPosition() == bsDrivePosition && linAct1.GetSelectedSensorPosition() == laDrivePosition && bucket1.GetSelectedSensorPosition() == buDrivePosition)
-			{
+			displayData(); 
+			std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 				
-				ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+			
+		}	
 
-				linAct1.Set(ControlMode::Velocity, 20);
-				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-				bucket1.Set(ControlMode::Velocity, -20);
-
-				if (sentinel != p_cmd)
-				{ 
-					stop();
-					return;
-				}
-
-				while(bScrew.GetSelectedSensorPosition() != bsDigPosition || (linAct1.GetSelectedSensorPosition() != laDigPosition) || (bucket1.GetSelectedSensorPosition() != buDigPosition))
-				{
-                    if (linAct1.GetSelectedSensorPosition() > laDigPosition - 10){
-                        linAct1.Set(ControlMode::Velocity, 0);
-                        //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-                        //linAct1.Set(ControlMode::Position, laDigPosition);
-                    }
-
-                    if (bucket1.GetSelectedSensorPosition() < buDigPosition + 10){
-                        linAct1.Set(ControlMode::Velocity, 0);
-                        //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-                        //linAct1.Set(ControlMode::Position, laDigPosition);
-                    }
-					
-					ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
-					// Move the ball screw after the linAct has rotated past a certain point
-					if (linAct1.GetSelectedSensorPosition() == laDigPosition)
-					{
-						bScrew.Set(ControlMode::Position, bsDigPosition);
-						// Turn the trencher on
-						//trencher.Set(ControlMode::Velocity, 1);
-					}
-					std::cout << "Bscrew pos: " << bScrew.GetSelectedSensorPosition() << std::endl;
-					std::cout << "LinAct pos: " << linAct1.GetSelectedSensorPosition() << std::endl;
-					std::cout << "Bucket pos: " << bucket1.GetSelectedSensorPosition() << std::endl;
-
-					if (sentinel != p_cmd)
-					{ 
-						stop();
-						return;
-					}
-					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-				}
-
-				std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-				bool cycleOnce = true;
-
-                // Move back to drive position
-				while(bScrew.GetSelectedSensorPosition() != bsDrivePosition || linAct1.GetSelectedSensorPosition() != laDrivePosition || bucket1.GetSelectedSensorPosition() != buDrivePosition)
-				{
-					ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-					bScrew.Set(ControlMode::Position, bsDrivePosition);
-					trencher.Set(ControlMode::Velocity, 0);
-
-					// When bScrew is retracted, cycle the trencher once.
-					if (linAct1.GetSelectedSensorPosition() == laDigPosition && bScrew.GetSelectedSensorPosition() == bsDrivePosition && cycleOnce)
-					{	
-						trencher.Set(ControlMode::Position, 10000); 
-						cycleOnce = false;
-					}
-					
-					// bucket moves first
-					
-
-                    if (bucket1.GetSelectedSensorPosition() < buDrivePosition - 10)
-                    {
-                        bucket1.Set(ControlMode::Velocity, 20);
-                            
-                    }
-                    else
-                    {
-                        bucket1.Set(ControlMode::Velocity, 0);
-                        //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-                        //linAct.Set(ControlMode::Position, buDigPosition);
-                    }
-
-
-					// If the ball screw retracted and bucket in drive position, start moving the linAct
-					if (bScrew.GetSelectedSensorPosition() == bsDrivePosition && bucket1.GetSelectedSensorPosition() == buDrivePosition )
-					{
-                        if (linAct1.GetSelectedSensorPosition() < laDrivePosition + 10)
-                        {
-                            linAct1.Set(ControlMode::Velocity, 20);
-                                
-                        }
-                        else
-                        {
-                            linAct1.Set(ControlMode::Velocity, 0);
-                            //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-                            //linAct.Set(ControlMode::Position, laDrivePosition);
-                        }
-					}
-
-					if (sentinel != p_cmd)
-					{ 
-						stop();
-						return;
-					}
-					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-					
-				}
-			}	
-
-		stop();
-	}
+	stop();
+}

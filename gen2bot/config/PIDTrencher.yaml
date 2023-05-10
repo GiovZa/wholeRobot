@@ -1,0 +1,136 @@
+# PIDF is proportional, integrator, and filtered derivative, which sets how motors reach 
+# a set position intelligently. Look at following link to see what each component does:
+# https://commons.wikimedia.org/wiki/File:PID_Compensation_Animated.gif
+# Besides how to tune the motors with gif above, I suggest some more research but to sum it up,
+# you want to generally use P and then a tiny bit of I to tune motors and I Zone to limit range of I.
+# You get to use Phoenix Motors' encoders that keeps track of position. If you use percent output,
+# it just spins at a percentage of maximum voltage but with PID, you can have it reach the exact 
+# spot you want consistently with efficient movement too
+# To sum: PID = smart motors; PercentOutput = dumb motors
+
+# Current PID config for wheels
+wheel_cfg:
+  closedloopRamp: 1
+
+  # position behind line
+  initialPosition: 0
+
+  # recorded position at deposit sieve
+  desiredPosition: 500
+
+  # difference between the initial and desired position
+  positionDifference: 500
+
+  # Motion magic
+  motionCruiseVelocity: 20
+  motionAcceleration: 10
+  motionCurveStrength: 0
+
+# Updated wheel PID for accurate encoders to record position needed for deposit autonomy
+  slot0: {
+    kP: 0.052,
+    kI: 0.000001,
+    kD: 0.0,
+    kF: 0.0,
+
+    # Limits how much I build up there is so the error doesn't become unstable
+    maxIntegralAccumulator: 16000
+  }
+
+# Ballscrew configuration, the ballscrew is what extends the trencher to deposit and mine
+# How I have it set up, the ballscrew has a zero position when it is all the way contracted
+bscrew_cfg:
+
+  # ballscrew is fully contracted
+  drivePosition: 0
+
+  # ballscrew is fully contracted
+  depositPosition: 0
+
+  # ballscrew is fully extended
+  digPosition: 9720000
+
+  # this is what is used for motion magic to control speeds
+  motionCruiseVelocity: 25000
+  motionAcceleration: 100000
+  motionCurveStrength: 0
+  clearPositionOnLimitF: true
+
+  # PID
+  slot0: {
+    kP: 0.5,
+    kI: 0.00000,
+    kD: 0.0
+  }
+
+# Linear actuator configuration, this changes the angle the trencher is facing ex. extend to deposit
+# or extend to dig. 0 is the default and fully contracted position
+linact_cfg:
+
+  # trencher is fully contracted
+  drivePosition: 0
+
+  # trencher is all the way extended
+  depositPosition: 650 
+
+  # trencher is mostly extended
+  digPosition: 550 
+  miliseconds: 1000
+
+  # Motion magic
+  motionCruiseVelocity: 20
+  motionAcceleration: 10
+  motionCurveStrength: 0
+
+  # PID
+  slot0: {
+    kP: 20, 
+    kI: 0.0002,
+    kD: 0.0
+  }
+
+# Deposits gravel by moving bucket, full contraction is 0 and default, while extension is deposit position
+bucket_cfg:
+  # bucket is slightly extended
+  drivePosition: 30
+
+  # bucket is fully extended
+  depositPosition: 840
+
+  # bucket is fully contracted
+  digPosition: 0
+
+  # Motion magic
+  motionCruiseVelocity: 20
+  motionAcceleration: 10
+  motionCurveStrength: 0
+
+  # PID
+  slot0: {
+    kP: 20,
+    kI: 0.0002,
+    kD: 0.0
+  }
+
+# rotates scoops to collect gravel
+trencher_cfg:
+  # trencher is fully contracted
+  drivePosition: 0 
+
+  # trencher is all the way extended
+  depositPosition: 0 
+
+  # trencher is mostly extended
+  digPosition: 0 
+
+  # Motion magic
+  motionCruiseVelocity: 20
+  motionAcceleration: 10
+  motionCurveStrength: 0
+
+  # PID
+  slot0: {
+    kP: 42, 
+    kI: 0.0008,
+    kD: 0.0
+  }

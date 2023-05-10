@@ -2,8 +2,12 @@
 # As of March 21, only ongoingDigPhase, ongoingDepositPhase, and manualMode are being used by autoInputs.py and
 # dig and deposit functions in trencherOperationsClass.cpp
 
+# robot_mux_control.py, move_base_client.py, and semi_auto_trencher_class.cpp all rely on these modes
+
+#Starts off true, when QR code is detected, it is then switched off for wheelDrive.cpp
 localizationPhase: false 
 
+# All of these determine how move_base_client.py communicates with all the other files
 settingNavigationDigPhase: false
 ongoingNavigationDigPhase: false
 

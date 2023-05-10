@@ -23,5 +23,20 @@ augerOperationsClass.cpp and miningOperationsAuger.cpp and processManagerClass.c
   All work with augerOperationsClass.h and processManagerClass.h to control and update the mining and depositing
   motors while also checking if functions ever need to be killed mid script
 
-trencherOperationsClass.cpp and miningOperationsTrencherAuto.cpp and processManagerClass.cpp:
-  Still being tested on but will eventually make the new robot fully autonomous with its motor functions working
+wheelDrive.cpp:
+  A subscriber node that communicates with the move_base node and robot_mux_control.py to
+  give wheel motor control commands autonomously and manually. 
+
+base_trencher_class.cpp:
+  Parent class for motors, declares motors and has overarching functions as well as defining variables for each
+
+manual_trencher_class.cpp:
+  Child class for motors with sole purpose of manual operations
+
+semi_auto_trencher_class.cpp:
+  Child class for motors with sole purpose of operating motor scripts
+
+TODO:
+  Make a child class that takes in semi and manual classes so motors have only one class (currently copies same motor for both classes)
+  Make abstract code for motors in base class that works for all control modes and checks for all positions reached
+  Swap bScrew motor so it doesn't match with a wheel

@@ -11,7 +11,7 @@
  </node>
  
  <!-- Node that takes ROS inputs of joystick to move wheels-->
- <node name="talker" pkg="gen2bot" type="motorTester.py" output="screen">
+ <node name="talker" pkg="gen2bot" type="robot_mux_control.py" output="screen">
  </node>
 
  <!-- Node that takes ROS inputs of joystick to move motors-->

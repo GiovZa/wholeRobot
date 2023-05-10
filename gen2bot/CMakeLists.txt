@@ -34,12 +34,10 @@ ${catkin_INCLUDE_DIRS}
 
 # Makes the python script executable with "rosrun gen2bot motorTester.py" command or whichever python file it is
  catkin_install_python(PROGRAMS
-  scripts/controllerInputs.py
-  scripts/autoInputs.py
   scripts/move_base_client.py
-  scripts/motorTester.py
+  scripts/robot_mux_control.py
   scripts/twistConvertor.py
-  scripts/controllerInputsMar.py
+  scripts/notDTTalker.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
@@ -74,6 +72,17 @@ target_link_libraries(autoDrive
   ${catkin_LIBRARIES}
 )
 
+#add_executable(wheelDrive 
+
+#src/wheelDrive.cpp
+#include/gen2bot/base_trencher_class.h
+#src/base_trencher_class.cpp 
+#)
+#target_link_libraries(wheelDrive
+#  CTRE_Phoenix
+#  ${catkin_LIBRARIES}
+#)
+
 # Makes the C++ scripts executable with "rosrun gen2bot miningOperationsAuger" command
 add_executable(
 miningOperationsAuger
@@ -85,72 +94,6 @@ src/augerOperationsClass.cpp
 include/gen2bot/augerOperationsClass.h
 )
 target_link_libraries(miningOperationsAuger
-  CTRE_Phoenix
-  ${catkin_LIBRARIES}
-)
-
-#add_executable(
-#miningOperationsTrencherManual
-
-#src/miningOperationsTrencherManual.cpp 
-#src/processManagerClass.cpp 
-#include/gen2bot/processManagerClass.h
-#src/trencherOperationsClass.cpp 
-#include/gen2bot/trencherOperationsClass.h
-#)
-#target_link_libraries(miningOperationsTrencherManual
-#  CTRE_Phoenix
-#  ${catkin_LIBRARIES}
-#)
-
-#add_executable(
-#miningOperationsTrencherPOL
-
-#src/miningOperationsTrencherPOL.cpp 
-#src/processManagerClass.cpp 
-#include/gen2bot/processManagerClass.h
-#src/trencherOperationsClass.cpp 
-#include/gen2bot/trencherOperationsClass.h
-#)
-#target_link_libraries(miningOperationsTrencherPOL
-#  CTRE_Phoenix
-#  ${catkin_LIBRARIES}
-#)
-
-add_executable(
-miningOperationsTrencheMar
-
-src/miningOperationsTrencheMar.cpp 
-src/processManagerClass.cpp 
-include/gen2bot/processManagerClass.h
-src/trencherOperationsClassMar.cpp 
-include/gen2bot/trencherOperationsClassMar.h
-)
-target_link_libraries(miningOperationsTrencheMar
-  CTRE_Phoenix
-  ${catkin_LIBRARIES}
-)
-
-add_executable(
-miningOperationsTrencheMar2
-
-src/miningOperationsTrencheMar2.cpp 
-src/processManagerClass.cpp 
-include/gen2bot/processManagerClass.h
-src/trencherOperationsClassMar.cpp 
-include/gen2bot/trencherOperationsClassMar.h
-)
-target_link_libraries(miningOperationsTrencheMar2
-  CTRE_Phoenix
-  ${catkin_LIBRARIES}
-)
-
-add_executable(
-manualAutoSelection
-
-src/manualAutoSelection.cpp
-)
-target_link_libraries(manualAutoSelection
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
@@ -180,3 +123,46 @@ target_link_libraries(brianMine
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
+
+# Final executable to run everything at once
+add_executable(
+flexRobot
+
+src/robot_mux.cpp 
+src/processManagerClass.cpp 
+include/gen2bot/processManagerClass.h
+src/semi_auto_trencher_class.cpp 
+include/gen2bot/semi_auto_trencher_class.h
+src/manual_trencher_class.cpp 
+include/gen2bot/manual_trencher_class.h
+src/base_trencher_class.cpp 
+include/gen2bot/base_trencher_class.h
+include/gen2bot/wheelDrive.h
+)
+target_link_libraries(flexRobot
+  CTRE_Phoenix
+  ${catkin_LIBRARIES}
+)
+
+add_executable(listenerMotor src/listenerMotor.cpp)
+target_link_libraries(listenerMotor 
+  CTRE_Phoenix
+  ${catkin_LIBRARIES}
+)
+
+add_executable(
+notDT
+
+src/notDT.cpp 
+src/processManagerClass.cpp 
+include/gen2bot/processManagerClass.h
+src/NotDTClass.cpp 
+include/gen2bot/NotDTClass.h
+)
+
+target_link_libraries(notDT
+  CTRE_Phoenix
+  ${catkin_LIBRARIES}
+)
+
+#Redid whole class

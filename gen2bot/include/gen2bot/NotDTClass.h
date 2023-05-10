@@ -1,14 +1,22 @@
 #pragma once
 
-// This class is for declaring functions to run trencher and bucket motors
-
 #include "ros/ros.h"
 
-class trencherOperationsClass
+#define Phoenix_No_WPI // remove WPI dependencies
+#include "ctre/Phoenix.h"
+#include "ctre/phoenix/platform/Platform.h"
+#include "ctre/phoenix/unmanaged/Unmanaged.h"
+#include "ctre/phoenix/cci/Unmanaged_CCI.h"
+
+#include <iostream>
+
+using namespace ctre::phoenix::motorcontrol::can;
+
+class NotDTClass
 {
 
 public:
-	trencherOperationsClass(ros::NodeHandle nh);
+	NotDTClass(ros::NodeHandle nh);
 
 	void zero(int& p_cmd, ros::NodeHandle  nh);
 
@@ -23,25 +31,14 @@ public:
 
 	void config(ros::NodeHandle nh);
 
-	void turnTrencher(int& p_cmd, ros::NodeHandle  nh);
-
 
 	int sentinel;
 
-	// la = linear actuator
 	double laDrivePosition;
 	double laDepositPosition;
 	double laDigPosition;
 
-	// bs = ballscrew
 	double bsDrivePosition;
 	double bsDepositPosition;
 	double bsDigPosition;
-
-	// bu = bucket
-	double buDrivePosition;
-	double buDepositPosition;
-	double buDigPosition;
-
-	double trencherZeroPosition;
 };

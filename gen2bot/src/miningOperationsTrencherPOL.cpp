@@ -72,7 +72,7 @@ void zero(int &p_cmd, TOCVelocity trencherOperations, ros::NodeHandle nh)
 	ROS_INFO("zero");
 	while (p_cmd == sentinel)
 	{
-		trencherOperations.zero3(p_cmd, nh);
+		trencherOperations.zero(p_cmd, nh);
 		std::cout << "Exit trencherOperations.zero with sentinel, notDTsentinel, z "
 				  << " and p_cmd: " << sentinel << " " << trencherOperations.sentinel << " " << p_cmd << std::endl;
 		p_cmd = 0;

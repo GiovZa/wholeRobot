@@ -1,21 +1,23 @@
 #pragma once
 
-// This class is for declaring functions to run trencher and bucket motors
-
-#include "ros/ros.h"
-#include <iostream>
-#include <string>
-
+// This class is the base class for all essential motor declarations, functions, and variables
 #include <gen2bot/base_trencher_class.h>
 
-class TOCVelocity
+// This class runs all motor scripts
+class semi_auto_trencher_class : public base_trencher_class
 {
 
 public:
-	TOCVelocity(ros::NodeHandle nh);
+	semi_auto_trencher_class(ros::NodeHandle nh);
 
 	void ConfigMotionMagic(TalonFX* talon1, int vel, int accel, int pos);
 	void ConfigMotionMagic(TalonSRX* talon1, TalonSRX* talon2, int vel, int accel, int pos);
+
+	// wheel deposit
+	double calculateDistanceWheels();
+	void returnInitialWheelPosition();
+	void returnDesiredWheelPosition();
+	void moveWheelsToSieve();
 
 	void displayData();
 	void displayData(TalonFX* talon1, std::string name);
@@ -38,34 +40,9 @@ public:
 	void deposit(int& p_cmd, ros::NodeHandle  nh);
 	void dig(int& p_cmd, ros::NodeHandle  nh);
 
-	void checkSentinel(int& p_cmd);
 	void isSafe(int& p_cmd);
-
-	void stop();
-
-	void config(ros::NodeHandle nh);
 
 	void turnTrencher(int& p_cmd, ros::NodeHandle  nh);
 
-
-	int sentinel;
-
 	int mBuffer;
-
-	// la = linear actuator
-	double laDrivePosition;
-	double laDepositPosition;
-	double laDigPosition;
-
-	// bs = ballscrew
-	double bsDrivePosition;
-	double bsDepositPosition;
-	double bsDigPosition;
-
-	// bu = bucket
-	double buDrivePosition;
-	double buDepositPosition;
-	double buDigPosition;
-
-	double trencherZeroPosition;
 };

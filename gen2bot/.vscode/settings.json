@@ -69,5 +69,5 @@
     "python.analysis.extraPaths": [
         "/opt/ros/melodic/lib/python2.7/dist-packages"
     ],
-    "ros.distro": "melodic"
+    "ros.distro": "melodic",
 }

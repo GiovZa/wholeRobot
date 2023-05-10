@@ -9,7 +9,7 @@ processManagerClass::processManagerClass(int* p_cmd)
 }
 
 // The function that always gets called on by subscriber
-// Updates the variable based on what publisher (notDTTalker.py) spews out
+// Updates the variable based on what publisher (robot_mux_control.py) spews out
 void processManagerClass::callback(const std_msgs::Int8ConstPtr &msg)
 {
     ROS_INFO("Callback");

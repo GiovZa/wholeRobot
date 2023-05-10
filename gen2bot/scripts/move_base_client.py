@@ -38,7 +38,7 @@ import tf2_msgs.msg
 
 # class that subscribes and publishes to robot_process topic for the sole purpose of running move_base
 # runs dig navigation function once robot_process outputs 'begin dig nav' 
-# runs deposit navigation function once robot_process outputs 'begin dig nav' 
+# runs deposit navigation function once robot_process outputs 'begin deposit nav' 
 # runs dig function once dig navigation finishes and runs deposit function once deposit naivgation function finishes
 class moveBasePubClass:
 
@@ -144,7 +144,7 @@ class moveBasePubClass:
 
                 # Waits for the server to finish performing the action. I think this logic is wrong, I think 
                 # there is no need for a while loop
-                while  message.data == 9: # while in process of navigation to deposit mode
+                while  message.data == 19: # while in process of navigation to deposit mode
                     rospy.loginfo("Getting state of server")
                     state = client.get_state()
                     rospy.loginfo("State of server retrieved")
@@ -153,17 +153,17 @@ class moveBasePubClass:
                         rospy.loginfo("Deposit Goal Reached!")
                         break
 
-                    if message.data != 9: # if no longer in navigation to deposit mode, exit function
+                    if message.data != 19: # if no longer in navigation to deposit mode, exit function
                         rospy.loginfo("No longer in deposit mode, killing client")
                         client.cancel_all_goals()
                         return
                 
-                while  message.data == 8: # while in process of navigation to dig mode
+                while  message.data == 20: # while in process of navigation to dig mode
                     state = client.get_state()
                     if state == actionlib.GoalStatus.SUCCEEDED:
                         rospy.loginfo("Dig Goal Reached!")
                         break            
-                    if message.data != 8: # if no longer in navigation to dig mode, exit function
+                    if message.data != 20: # if no longer in navigation to dig mode, exit function
                         rospy.loginfo("No longer in dig mode, killing client")
                         client.cancel_all_goals()
                         return
@@ -176,13 +176,13 @@ class moveBasePubClass:
                     return
                 
                 # If still in deposit navigation mode and auto mode, run deposit function
-                if self.sentinel == message.data and message.data == 9 and not rospy.get_param('manualMode'):
-                    self.pub.publish(3)
+                if self.sentinel == message.data and message.data == 19 and not rospy.get_param('manualMode'):
+                    self.pub.publish(22)
                     rospy.loginfo("Deposit Goal Reached! Commencing Deposit Sequence")
 
                 # If still in dig navigation mode and auto mode, run dig function
-                if self.sentinel == message.data and message.data == 8 and not rospy.get_param('manualMode'):
-                    self.pub.publish(2)
+                if self.sentinel == message.data and message.data == 20 and not rospy.get_param('manualMode'):
+                    self.pub.publish(21)
                     rospy.loginfo("Dig Goal Reached! Commencing Dig Sequence")
     
                 client.cancel_all_goals()
@@ -200,15 +200,15 @@ class moveBasePubClass:
             continue
 
     def callback(self, message): 
-        if message.data == 6: # if 'begin navigation to dig mode' true:
+        if message.data == 18: # if 'begin navigation to dig mode' true:
             xPos = 1.0 # x coordinate of dig
             yPos = 0.0 # y coordinate of dig
-            self.pub.publish(8) # Publish 'navigating to deposit mode'
+            self.pub.publish(20) # Publish 'navigating to dig zone'
 
-        elif message.data == 7: # if 'begin navigation to deposit mode' true:
+        elif message.data == 17: # if 'begin navigation to deposit mode' true:
             xPos = 3.0 # x coordinate of deposit
             yPos = 1.0 # y coordinate of deposit
-            self.pub.publish(9) # Publish 'navigating to deposit mode'
+            self.pub.publish(19) # Publish 'navigating to deposit zone'
 
         else:
             rospy.loginfo("No move_base coordinates given: ")

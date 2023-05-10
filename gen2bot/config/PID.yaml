@@ -1,46 +1,19 @@
-# PIDF is proportional, integrator, and filtered derivative, which sets how motors reach 
-# a set position intelligently. Look at following link to see what each component does:
-# https://commons.wikimedia.org/wiki/File:PID_Compensation_Animated.gif
-# Besides how to tune the motors with gif above, I suggest some more research but to sum it up,
-# you want to generally use P and then a tiny bit of I to tune motors and I Zone to limit range of I
-# you get to use Phoenix Motors' encoders that keeps track of position. If you use percent output,
-# it just spins at a percentage of maximum voltage but with PID, you can have it reach the exact 
-# spot you want consistently with efficient movement too
-# To sum: PID = smart motors; PercentOutput = dumb motors
-
-# Current PID config for wheels
 wheel_cfg:
   closedloopRamp: 1
-
-# Updated wheel PID for accurate encoders to get wheel odometry and accurate move_base 
-# twist outputs for robot_localization sensor fusion
   slot0: {
-    kP: 0.052,
-    kI: 0.000001,
-    kD: 0.0,
-    kF: 0.0,
-
-    # I don't know what this one does, someone figure this out
+    kP: 0.1,
+    kI: 0.002,
+    kD: 5.0,
+    kF: 0.035,
     maxIntegralAccumulator: 16000
   }
 
-# Ballscrew configuration, the ballscrew is what extends the trencher to deposit and mine
-# How I have it set up, the ballscrew has a zero position when it is all the way inside
 bscrew_cfg:
-
-  # drive position is when the trencher is all the way tucked inside the center of the robot
   drivePosition: 0
-
-  # the other positions are negative because motor spins counterclockwise, which is in -
-  # direction of 0. These are just currently arbitrary positions
-  depositPosition: 0
-  digPosition: 9720000
-
-  # this is the duration of time the motors will spin, it is currently not being used however
+  depositPosition: -4000000
+  digPosition: -1000000
   miliseconds: 1000
 
-  # this is what is used for motion magic, I haven't used it yet so I don't know how to use this, 
-  # this is last year's configuration
   motionCruiseVelocity: 25000
   motionAcceleration: 100000
   motionCurveStrength: 0
@@ -52,68 +25,17 @@ bscrew_cfg:
     # maxIntegralAccumulator: 50000
   }
 
-# Linear actuator configuration, this changes the angle the auger is facing ex. up to deposit
-# or down to dig
 linact_cfg:
-
-  # auger is parallel to ground
-  drivePosition: 0 # 0
-
-  # auger is all the way up
-  depositPosition: 650 # 10
-
-  # auger is all the way down
-  digPosition: 550 # -60
-  miliseconds: 1000
-
-  # Probably won't be using this
-  motionCruiseVelocity: 4
-  motionAcceleration: 10
-  motionCurveStrength: 0
-
-  slot0: {
-    kP: 20, #45
-    kI: 0.0002 #0.001 # 0.0001
-  }
-
-bucket_cfg:
-  # auger is parallel to ground
-  drivePosition: 30 # 0
-
-  # auger is all the way up
-  depositPosition: 840 # 10
-
-  # auger is all the way down
-  digPosition: 0 # -60
-  miliseconds: 1000
-
-  # Probably won't be using this
-  motionCruiseVelocity: 4
-  motionAcceleration: 10
-  motionCurveStrength: 0
-
-  slot0: {
-    kP: 20, #45
-    kI: 0.0002 #0.001 # 0.0001
-  }
-
-trencher_cfg:
-  # auger is parallel to ground
-  drivePosition: 0 # 0
-
-  # auger is all the way up
+  drivePosition: -14 # 0
   depositPosition: 0 # 10
-
-  # auger is all the way down
-  digPosition: 0 # -60
+  digPosition: -80 # -60
   miliseconds: 1000
 
-  # Probably won't be using this
   motionCruiseVelocity: 4
   motionAcceleration: 10
   motionCurveStrength: 0
 
   slot0: {
     kP: 42, #45
-    kI: 0.0008 #0.001 # 0.0001
+    kI: 0.0 #0.001 # 0.0001
   }

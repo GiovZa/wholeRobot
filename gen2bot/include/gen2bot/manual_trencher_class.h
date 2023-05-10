@@ -1,15 +1,18 @@
 #pragma once
 
-// This class is for declaring functions to run trencher and bucket motors
+// This class is the base class for all essential motor declarations, functions, and variables
+#include <gen2bot/base_trencher_class.h>
 
-#include "ros/ros.h"
-
-class trencherOperationsClass
+// This class controls all manual motor functions besides wheels
+class manual_trencher_class : public base_trencher_class
 {
 
 public:
-	trencherOperationsClass(ros::NodeHandle nh);
 
+	// Initiation
+	manual_trencher_class(ros::NodeHandle nh);
+
+	// manual motor functions
 	void rightLinActBack(int& p_cmd, ros::NodeHandle  nh);
 	void rightLinActForward(int& p_cmd, ros::NodeHandle  nh);
 	void rightBucketForward(int& p_cmd, ros::NodeHandle  nh);
@@ -29,32 +32,10 @@ public:
 	void linActsForward(int &p_cmd, ros::NodeHandle nh);
 	void linActsBack(int &p_cmd, ros::NodeHandle nh);
 
-	void checkSentinel(int& p_cmd);
-	void isSafe(int& p_cmd);
-
-	void stop();
-
-	void config(ros::NodeHandle nh);
-
 	void turnTrencher(int& p_cmd, ros::NodeHandle  nh);
 
+	// code clean w/ general functions
+	void keepSpinningMotors(int& p_cmd, ros::NodeHandle  nh);
+	void motorsStoppedSpinning(int& p_cmd, ros::NodeHandle  nh);
 
-	int sentinel;
-
-	// la = linear actuator
-	double laDrivePosition;
-	double laDepositPosition;
-	double laDigPosition;
-
-	// bs = ballscrew
-	double bsDrivePosition;
-	double bsDepositPosition;
-	double bsDigPosition;
-
-	// bu = bucket
-	double buDrivePosition;
-	double buDepositPosition;
-	double buDigPosition;
-
-	double trencherZeroPosition;
 };
