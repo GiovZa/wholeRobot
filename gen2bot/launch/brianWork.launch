@@ -14,8 +14,8 @@
   </node>
 
   <!-- Node that takes ROS inputs of joystick to move motors in wheels-->
-  <node name="manual_wheels" pkg="gen2bot" type="manualDrive" output="screen"/>
-
+<!--   <node name="manual_wheels" pkg="gen2bot" type="manualDrive" output="screen"/>
+ -->
   <!-- loads states.yaml's parameters-->
   <rosparam file="$(find gen2bot)/config/states.yaml" command="load"/> 
 

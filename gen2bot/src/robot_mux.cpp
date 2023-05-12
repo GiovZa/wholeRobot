@@ -4,6 +4,8 @@
 #include <gen2bot/processManagerClass.h>
 #include <gen2bot/manual_trencher_class.h>
 #include <gen2bot/semi_auto_trencher_class.h>
+#include <gen2bot/wheel_trencher_class.h>
+
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -11,7 +13,6 @@
 
 #include "ros/ros.h"
 
-#include <gen2bot/wheelDrive.h>
 
 // Search up pointers in cpp before continuing
 
@@ -196,7 +197,7 @@ int main(int argc, char **argv)
 
 	manual_trencher_class manual_trencher(nh);
 	semi_auto_trencher_class semi_auto_trencher(nh);
-    MotorSubscriber motor_subscriber(nh);
+    wheel_trencher_class wheel_trencher(nh);
 
 	int p_cmd = 0;
 	int *ptr = &p_cmd;
@@ -210,7 +211,8 @@ int main(int argc, char **argv)
 	ros::Subscriber sub = nh.subscribe("robot_process", 0, &processManagerClass::callback, &processManager);
 
 	// use the & to allow us to use this-> key word for pointers
-	ros::Subscriber sub2 = nh.subscribe("manual_wheel_inputs", 0, &MotorSubscriber::chatterCallback, &motor_subscriber);
+	ros::Subscriber wheelManual = nh.subscribe("manual_wheel_inputs", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher);
+	ros::Subscriber wheelAuto = nh.subscribe("cmd_vel", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher);
 
 	ros::AsyncSpinner spinner(0);
 	spinner.start();

@@ -60,11 +60,11 @@ TOCVelocity::TOCVelocity(ros::NodeHandle nh)
 	  bsDrivePosition(0),
 	  // bsDepositPosition(-2000000),
 	  bsDigPosition(4000000),
-	  buDrivePosition(-50),
+	  buDrivePosition(30),
 	  buDepositPosition(-100),
 	  buDigPosition(0),
 	  trencherZeroPosition(0),
-	  mBuffer(2)
+	  mBuffer(5)
 {	
 	config(nh);
 }
@@ -313,13 +313,16 @@ bool TOCVelocity::ReverseLimitSwitchTriggered(TalonSRX* talon1, TalonSRX* talon2
 
 
 bool TOCVelocity::isNear(int a, int b, int tolerance) {
+	if (abs(a - b) <= tolerance)
+		std::cout << "true" << std::endl;
+	else
+		std::cout << "false" << std::endl;
     return abs(a - b) <= tolerance;
 }
 
 bool TOCVelocity::TargetPositionReached(TalonFX* talon1, int pos, std::string name)
 {
 	if (isNear(talon1->GetSelectedSensorPosition(), pos, mBuffer))
-
 	{
 		return true;
 		std::cout << name << " is in desired position." << std::endl;
@@ -465,10 +468,10 @@ void TOCVelocity::zero(int& p_cmd, ros::NodeHandle  nh)
 	} while(!ReverseLimitSwitchTriggered(&bucket1, &bucket2, "bucket"));
 
 	// Move the bucket back to zero position (dig position)
-	while (!TargetPositionReached(&bucket1, &bucket2, buDigPosition, "bucket")){
+	while (!TargetPositionReached(&bucket1, &bucket2, buDrivePosition, "bucket")){
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
-		ConfigMotionMagic(&bucket1, &bucket2, 10, 5, buDigPosition);
+		ConfigMotionMagic(&bucket1, &bucket2, 10, 5, buDrivePosition);
 
 		displayData(&bucket1, &bucket2, "bucket");
 
@@ -601,7 +604,6 @@ void TOCVelocity::driveMode(int& p_cmd, ros::NodeHandle  nh)
 			
 		}
 
-
 		stop();
 
 	}
@@ -625,7 +627,7 @@ void TOCVelocity::deposit(int& p_cmd, ros::NodeHandle  nh)
 		while(!CheckMode(laDepositPosition, buDepositPosition, bsDepositPosition))
 		{
 			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-
+			displayData();
 
 			// Move the linAct first
 			ConfigMotionMagic(&linAct1, &linAct2, 10, 5, laDrivePosition);
@@ -636,7 +638,7 @@ void TOCVelocity::deposit(int& p_cmd, ros::NodeHandle  nh)
 				ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 			
 				ConfigMotionMagic(&bucket1, &bucket2, 10, 5, buDepositPosition);
-				
+				displayData();
 			}
 
 

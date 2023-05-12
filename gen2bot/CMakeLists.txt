@@ -37,7 +37,6 @@ ${catkin_INCLUDE_DIRS}
   scripts/move_base_client.py
   scripts/robot_mux_control.py
   scripts/twistConvertor.py
-  scripts/notDTTalker.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
@@ -137,32 +136,10 @@ src/manual_trencher_class.cpp
 include/gen2bot/manual_trencher_class.h
 src/base_trencher_class.cpp 
 include/gen2bot/base_trencher_class.h
-include/gen2bot/wheelDrive.h
+include/gen2bot/wheel_trencher_class.h
+
 )
 target_link_libraries(flexRobot
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )
-
-add_executable(listenerMotor src/listenerMotor.cpp)
-target_link_libraries(listenerMotor 
-  CTRE_Phoenix
-  ${catkin_LIBRARIES}
-)
-
-add_executable(
-notDT
-
-src/notDT.cpp 
-src/processManagerClass.cpp 
-include/gen2bot/processManagerClass.h
-src/NotDTClass.cpp 
-include/gen2bot/NotDTClass.h
-)
-
-target_link_libraries(notDT
-  CTRE_Phoenix
-  ${catkin_LIBRARIES}
-)
-
-#Redid whole class

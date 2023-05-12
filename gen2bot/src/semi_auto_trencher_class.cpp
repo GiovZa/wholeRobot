@@ -154,10 +154,10 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 	// Reassigns absolute position so motors know where they are
 	void semi_auto_trencher_class::zero(int& p_cmd, ros::NodeHandle  nh) 
 	{
+		sentinel = p_cmd;
 		std::cout << "Running zero" << std::endl;
 		zeroStart(p_cmd, nh);
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		sentinel = p_cmd;
 		
 		// ZERO THE LINEAR ACTUATOR
 		std::cout << "Zeroing the Linear Actuator" << std::endl;
@@ -168,7 +168,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 		do {
 			displayData(&linAct1, &linAct2, "linAct");
 
-			if(exitFunction(p_cmd)) {stopMotors(); return; }
+			if(exitFunction(p_cmd)) return;
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
@@ -184,7 +184,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 
 			displayData(&linAct1, &linAct2, "linAct");
 
-			if(exitFunction(p_cmd)) {stopMotors(); return; }
+			if(exitFunction(p_cmd)) return;
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
@@ -201,7 +201,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 		{
 			displayData(&bucket1, &bucket2, "bucket");
 
-			if(exitFunction(p_cmd)) {stopMotors(); return;}
+			if(exitFunction(p_cmd)) return;
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
@@ -214,7 +214,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 
 			displayData(&bucket1, &bucket2, "bucket");
 
-			if(exitFunction(p_cmd)) {stopMotors(); return;}
+			if(exitFunction(p_cmd)) return;
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
@@ -232,7 +232,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 		{	
 			displayData(&bScrew, "bScrew");
 
-			if(exitFunction(p_cmd)) {stopMotors(); return;}
+			if(exitFunction(p_cmd)) return;
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		
@@ -249,7 +249,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 
 			displayData(&linAct1, &linAct2, "linAct");
 
-			if(exitFunction(p_cmd)) {stopMotors(); return;}
+			if(exitFunction(p_cmd)) return;
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
@@ -270,7 +270,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 		
 			trencher.Set(ControlMode::Velocity, 0);
 
-			if(exitFunction(p_cmd)) {stopMotors(); return;}
+			if(exitFunction(p_cmd)) return;
 
 			// While not in drive mode,
 			while(!CheckMode(laDrivePosition, buDrivePosition, bsDrivePosition))
@@ -297,7 +297,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 				if (TargetPositionReached(&bScrew, bsDrivePosition, "bScrew") && TargetPositionReached(&bucket1, &bucket2, buDrivePosition, "bucket"))
 					ConfigMotionMagic(&linAct1, &linAct2, 10, 5, laDrivePosition);
 
-				if(exitFunction(p_cmd)) {stopMotors(); return;}
+				if(exitFunction(p_cmd)) return;
 
 				displayData();
 
@@ -325,7 +325,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 				if (TargetPositionReached(&linAct1, &linAct2, laDepositPosition, "linAct"))
 					ConfigMotionMagic(&bucket1, &bucket2, 10, 5, buDepositPosition);
 
-				if(exitFunction(p_cmd)) {stopMotors(); return;}
+				if(exitFunction(p_cmd)) return;
 
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 			}
@@ -336,13 +336,16 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 			// Move back to drive position
 			driveMode(p_cmd, nh);
 
-			if(exitFunction(p_cmd)) {stopMotors(); return;}
+			if(exitFunction(p_cmd)) return;
 
 			displayData();
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 		}
 		stopMotors();
+
+		// a parameter that lets robot_mux_control.py know to tell move_base_client.py to send robot to dig
+		nh.setParam("ongoingDepositPhase", true);
 	}
 
 	void semi_auto_trencher_class::dig(int& p_cmd, ros::NodeHandle  nh)
@@ -372,19 +375,22 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 						// Turn the trencher on
 						//trencher.Set(ControlMode::Velocity, 1);
 					}
-					if(exitFunction(p_cmd)) {stopMotors(); return;}
+					if(exitFunction(p_cmd)) return;
 					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 				}
 
 				// Move back to drive position
 				driveMode(p_cmd, nh);
 
-				if(exitFunction(p_cmd)) {stopMotors(); return;}
+				if(exitFunction(p_cmd)) return;
 
 				displayData(); 
 				std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 			}	
 		stopMotors();
+
+		// a parameter that lets robot_mux_control.py know to tell move_base_client.py to send robot to deposit
+		nh.setParam("ongoingDigPhase", true);
 	}
 
 	double semi_auto_trencher_class::calculateDistanceWheels()

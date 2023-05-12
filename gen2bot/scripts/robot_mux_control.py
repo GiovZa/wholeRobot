@@ -132,39 +132,37 @@ class JoystickPublisher:
 
                 if(message.buttons[6] == 1 and message.buttons[7] == 1 and message.buttons[13] == 1.0): # bumpers and left joystick press
 
-                        if(message.buttons[3] == 1.0): # X button
+                        if(message.buttons[10] == 1.0): # Back button
                                 Int8 = 26
                                 rospy.loginfo("publishing 'storing initial'")
                                 self.pub.publish(Int8)
 
-                        elif(message.buttons[0] == 1.0): # A button
+                        elif(message.buttons[11] == 1.0): # Start button
                                 Int8 = 27
                                 rospy.loginfo("publishing 'storing desired'")
                                 self.pub.publish(Int8)
 
-                        elif(message.buttons[1] == 1.0): #  B button
+                        elif(message.buttons[1] == 1.0 and message.buttons[3] == 1.0): #  B + X button
                                 Int8 = 28
                                 rospy.loginfo("publishing 'move wheels'")
                                 self.pub.publish(Int8)
 
-                if(message.buttons[6] == 1 and message.buttons[7] == 1 and message.buttons[11] == 1.0): # bumpers and Power button
-
-                        if(message.buttons[3] == 1.0): # X button
+                        elif(message.buttons[3] == 1.0 and message.buttons[4] == 1.0): # X + Y button
                                 Int8 = 23
                                 rospy.loginfo("driveMode")
                                 self.pub.publish(Int8)
 
-                        elif(message.buttons[0] == 1.0): # A button
+                        elif(message.buttons[0] == 1.0 and message.buttons[3] == 1.0): # A + X button
                                 Int8 = 22
                                 rospy.loginfo("deposit")
                                 self.pub.publish(Int8)
 
-                        elif(message.buttons[1] == 1.0): #  B button
+                        elif(message.buttons[1] == 1.0 and message.buttons[0] == 1.0): # A + B button
                                 Int8 = 21
                                 rospy.loginfo("dig")
                                 self.pub.publish(Int8)
 
-                        elif(message.buttons[4] == 1.0): # Y button
+                        elif(message.buttons[4] == 1.0 and message.buttons[0] == 1.0): # A + Y button
                                 Int8 = 24
                                 rospy.loginfo("zero")
                                 self.pub.publish(Int8)

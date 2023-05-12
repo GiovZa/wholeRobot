@@ -73,7 +73,6 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
       between map and camera_pose_frame (global -> odom) -->
       <arg name="publish_odom_tf"          value="true"/>
       <arg name="publish_tf"               value="true"/>
-<!--       <arg name="odom_frame_id"            value="map"/> -->    
     </include>
   </group>
 
@@ -101,7 +100,6 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
     </node>
   </group>
 
-
   <!-- Map server used to create a map that detects obstacles check out: 
   http://wiki.ros.org/octomap_server for parameter list
   this detects obstacles for global planner's static frame: map-->
@@ -111,7 +109,7 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
 		<param name="base_frame_id" type="string" value="/base_footprint" />
 
   <!-- The frame where obstacles are embedded onto-->
-		<param name="frame_id" type="string" value="/camera_odom_frame" />
+		<param name="frame_id" type="string" value="/map" />
 
   <!-- The max range in which cameras can detect an obstacle-->
 		<param name="sensor_model/max_range" value="3.0" />
@@ -131,17 +129,8 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
 		<remap from="cloud_in" to="/depth_camera/depth/color/points" />
 
   <!-- Remaps published topic to /map so map frame gets obstacles-->
-   	<remap from="projected_map" to="/camera_odom_frame"/>
+   	<remap from="projected_map" to="/map"/>
 	</node>
-
-  <!-- Look at: http://docs.ros.org/en/noetic/api/robot_localization/html/index.html#:~:text=robot_localization%20is%20a%20collection%20of,estimation%20nodes%2C%20ekf_localization_node%20and%20ukf_localization_node%20.
-  and https://kapernikov.com/the-ros-robot_localization-package/
-  and http://docs.ros.org/en/melodic/api/robot_localization/html/state_estimation_nodes.html
-  to understand parameters and purpose of robot_localization ekf -->
-  <!-- Publishes base_link transform from camera_pose_frame using VIO, and move_base twist topic-->
-<!--   <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization" output="screen">
-    <rosparam file="$(find gen2bot)/config/robot_localization.yaml" command="load"/>
-  </node> -->
 
   <!-- Static tranform between parent and child transforms. Arguments are position for x, y, and z followed by orientation for x, y, and z -->
   <!-- These nodes just sticks a child tf to follow a parent tf a certain position and orientation away -->
@@ -151,7 +140,7 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
 
   <!-- Launches move_base which spews out motor commands based on nav_goal and obstacles
     Check out: http://wiki.ros.org/move_base for parameters -->
-  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen"> 
+  <node pkg="move_base" type="move_base" respawn="true" name="move_base" output="screen"> 
     
     <!-- Decrease turn velocty so robot doesn't snap into a 180 and break itself-->
     <param name="max_vel_theta" value="0.33" type="double"/>
@@ -166,54 +155,28 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
     <rosparam file="$(find gen2bot)/config/global_costmap.yaml" command="load" ns="global_costmap" /> 
     <rosparam file="$(find gen2bot)/config/local_costmap.yaml" command="load" ns="local_costmap" />
 
-<!-- So that it can publish to robot_localization -->
-<!--     <remap from="/odom" to="/odometry/filtered"/>
- -->
   </node>
 
-  <!-- Launches my autoDrive.cpp file to initialize a base controller 
-    that move_base communicates with to send motor inputs. This links autonomy to wheel motors -->
-<!--   <node pkg="gen2bot" type="autoDrive" name="auto_wheels" >
-      <param name="initalOutput" value="0.0" type="double"/>
-  </node> -->
-
-  <!-- Launches my move_base_client.py script to send desired positions for robot to reach to move_base planner-->
-  <node name="move_baseClient" pkg="gen2bot" type="move_base_client.py" output="screen">
-  </node>
-
-  <!-- Launches node that converts xbox controller inputs into ROS; 
+   <!-- Launches node that converts xbox controller inputs into ROS; 
   http://wiki.ros.org/joy          http://wiki.ros.org/joy/Tutorials/ConfiguringALinuxJoystick -->
   <node name="joy2" pkg="joy" type="joy_node" output="screen">
-
-    <!-- parameter that retrieves which joystick controller to link with -->
     <param name="dev" value="/dev/input/js0"/>
-
-    <!-- Makes triggers work on bootup-->
     <param name="default_trig_val" value="true"/>
   </node>
- 
-  <!-- Node that takes ROS inputs of joystick to move motors in wheels, auger, ballscrew, and linear actuator-->
-  <node name="manual_motor_control" pkg="gen2bot" type="controllerInputs.py" output="screen">
-  </node>
 
-  <!-- Takes in twist messages and converts them to twistWithCovariancePose messages so robot_localization can use them-->
-  <node name="twist_convertor" pkg="gen2bot" type="twistConvertor.py" output="screen">
-  </node>
+  <!-- Node that takes ROS inputs of joystick to move motors in wheels, auger, ballscrew, and linear actuator-->
+  <node name="robot_mux_control" pkg="gen2bot" type="robot_mux_control.py" output="screen"/>
 
   <!-- Node that takes ROS inputs of joystick to move motors in wheels-->
-  <node name="manual_wheels" pkg="gen2bot" type="manualDrive" output="screen">
-  </node>
-
-  <!-- Node that contains all motor functions that don't relate to driving -->
-  <node pkg="gen2bot" type="miningOperationsTrencherPOL" name="mining_operations" output="screen">
-    <param name="wheel_multiplier" value="1.1" type="double"/>
-    <rosparam file="$(find gen2bot)/config/PID.yaml" command="load"/> 
-  </node> 
-
+<!--   <node name="manual_wheels" pkg="gen2bot" type="wheelDrive" output="screen"/>
+ -->
   <!-- loads states.yaml's parameters-->
   <rosparam file="$(find gen2bot)/config/states.yaml" command="load"/> 
+  <rosparam file="$(find gen2bot)/config/PIDTrencher.yaml" command="load"/> 
 
- <!-- <node pkg="gen2bot" type="move_base_client.py" name="move_base_client.py" output="screen">
- </node> -->
+  <!-- Node that contains all motor functions that don't relate to driving -->
+  <node pkg="gen2bot" type="flexRobot" name="ALLMOTORSSSS" output="screen">
+    <param name="wheel_multiplier" value="1.1" type="double"/>
+  </node>
 
 </launch>

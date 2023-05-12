@@ -6,9 +6,9 @@
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
 
-class MotorSubscriber : public base_trencher_class {
+class wheel_trencher_class : public base_trencher_class {
 public:
-    MotorSubscriber(ros::NodeHandle nh) : base_trencher_class(nh) {}
+    wheel_trencher_class(ros::NodeHandle nh) : base_trencher_class(nh) {}
 
     void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
     {

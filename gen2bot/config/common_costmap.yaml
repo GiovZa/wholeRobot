@@ -25,7 +25,7 @@ resolution: 0.03
 # Look at: https://navigation.ros.org/configuration/packages/costmap-plugins/static.html for parameter list
 static:
 # Setting map to /camera_odom_frame because this is our current global frame in which everything would be a child tf of
-    map_topic: /camera_odom_frame
+    map_topic: /map
 
 # Takes in the costmap_2d::ObstacleLayer plugin that local costmap calls on. 
 # Look at: https://navigation.ros.org/configuration/packages/costmap-plugins/obstacle.html for parameter list

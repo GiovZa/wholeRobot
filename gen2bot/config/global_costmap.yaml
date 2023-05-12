@@ -14,7 +14,7 @@
 #                                                -> base_link -> base_footprint
 # We have camera_odom_frame -> camera_odom_frame
 #                                                -> camera_pose_frame -> all camera sensors -> object_22 (QR code)
-global_frame: camera_odom_frame
+global_frame: map
 
 # We don't want it to track unknown space because otherwise it will assume the space immediately in
 # front of the robot that the cameras can't see must contain an obstacle and immobilizes bot

@@ -153,7 +153,7 @@ void base_trencher_class::config(ros::NodeHandle nh)
     linAct1.SetSensorPhase(true);
     linAct2.SetSensorPhase(true);
     bucket1.SetSensorPhase(true);
-    bucket2.SetSensorPhase(true);
+    // bucket2.SetSensorPhase(true);
     leftWheel.SetSensorPhase(true);
 	rightWheel.SetSensorPhase(true);
 
@@ -191,7 +191,14 @@ void base_trencher_class::stopMotors()
 // a function that checks to see if ProcessManager has changed modes, and if so, kills motors and exit current function
 // use case: if(exitFunction(p_cmd)) {stopMotors(); return; }
 bool base_trencher_class::exitFunction(int& p_cmd)
-{sentinel != p_cmd ? true : false;}
+{
+	if(sentinel != p_cmd)
+	{
+		stopMotors();
+		return true;
+	}
+	return false;
+}
 
 // Makes sure the trencher doesn't physically break itself
 void base_trencher_class::isSafe(int& p_cmd)
