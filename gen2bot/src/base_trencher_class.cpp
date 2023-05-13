@@ -13,12 +13,12 @@ base_trencher_class::base_trencher_class(ros::NodeHandle nh)
 	  interface("can0"),
 
 	  // dig/deposit motors
-	  linAct1(31, interface),
-      linAct2(32),
+	  linAct1(51, interface),
+      linAct2(52),
       bScrew(11),
 	  trencher(41),
-	  bucket1(51),
-	  bucket2(52),
+	  bucket1(31),
+	  bucket2(32),
 	  linActMM(),
 	  bScrewMM(),
 	  trencherMM(),
@@ -153,7 +153,7 @@ void base_trencher_class::config(ros::NodeHandle nh)
     linAct1.SetSensorPhase(true);
     linAct2.SetSensorPhase(true);
     bucket1.SetSensorPhase(true);
-    // bucket2.SetSensorPhase(true);
+    bucket2.SetSensorPhase(true);
     leftWheel.SetSensorPhase(true);
 	rightWheel.SetSensorPhase(true);
 

@@ -32,8 +32,8 @@ using namespace ctre::phoenix::motorcontrol::can;
 std::string interface = "can0";
 
 // linear actuator initialized (points trencher up and down)
-TalonSRX linAct1(31, interface);
-TalonSRX linAct2(32);
+TalonSRX linAct1(51, interface);
+TalonSRX linAct2(52);
 
 // an object that configures an SRX motor 
 TalonSRXConfiguration linActMM;
@@ -47,8 +47,8 @@ TalonFX trencher(41);
 TalonFXConfiguration trencherMM;
 
 // deposit bucket motor
-TalonSRX bucket1(51);
-TalonSRX bucket2(52);
+TalonSRX bucket1(31);
+TalonSRX bucket2(32);
 TalonSRXConfiguration bucketMM;
 
 
@@ -64,7 +64,7 @@ TOCVelocity::TOCVelocity(ros::NodeHandle nh)
 	  buDepositPosition(-100),
 	  buDigPosition(0),
 	  trencherZeroPosition(0),
-	  mBuffer(5)
+	  mBuffer(10)
 {	
 	config(nh);
 }
@@ -111,9 +111,6 @@ void TOCVelocity::config(ros::NodeHandle nh)
 	linAct1.ConfigAllSettings(linActMM);
 	linAct2.ConfigAllSettings(linActMM);
 
-	// Setup follower
-	linAct2.Set(ControlMode::Follower, 31);
-
 	bucketMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonSRXFeedbackDevice::Analog;
 	nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/motionCruiseVelocity", bucketMM.motionCruiseVelocity);
     nh.getParam("/miningOperationsTrencherPOL/bucket_cfg/motionAcceleration", bucketMM.motionAcceleration);
@@ -129,7 +126,6 @@ void TOCVelocity::config(ros::NodeHandle nh)
 	// Configure the bucket1 motor
 	bucket1.ConfigAllSettings(bucketMM);
 	bucket2.ConfigAllSettings(bucketMM);
-	bucket2.Set(ControlMode::Follower, 51);
 
 	trencherMM.primaryPID.selectedFeedbackSensor = (FeedbackDevice)TalonFXFeedbackDevice::IntegratedSensor;
 	nh.getParam("/miningOperationsTrencherPOL/trencher_cfg/motionCruiseVelocity", trencherMM.motionCruiseVelocity);
@@ -240,7 +236,6 @@ void TOCVelocity::ConfigMotionMagic(TalonSRX* talon1, TalonSRX* talon2, int vel,
 
 	talon1->ConfigMotionCruiseVelocity(abs(vel));
 	talon2->ConfigMotionCruiseVelocity(abs(vel));
-	
 
 	talon1->Set(ControlMode::MotionMagic, pos);
 	talon2->Set(ControlMode::MotionMagic, pos);
@@ -298,6 +293,9 @@ bool TOCVelocity::ReverseLimitSwitchTriggered(TalonSRX* talon1, TalonSRX* talon2
 
 		talon1->Set(ControlMode::Velocity, 0);
 		talon2->Set(ControlMode::Velocity, 0);
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
 		talon1->SetSelectedSensorPosition(0);
 		talon2->SetSelectedSensorPosition(0);
 		
@@ -316,7 +314,12 @@ bool TOCVelocity::isNear(int a, int b, int tolerance) {
 	if (abs(a - b) <= tolerance)
 		std::cout << "true" << std::endl;
 	else
+	{
 		std::cout << "false" << std::endl;
+		std::cout << "Current Position: " << a << std::endl;
+		std::cout << "Wanted Position: " << b << std::endl;
+		std::cout << "Tolerance: " << tolerance << std::endl;
+	}
     return abs(a - b) <= tolerance;
 }
 
@@ -449,7 +452,7 @@ void TOCVelocity::zero(int& p_cmd, ros::NodeHandle  nh)
 	
 	std::cout << "Zeroing the bucket" << std::endl;
 
-	ConfigMotionMagic(&bucket1, &bucket2, 10, 5, -300);
+	ConfigMotionMagic(&bucket1, &bucket2, 10, 5, -800);
 
 	do 
 	{
@@ -467,8 +470,9 @@ void TOCVelocity::zero(int& p_cmd, ros::NodeHandle  nh)
 
 	} while(!ReverseLimitSwitchTriggered(&bucket1, &bucket2, "bucket"));
 
-	// Move the bucket back to zero position (dig position)
+	// Move the bucket drive position
 	while (!TargetPositionReached(&bucket1, &bucket2, buDrivePosition, "bucket")){
+		std::cout << "Moving bucket to position: " << buDrivePosition << std::endl;
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
 		ConfigMotionMagic(&bucket1, &bucket2, 10, 5, buDrivePosition);
@@ -493,7 +497,7 @@ void TOCVelocity::zero(int& p_cmd, ros::NodeHandle  nh)
 
 	std::cout << "Zeroing the bScrew" << std::endl;
 
-	ConfigMotionMagic(&bucket1, &bucket2, 10, 5, -500);
+	ConfigMotionMagic(&bScrew, 10, 5, -500);
 
 	do 
 	{	
@@ -547,8 +551,6 @@ void TOCVelocity::zero(int& p_cmd, ros::NodeHandle  nh)
 void TOCVelocity::driveMode(int& p_cmd, ros::NodeHandle  nh) 
 	{
 		sentinel = p_cmd;
-
-		config(nh);
 		
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 		std::cout << "Moving to driveMode: " << std::endl;
@@ -612,13 +614,15 @@ void TOCVelocity::driveMode(int& p_cmd, ros::NodeHandle  nh)
 void TOCVelocity::deposit(int& p_cmd, ros::NodeHandle  nh)
 {
 	sentinel = p_cmd;
-
-	config(nh);
 	
 	ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 	
 	std::cout << "Moving to depositMode: " << std::endl;
 
+	std::cout << "bucket1 pos: " << bucket1.GetSelectedSensorPosition() << std::endl;
+	std::cout << "bucket2 pos: " << bucket2.GetSelectedSensorPosition() << std::endl;
+	
+	displayData(&bucket1, &bucket2, "bucket");
 	// If robot is in drive position, go to deposit position.
 	if(CheckMode(laDrivePosition, buDrivePosition, bsDrivePosition))
 	{
@@ -630,7 +634,7 @@ void TOCVelocity::deposit(int& p_cmd, ros::NodeHandle  nh)
 			displayData();
 
 			// Move the linAct first
-			ConfigMotionMagic(&linAct1, &linAct2, 10, 5, laDrivePosition);
+			ConfigMotionMagic(&linAct1, &linAct2, 10, 5, laDepositPosition);
 
 			// Move the bucket when the linAct has reached deposit position
 			if (TargetPositionReached(&linAct1, &linAct2, laDepositPosition, "linAct"))

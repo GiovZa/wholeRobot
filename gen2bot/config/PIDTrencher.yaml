@@ -8,6 +8,9 @@
 # spot you want consistently with efficient movement too
 # To sum: PID = smart motors; PercentOutput = dumb motors
 
+
+mBuffer: 10
+
 # Current PID config for wheels
 wheel_cfg:
   closedloopRamp: 1

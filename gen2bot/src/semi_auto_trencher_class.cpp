@@ -4,7 +4,7 @@
 
 #include <gen2bot/semi_auto_trencher_class.h>
 
-semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_trencher_class(nh), mBuffer(2){}
+semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_trencher_class(nh), mBuffer(10){}
 
 	// Makes sure the linear actuators of linAct and bucket aren't moving when they are misaligned.
 	void semi_auto_trencher_class::isSafe(int& p_cmd)
@@ -95,7 +95,17 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 		return false;
 	}
 
-	bool semi_auto_trencher_class::isNear(int a, int b, int tolerance) {
+	bool semi_auto_trencher_class::isNear(int a, int b, int tolerance) 
+	{
+		if (abs(a - b) <= tolerance)
+			std::cout << "true" << std::endl;
+		else
+		{
+			std::cout << "false" << std::endl;
+			std::cout << "Current Position: " << a << std::endl;
+			std::cout << "Wanted Position: " << b << std::endl;
+			std::cout << "Tolerance: " << tolerance << std::endl;
+		}
 		return abs(a - b) <= tolerance;
 	}
 
@@ -195,7 +205,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 		// ZERO THE BUCKET
 		std::cout << "Zeroing the bucket" << std::endl;
 
-		ConfigMotionMagic(&bucket1, &bucket2, 10, 5, -300);
+		ConfigMotionMagic(&bucket1, &bucket2, 10, 5, -800);
 
 		do 
 		{
@@ -207,10 +217,11 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 
 		} while(!ReverseLimitSwitchTriggered(&bucket1, &bucket2, "bucket"));
 
-		// Move the bucket back to zero position (dig position)
-		while (!TargetPositionReached(&bucket1, &bucket2, buDigPosition, "bucket")){
+		// Move the bucket to drive position
+		while (!TargetPositionReached(&bucket1, &bucket2, buDrivePosition, "bucket")){
+			std::cout << "Moving bucket to position: " << buDrivePosition << std::endl;
 
-			ConfigMotionMagic(&bucket1, &bucket2, 10, 5, buDigPosition);
+			ConfigMotionMagic(&bucket1, &bucket2, 10, 5, buDrivePosition);
 
 			displayData(&bucket1, &bucket2, "bucket");
 
@@ -226,7 +237,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 
 		std::cout << "Zeroing the bScrew" << std::endl;
 
-		ConfigMotionMagic(&bucket1, &bucket2, 10, 5, -500);
+		ConfigMotionMagic(&bScrew, 10, 5, -9720000);
 
 		do 
 		{	
@@ -309,8 +320,12 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 	void semi_auto_trencher_class::deposit(int& p_cmd, ros::NodeHandle  nh)
 	{
 		sentinel = p_cmd;
+
+		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 			
 		std::cout << "Moving to depositMode: " << std::endl;
+
+		displayData(&bucket1, &bucket2, "bucket");
 
 		// If robot is in drive position, go to deposit position.
 		if(CheckMode(laDrivePosition, buDrivePosition, bsDrivePosition))
@@ -319,7 +334,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 			while(!CheckMode(laDepositPosition, buDepositPosition, bsDepositPosition))
 			{
 				// Move the linAct first
-				ConfigMotionMagic(&linAct1, &linAct2, 10, 5, laDrivePosition);
+				ConfigMotionMagic(&linAct1, &linAct2, 10, 5, laDepositPosition);
 
 				// Move the bucket when the linAct has reached deposit position
 				if (TargetPositionReached(&linAct1, &linAct2, laDepositPosition, "linAct"))

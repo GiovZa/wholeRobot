@@ -168,7 +168,7 @@ class JoystickPublisher:
                                 self.pub.publish(Int8)
 
                 if(message.axes[7] == -1.0): # Down Dpad
-                        Int8 = 0 #kill function
+                        Int8 = 50 #kill function
                         rospy.loginfo("publishing nothing")
                         self.pub.publish(Int8)
 
