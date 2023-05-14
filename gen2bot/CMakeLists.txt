@@ -36,7 +36,6 @@ ${catkin_INCLUDE_DIRS}
  catkin_install_python(PROGRAMS
   scripts/move_base_client.py
   scripts/robot_mux_control.py
-  scripts/twistConvertor.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
@@ -52,73 +51,12 @@ endif()
 add_library(CTRE_Phoenix SHARED IMPORTED)
 set_target_properties(CTRE_Phoenix PROPERTIES IMPORTED_LOCATION ${PHOENIX_LIBS_DIR}/libCTRE_Phoenix.so)
 
-# Makes the C++ script executable with "rosrun gen2bot falcon_tests" command
-add_executable(falcon_tests src/falcon_tests.cpp)
-target_link_libraries(falcon_tests
-  CTRE_Phoenix # Motor library
-  ${catkin_LIBRARIES} 
-)
-
-add_executable(manualDrive src/manualDrive.cpp)
-target_link_libraries(manualDrive 
-  CTRE_Phoenix
-  ${catkin_LIBRARIES}
-)
-
-add_executable(autoDrive src/autoDrive.cpp)
-target_link_libraries(autoDrive
-  CTRE_Phoenix
-  ${catkin_LIBRARIES}
-)
-
-#add_executable(wheelDrive 
-
-#src/wheelDrive.cpp
-#include/gen2bot/base_trencher_class.h
-#src/base_trencher_class.cpp 
-#)
-#target_link_libraries(wheelDrive
-#  CTRE_Phoenix
-#  ${catkin_LIBRARIES}
-#)
-
-# Makes the C++ scripts executable with "rosrun gen2bot miningOperationsAuger" command
 add_executable(
-miningOperationsAuger
-
-src/miningOperationsAuger.cpp 
-src/processManagerClass.cpp 
-include/gen2bot/processManagerClass.h
-src/augerOperationsClass.cpp 
-include/gen2bot/augerOperationsClass.h
-)
-target_link_libraries(miningOperationsAuger
-  CTRE_Phoenix
-  ${catkin_LIBRARIES}
-)
-
-add_executable(
-motorTest
+motorTestTrencher
 
 src/motorTest.cpp 
 )
-target_link_libraries(motorTest
-  CTRE_Phoenix
-  ${catkin_LIBRARIES}
-)
-
-# Brian's test!!!
-
-add_executable(
-brianMine
-
-src/miningOperationsTrencherPOL.cpp 
-src/processManagerClass.cpp 
-include/gen2bot/processManagerClass.h
-src/TOCVelocity.cpp 
-include/gen2bot/TOCVelocity.h
-)
-target_link_libraries(brianMine
+target_link_libraries(motorTestTrencher
   CTRE_Phoenix
   ${catkin_LIBRARIES}
 )

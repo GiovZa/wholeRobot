@@ -1,5 +1,5 @@
 # wholeRobot
-has all 2022-2023 COD Robotics code in gen2bot directory
+has all 2022-2023 COD Robotics code in gen2bot and auger directory
 
 The purpose of this ROS package is to create a fully autonomous robot for the 2023 Lunabotics Competition
 using a jetson Xavier NX 
