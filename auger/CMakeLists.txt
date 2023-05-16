@@ -35,6 +35,9 @@ ${catkin_INCLUDE_DIRS}
 # Makes the python script executable with "rosrun gen2bot motorTester.py" command or whichever python file it is
  catkin_install_python(PROGRAMS
   scripts/robot_mux_control_auger.py
+  scripts/autoManager.py
+  scripts/robot_mux_auto.py
+
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 

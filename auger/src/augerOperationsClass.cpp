@@ -241,6 +241,8 @@ void augerOperationsClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 		}
 
 		stop();
+		driveMode(p_cmd, nh);
+		nh.setParam("/ongoingDepositPhase", true);
 	}
 
 	void augerOperationsClass::dig(int& p_cmd, ros::NodeHandle  nh)
@@ -273,5 +275,7 @@ void augerOperationsClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 		}
 
 		stop();
+		driveMode(p_cmd, nh);
+		nh.setParam("/ongoingDigPhase", true);
 	}
 

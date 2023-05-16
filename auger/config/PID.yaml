@@ -10,8 +10,8 @@ wheel_cfg:
 
 bscrew_cfg:
   drivePosition: 0
-  depositPosition: -4000000
-  digPosition: -1000000
+  depositPosition: -200
+  digPosition: -200
   miliseconds: 1000
 
   motionCruiseVelocity: 25000
