@@ -1,0 +1,29 @@
+<launch>
+
+<!-- Runs motors on auger bot -->
+
+ <!-- Launches node that converts xbox controller inputs into ROS; 
+  http://wiki.ros.org/joy          http://wiki.ros.org/joy/Tutorials/ConfiguringALinuxJoystick -->
+  <node name="joy2" pkg="joy" type="joy_node" output="screen">
+    <param name="dev" value="/dev/input/js0"/>
+    <param name="default_trig_val" value="true"/>
+  </node>
+
+  <!-- Node that takes ROS inputs of joystick to move motors in wheels, auger, ballscrew, and linear actuator-->
+  <node name="manual_motor_control" pkg="auger" type="robot_mux_auto.py" output="screen"/>
+
+  <node name="autoManager" pkg="auger" type="autoManager.py" output="screen"/>
+
+  <!-- Node that takes ROS inputs of joystick to move motors in wheels-->
+  <node name="manual_wheels" pkg="auger" type="manualDrive" output="screen"/>
+
+  <rosparam file="$(find gen2bot)/config/states.yaml" command="load"/> 
+
+  <!-- Node that contains all motor functions that don't relate to driving -->
+  <node pkg="auger" type="miningOperationsAuger" name="miningOperationsAuger" output="screen">
+    <param name="wheel_multiplier" value="1.1" type="double"/>
+    <!-- loads PID.yaml's parameters-->
+    <rosparam file="$(find auger)/config/PID.yaml" command="load"/> 
+  </node>
+
+</launch>
