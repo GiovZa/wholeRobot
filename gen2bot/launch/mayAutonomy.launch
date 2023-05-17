@@ -157,7 +157,7 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
 
   </node>
 
-   <!-- Launches node that converts xbox controller inputs into ROS; 
+   <!-- <!-- Launches node that converts xbox controller inputs into ROS; -- Code being moved to a seperate launch file to launch on a laptop
   http://wiki.ros.org/joy          http://wiki.ros.org/joy/Tutorials/ConfiguringALinuxJoystick -->
   <node name="joy2" pkg="joy" type="joy_node" output="screen">
     <param name="dev" value="/dev/input/js0"/>
@@ -177,6 +177,6 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
   <!-- Node that contains all motor functions that don't relate to driving -->
   <node pkg="gen2bot" type="flexRobot" name="ALLMOTORSSSS" output="screen">
     <param name="wheel_multiplier" value="1.1" type="double"/>
-  </node>
+  </node> -->
 
 </launch>
