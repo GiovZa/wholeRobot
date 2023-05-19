@@ -37,6 +37,7 @@ ${catkin_INCLUDE_DIRS}
   scripts/robot_mux_control_auger.py
   scripts/autoManager.py
   scripts/robot_mux_auto.py
+  scripts/permanentGoalAug.py
 
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )

@@ -6,87 +6,68 @@
 #include <chrono> 
 #include <thread>
 
-// mutex creates threads
-#include <mutex>
-
 // allows ros parameters
 #include "ros/ros.h"
+#include "std_msgs/Int8.h" // for publishing to robot_process topic
 
 // Search up pointers in cpp, mutex, and threads in cpp before continuing
 
-std::mutex data_mutex;
+class mux_contactor {
+private:
+    ros::Publisher pub_mux;
+    ros::NodeHandle nh_mux;
+	std_msgs::Int8 msg;
 
-int data;
-
+public:
+    mux_contactor(ros::NodeHandle nh) : nh_mux(nh) {
+        pub_mux = nh_mux.advertise<std_msgs::Int8>("robot_process", 0);
+    }
 // For each function, we have to pass in the memory address of p_cmd so that we can see if it's value
 // changes outside the function and thus, kill the function. We must also pass the NotDT object to run it's
 // motor functions, and lastly, we must pass in nodehandle to have access to ros parameters
-void goToDrive(int& p_cmd, augerOperationsClass augerOperations, ros::NodeHandle nh)
-{
-	int sentinel = p_cmd;
-	ROS_INFO("goToDrive");
-	// Probably don't need while loops, can't test if it's fine without it though
-	while(p_cmd == sentinel)
+	void goToDrive(int& p_cmd, augerOperationsClass augerOperations, ros::NodeHandle nh)
 	{
-		// For each function from notDTClass, we must pass in p_cmd so that we can constantly
-		// check if it changes inside the function and if so, kill the function mid-run
+		int sentinel = p_cmd;
+		ROS_INFO("goToDrive");
 		augerOperations.driveMode(p_cmd, nh);
-		// After function ends, put p_cmd in default value so process knows function has ended
-		p_cmd = 0;
 	}
-}
 
-void deposit(int& p_cmd, augerOperationsClass augerOperations, ros::NodeHandle nh)
-{
-	int sentinel = p_cmd;
-	ROS_INFO("goToDeposit");
-	while(p_cmd == sentinel)
+	void deposit(int& p_cmd, augerOperationsClass augerOperations, ros::NodeHandle nh)
 	{
+		int sentinel = p_cmd;
+		ROS_INFO("goToDeposit");
+
 		augerOperations.deposit(p_cmd, nh);
-		p_cmd = 0;
+		msg.data = 18;
+		pub_mux.publish(msg);
 	}
-}
 
-void dig(int& p_cmd, augerOperationsClass augerOperations, ros::NodeHandle nh)
-{
-	int sentinel = p_cmd;
-	ROS_INFO("goToDig");
-	while(p_cmd == sentinel)
+	void dig(int& p_cmd, augerOperationsClass augerOperations, ros::NodeHandle nh)
 	{
+		int sentinel = p_cmd;
+		ROS_INFO("goToDig");
+
 		augerOperations.dig(p_cmd, nh);
-		p_cmd = 0;
-	}
-}
 
-void zero(int& p_cmd, augerOperationsClass augerOperations, ros::NodeHandle nh)
-{
-	int sentinel = p_cmd;
-	ROS_INFO("zero");
-	while(p_cmd == sentinel)
+		msg.data = 17;
+		pub_mux.publish(msg);
+	}
+
+	void zero(int& p_cmd, augerOperationsClass augerOperations, ros::NodeHandle nh)
 	{
+		int sentinel = p_cmd;
+		ROS_INFO("zero");
+
 		augerOperations.zero(p_cmd, nh);
 		std::cout << "Exit augerOperations.zero with sentinel, notDTsentinel, z " << 
 		" and p_cmd: " << sentinel << " " << augerOperations.sentinel << " " << p_cmd << std::endl;
-		p_cmd = 0;
 	}
-}
 
-void config(augerOperationsClass augerOperations, ros::NodeHandle nh)
-{
-	augerOperations.config(nh);
-}
-
-void updateProcess(const int& msg)
-{
-	std::lock_guard<std::mutex> lock(data_mutex);
-	data = msg;
-}
-
-int getData()
-{
-	std::lock_guard<std::mutex> lock(data_mutex);
-	return data;
-}
+	void config(augerOperationsClass augerOperations, ros::NodeHandle nh)
+	{
+		augerOperations.config(nh);
+	}
+};
 
 int main(int argc, char** argv) 
 {	
@@ -103,6 +84,8 @@ int main(int argc, char** argv)
 	// pass in ptr of p_cmd to always get it's updated position
 	processManagerClass processManager(ptr);
 
+	mux_contactor mux(nh);
+
   	ros::Rate loop_rate(6);
 
 	// use the & to allow us to use this-> key word for pointers
@@ -118,23 +101,23 @@ int main(int argc, char** argv)
 		case 0:
 			break;
 		case 1:
-			goToDrive(p_cmd, augerOperations, nh);
+			mux.goToDrive(p_cmd, augerOperations, nh);
 			p_cmd = 0;
 			break;
 		case 2:
-			dig(p_cmd, augerOperations, nh);
+			mux.dig(p_cmd, augerOperations, nh);
 			p_cmd = 0;
 			break;
 		case 3:
-			deposit(p_cmd, augerOperations, nh);
+			mux.deposit(p_cmd, augerOperations, nh);
 			p_cmd = 0;
 			break;
 		case 4:
-			zero(p_cmd, augerOperations, nh);
+			mux.zero(p_cmd, augerOperations, nh);
 			p_cmd = 0;
 			break;
 		case 5:
-			config(augerOperations, nh);
+			mux.config(augerOperations, nh);
 			p_cmd = 0;
 			break;	
 		default:

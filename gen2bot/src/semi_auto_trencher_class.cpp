@@ -346,7 +346,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 			}
 
 			// For now, no timer to let gravel fall into sieve, if mech says otherwise, uncomment
-			// std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+			std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
 			// Move back to drive position
 			driveMode(p_cmd, nh);
@@ -388,8 +388,10 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 
 						ConfigMotionMagic(&bScrew, 10, 5, bsDigPosition);
 						// Turn the trencher on
-						//trencher.Set(ControlMode::Velocity, 1);
+						trencher.Set(ControlMode::Velocity, 10);
 					}
+
+					displayData();
 					if(exitFunction(p_cmd)) return;
 					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 				}

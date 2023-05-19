@@ -254,7 +254,7 @@ void augerOperationsClass::driveMode(int& p_cmd, ros::NodeHandle  nh)
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 		std::cout << "Checking while loop in digMode: " << std::endl;
 		std::cout << "BalLS and linAct pos: " << bScrew.GetSelectedSensorPosition() << linAct.GetSelectedSensorPosition() << std::endl;
-		while((bScrew.GetSelectedSensorPosition() < (bsDigPosition - 250) || bScrew.GetSelectedSensorPosition() > (bsDigPosition + 250)) || linAct.GetSelectedSensorPosition() != laDigPosition)
+		while((bScrew.GetSelectedSensorPosition() < (bsDigPosition - 250) || bScrew.GetSelectedSensorPosition() > (bsDigPosition + 250)) || linAct.GetSelectedSensorPosition() > (laDigPosition + 5))
 		{
 			isSafe(p_cmd);
 			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);

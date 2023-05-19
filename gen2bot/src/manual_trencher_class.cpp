@@ -153,7 +153,7 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		ROS_INFO("ballScrewInClass");
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
-		spinMotors(bScrew, 0.8);
+		spinMotors(bScrew, 0.4);
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(bScrew, 0);
 		motorsStoppedSpinning(p_cmd, nh);
@@ -164,7 +164,7 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		sentinel = p_cmd;
 		ROS_INFO("ballScrewOutClass");
 
-		spinMotors(bScrew, -0.8);
+		spinMotors(bScrew, -0.4);
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(bScrew, 0);
 		motorsStoppedSpinning(p_cmd, nh);

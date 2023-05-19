@@ -36,6 +36,7 @@ ${catkin_INCLUDE_DIRS}
  catkin_install_python(PROGRAMS
   scripts/move_base_client.py
   scripts/robot_mux_control.py
+  scripts/permanentGoal.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
