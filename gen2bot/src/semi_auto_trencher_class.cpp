@@ -4,6 +4,9 @@
 
 #include <gen2bot/semi_auto_trencher_class.h>
 
+
+
+
 semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_trencher_class(nh), mBuffer(10){}
 
 	// Makes sure the linear actuators of linAct and bucket aren't moving when they are misaligned.
@@ -429,3 +432,24 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 		leftWheel.Set(ControlMode::Position, (newPos + leftWheel.GetSelectedSensorPosition()));
 		rightWheel.Set(ControlMode::Position, (newPos + leftWheel.GetSelectedSensorPosition()));
 	}
+	void semi_auto_trencher_class::spinAround()
+	{
+		rightWheel.SetInverted(true);
+		std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
+		std::chrono::milliseconds duration(3000);
+		int x = 0;
+		while (x <= 5)
+		{
+			if(exitFunction(p_cmd)) return;
+			while (std::chrono::steady_clock::now() - startTime < duration)
+			{
+				leftWheel.Set(ControlMode::PercentOutput, 20)
+				rightWheel.Set(ControlMode::PercentOutput, -15)
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+			x += 1;
+		}
+	}
+		
+		
+		
