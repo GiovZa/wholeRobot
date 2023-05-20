@@ -189,6 +189,12 @@ void moveWheelsToSieve(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class&
 	ROS_INFO("calling semi_auto_trencher.moveWheelsToSieve()");
 	semi_auto_trencher.moveWheelsToSieve();
 }
+void spinAround(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class& semi_auto_trencher)
+{
+	int sentinel = p_cmd;
+	ROS_INFO("calling semi_auto_trencher.spinAround()");
+	semi_auto_trencher.spinAround();
+}
 
 int main(int argc, char **argv)
 {
@@ -342,6 +348,11 @@ int main(int argc, char **argv)
 		case 28:
 			std::cout << "Moving wheels" << std::endl;
 			moveWheelsToSieve(p_cmd, nh, semi_auto_trencher);
+			p_cmd = 0;
+			break;
+		case 29:
+			std::cout << "Spinning" << std::endl;
+			spinAround(p_cmd, nh, semi_auto_trencher);
 			p_cmd = 0;
 			break;
 		default:
