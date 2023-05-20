@@ -50,44 +50,22 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
       <remap from="depth_registered/points"     to="/depth_camera/depth/color/points" />
     </node>
   </group>
-
-  <!-- Object recognition package to detect QR code and display both position and orientation 
-  of QR code relative to camera sensor
-  Check out: https://github.com/bandasaikrishna/object_detection_and_3d_pose_estimation -->
-  <!-- Will remove GUI at competitions -->
-  <!--Parameter list: http://wiki.ros.org/find_object_2d -->
-  <group ns = "qr_code_detector">
-    <node name="find_object_3d" pkg="find_object_2d" type="find_object_2d" output="screen">
-      <param name="settings_path" value="~/.ros/find_object_2d.ini" type="str"/>
-      <param name="subscribe_depth" value="true" type="bool"/>
-
-      <!-- Set to "true" when debugging, false at competition -->
-      <param name="gui" value="true" type="bool"/>
-
-      <!-- Where to store QR code image -->
-      <param name="session_path" value="$(find gen2bot)/sessions/qr.bin" type="str"/>
-      
-      <!-- Remap image topic to one the depth camera uses -->
-      <remap from="rgb/image_rect_color" to="/depth_camera/color/image_raw"/>
-      <remap from="depth_registered/image_raw" to="/depth_camera/depth/image_rect_raw"/>
-      <remap from="depth_registered/camera_info" to="/depth_camera/depth/camera_info"/>
-    </node>
     
-  </group>
 
   <node pkg="gen2bot" type="permanentGoal.py" name="goalSetUp" output="screen"/>
-  <!-- apriltag_ros continuous detection node -->
-<!--   <node pkg="apriltag_ros" type="apriltag_ros_continuous_node" name="apriltag_ros_continuous_node" clear_params="false" output="screen" launch-prefix="">
-    <!- Remap topics from those used in code to those on the ROS network ->
-    <remap from="image_rect" to="/depth_camera/color/image_raw" />
-    <remap from="camera_info" to="depth_camera/camera_info" />
 
-    <param name="publish_tag_detections_image" type="bool" value="true" /><!- default: false ->
+  <!-- apriltag_ros continuous detection node -->
+  <node pkg="apriltag_ros" type="apriltag_ros_continuous_node" name="apriltag_ros_continuous_node" clear_params="true" output="screen" launch-prefix="">
+    <!-- Remap topics from those used in code to those on the ROS network -->
+    <remap from="image_rect" to="/depth_camera/color/image_raw" />
+    <remap from="camera_info" to="/depth_camera/color/camera_info" />
+
+    <param name="publish_tag_detections_image" type="bool" value="true" /><!-- default: false -->
     <param name="queue_size" type="int" value="1" />
 
-    <!- load parameters (incl. tag family, tags, etc.) ->
+    <!-- load parameters (incl. tag family, tags, etc.) -->
     <rosparam command="load" file="$(find apriltag_ros)/config/settings.yaml"/>
     <rosparam command="load" file="$(find apriltag_ros)/config/tags.yaml"/>
-  </node> -->
+  </node>
 
 </launch>

@@ -1,0 +1,76 @@
+# Look at: http://library.isr.ist.utl.pt/docs/roswiki/costmap_2d.html for parameter list
+# This being the common costmap makes it so both global and local have the same parameters set here
+
+# Set dimensions of robot here in meters along with padding to cushion more space
+footprint: [[0.05, 0.40], [0.05, -0.20], [-1.10, 0.40], [-1.10, -0.20]]
+footprint_padding: 0.03
+
+# The tf that should be at ground level and at center of robot
+robot_base_frame: base_link
+
+# Map update (topic) frequency and visualization (rviz) publish frequency
+update_frequency: 3
+publish_frequency: 2
+
+# Time buffer for how off a tf is in seconds (ex. base_link tf is at 15 seconds but we want 15.5 seconds, 
+# so we extrapolate 1.0 seconds for a range of 14.5-15.5 seconds into the past to get it)
+transform_tolerance: 1.0
+
+# Quality of map, don't want it too high or it will lag
+resolution: 0.03
+
+# Layer definitions
+
+# Takes in the costmap_2d::StaticLayer plugin that global costmap calls on. 
+# Look at: https://navigation.ros.org/configuration/packages/costmap-plugins/static.html for parameter list
+static:
+# Setting map to /camera_odom_frame because this is our current global frame in which everything would be a child tf of
+    map_topic: /map
+
+# Takes in the costmap_2d::ObstacleLayer plugin that local costmap calls on. 
+# Look at: https://navigation.ros.org/configuration/packages/costmap-plugins/obstacle.html for parameter list
+obstacle_layer:
+  
+  # Enables obstacle_layer
+  enabled: true
+
+  # Parameter to put all the sensors that will detect obstacles, this one has rocks and craters detectors
+  observation_sources: rock_detector crater_detector
+
+  rock_detector: {
+
+    # PointCloud2 is what our depth cameras use to record positions of surroundings in 3D space
+    data_type: PointCloud2,
+
+    #What topic to subscribe to in order to retrieve PointCloud2 data
+    topic: /depth_camera/depth/color/points,
+
+    # Clearing set to true removes obstacles in real time
+    clearing: true,
+
+    # Values relative to frame of camera, which is about 0.5 meters high
+    # Set to count things (rocks) above level robot_base_frame as obstacles
+    min_obstacle_height: -0.3,
+
+    # Set to not detect things above robot height (ex. mark the ceiling as an obstacle)
+    max_obstacle_height: 0.0
+  }
+
+  crater_detector: {
+
+    data_type: PointCloud2,
+
+    topic: /depth_camera/depth/color/points,
+
+    # Clearing set to true removes obstacles in real time
+    clearing: true,
+
+    # Set to count things (craters) underneath ground level as obstacles, .8 to .9 meters away in -Z direction from camera frame
+    min_obstacle_height: -0.9,
+    max_obstacle_height: -0.8
+  }
+
+# Takes in the costmap_2d::InflationLayer plugin that local and global costmap calls on. 
+# Look at: https://navigation.ros.org/configuration/packages/costmap-plugins/inflation.html for parameter list
+inflation_layer:
+  inflation_radius: 0.10

@@ -15,7 +15,7 @@
  </node>
 
  <!-- Node that takes ROS inputs of joystick to move motors-->
- <node name="motors" pkg="gen2bot" type="motorTest" output="screen">
+ <node name="motors" pkg="gen2bot" type="motorTestTrencher" output="screen">
       <param name="wheel_multiplier" value="1.0" />
       <param name="position" value="1.0" />
       <param name="slot0/kP" value="0.052" />

@@ -20,7 +20,7 @@ def main():
 
     # Wait for the object_22 to show up on the map frame
     rospy.loginfo("Waiting for /object_22 to show up on the map frame...")
-    object_22_transform = wait_for_transform(tfBuffer, "camera_link", "object_22")
+    object_22_transform = wait_for_transform(tfBuffer, "camera_link", "tag_0")
 
     # Set a permanent transform "sieve" that has the same orientation and position of object_22 relative to the map frame
     sieve_transform = geometry_msgs.msg.TransformStamped()
