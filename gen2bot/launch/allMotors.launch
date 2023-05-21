@@ -10,7 +10,7 @@
   </node>
 
   <!-- Node that takes ROS inputs of joystick to move motors in wheels, auger, ballscrew, and linear actuator-->
-  <node name="manual_motor_control" pkg="gen2bot" type="robot_mux_control.py" output="screen"/>
+  <node name="manual_motor_control" pkg="gen2bot" type="robot_mux_control_wired.py" output="screen"/>
 
   <!-- Node that takes ROS inputs of joystick to move motors in wheels-->
 <!--   <node name="manual_wheels" pkg="gen2bot" type="wheelDrive" output="screen"/>

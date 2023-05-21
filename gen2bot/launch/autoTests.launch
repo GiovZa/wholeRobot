@@ -55,7 +55,7 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
   <node pkg="gen2bot" type="permanentGoal.py" name="goalSetUp" output="screen"/>
 
   <!-- apriltag_ros continuous detection node -->
-  <node pkg="apriltag_ros" type="apriltag_ros_continuous_node" name="apriltag_ros_continuous_node" clear_params="true" output="screen" launch-prefix="">
+  <node pkg="apriltag_ros" type="apriltag_ros_continuous_node" name="apriltag_ros_continuous_node" clear_params="false" output="screen" launch-prefix="">
     <!-- Remap topics from those used in code to those on the ROS network -->
     <remap from="image_rect" to="/depth_camera/color/image_raw" />
     <remap from="camera_info" to="/depth_camera/color/camera_info" />

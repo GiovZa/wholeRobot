@@ -19,13 +19,13 @@ def main():
     tfListener = tf2_ros.TransformListener(tfBuffer)
 
     # Wait for the object_22 to show up on the map frame
-    rospy.loginfo("Waiting for /object_22 to show up on the map frame...")
-    object_22_transform = wait_for_transform(tfBuffer, "camera_link", "tag_0")
+    rospy.loginfo("Waiting for /tag_0 to show up on the map frame...")
+    object_22_transform = wait_for_transform(tfBuffer, "map", "tag_0")
 
     # Set a permanent transform "sieve" that has the same orientation and position of object_22 relative to the map frame
     sieve_transform = geometry_msgs.msg.TransformStamped()
     sieve_transform.header.stamp = rospy.Time.now()
-    sieve_transform.header.frame_id = "camera_link"
+    sieve_transform.header.frame_id = "map"
     sieve_transform.child_frame_id = "sieve"
     sieve_transform.transform.translation = object_22_transform.transform.translation
     sieve_transform.transform.rotation = object_22_transform.transform.rotation

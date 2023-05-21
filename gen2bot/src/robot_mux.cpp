@@ -141,20 +141,6 @@ void driveMode(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class& semi_au
 	semi_auto_trencher.driveMode(p_cmd, nh);
 }
 
-void dig(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class& semi_auto_trencher)
-{
-	int sentinel = p_cmd;
-	ROS_INFO("calling semi_auto_trencher.dig(p_cmd, nh)");
-	semi_auto_trencher.dig(p_cmd, nh);
-}
-
-void deposit(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class& semi_auto_trencher)
-{
-	int sentinel = p_cmd;
-	ROS_INFO("calling semi_auto_trencher.deposit(p_cmd, nh)");
-	semi_auto_trencher.deposit(p_cmd, nh);
-}
-
 void zero(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class& semi_auto_trencher)
 {
 	int sentinel = p_cmd;
@@ -190,6 +176,37 @@ void moveWheelsToSieve(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class&
 	semi_auto_trencher.moveWheelsToSieve();
 }
 
+class mux_contactor {
+private:
+    ros::Publisher pub_mux;
+    ros::NodeHandle nh_mux;
+	std_msgs::Int8 msg;
+
+public:
+    mux_contactor(ros::NodeHandle nh) : nh_mux(nh) {
+        pub_mux = nh_mux.advertise<std_msgs::Int8>("robot_process", 0);
+    }
+	void dig(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class& semi_auto_trencher)
+	{
+		int sentinel = p_cmd;
+		ROS_INFO("calling semi_auto_trencher.dig(p_cmd, nh)");
+		semi_auto_trencher.dig(p_cmd, nh);
+
+		msg.data = 17;
+		pub_mux.publish(msg);
+	}
+
+	void deposit(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class& semi_auto_trencher)
+	{
+		int sentinel = p_cmd;
+		ROS_INFO("calling semi_auto_trencher.deposit(p_cmd, nh)");
+		semi_auto_trencher.deposit(p_cmd, nh);
+
+		msg.data = 18;
+		pub_mux.publish(msg);
+	}
+};
+
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "miningOperationsNode");
@@ -198,6 +215,8 @@ int main(int argc, char **argv)
 	manual_trencher_class manual_trencher(nh);
 	semi_auto_trencher_class semi_auto_trencher(nh);
     wheel_trencher_class wheel_trencher(nh);
+
+	mux_contactor mux(nh);
 
 	int p_cmd = 0;
 	int *ptr = &p_cmd;
@@ -311,12 +330,12 @@ int main(int argc, char **argv)
 			break;
 		case 21:
 			std::cout << "Commencing dig operations" << std::endl;
-			dig(p_cmd, nh, semi_auto_trencher);
+			mux.dig(p_cmd, nh, semi_auto_trencher);
 			p_cmd = 0;
 			break;
 		case 22:
 			std::cout << "Commencing deposit operations" << std::endl;
-			deposit(p_cmd, nh, semi_auto_trencher);
+			mux.deposit(p_cmd, nh, semi_auto_trencher);
 			p_cmd = 0;
 			break;
 		case 24:

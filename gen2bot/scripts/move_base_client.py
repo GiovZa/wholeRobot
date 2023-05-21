@@ -44,6 +44,7 @@ class moveBasePubClass:
 
     # variable that checks to see if robot_process changes, indicating that robot should no longer be navigating and should exit function 
     sentinel = 0
+    counter = 0
 
     def __init__(self, Publisher):
         self.pub = Publisher
@@ -144,7 +145,7 @@ class moveBasePubClass:
 
                 # Waits for the server to finish performing the action. I think this logic is wrong, I think 
                 # there is no need for a while loop
-                while  message.data == 19: # while in process of navigation to deposit mode
+                while  message.data == 17: # while in process of navigation to deposit mode
                     rospy.loginfo("Getting state of server")
                     state = client.get_state()
                     rospy.loginfo("State of server retrieved")
@@ -153,17 +154,17 @@ class moveBasePubClass:
                         rospy.loginfo("Deposit Goal Reached!")
                         break
 
-                    if message.data != 19: # if no longer in navigation to deposit mode, exit function
+                    if message.data != 17: # if no longer in navigation to deposit mode, exit function
                         rospy.loginfo("No longer in deposit mode, killing client")
                         client.cancel_all_goals()
                         return
                 
-                while  message.data == 20: # while in process of navigation to dig mode
+                while  message.data == 18: # while in process of navigation to dig mode
                     state = client.get_state()
                     if state == actionlib.GoalStatus.SUCCEEDED:
                         rospy.loginfo("Dig Goal Reached!")
                         break            
-                    if message.data != 20: # if no longer in navigation to dig mode, exit function
+                    if message.data != 18: # if no longer in navigation to dig mode, exit function
                         rospy.loginfo("No longer in dig mode, killing client")
                         client.cancel_all_goals()
                         return
@@ -176,12 +177,12 @@ class moveBasePubClass:
                     return
                 
                 # If still in deposit navigation mode and auto mode, run deposit function
-                if self.sentinel == message.data and message.data == 19 and not rospy.get_param('manualMode'):
+                if self.sentinel == message.data and message.data == 17 and not rospy.get_param('/manualMode'):
                     self.pub.publish(22)
                     rospy.loginfo("Deposit Goal Reached! Commencing Deposit Sequence")
 
                 # If still in dig navigation mode and auto mode, run dig function
-                if self.sentinel == message.data and message.data == 20 and not rospy.get_param('manualMode'):
+                if self.sentinel == message.data and message.data == 18 and not rospy.get_param('/manualMode'):
                     self.pub.publish(21)
                     rospy.loginfo("Dig Goal Reached! Commencing Dig Sequence")
     
@@ -201,14 +202,31 @@ class moveBasePubClass:
 
     def callback(self, message): 
         if message.data == 18: # if 'begin navigation to dig mode' true:
-            xPos = 1.0 # x coordinate of dig
-            yPos = 0.0 # y coordinate of dig
-            self.pub.publish(20) # Publish 'navigating to dig zone'
+            if self.counter == 0:
+                xPos = 1.0 # x coordinate of dig
+                yPos = 0.0 # y coordinate of dig
+                self.counter += 1
+
+            elif self.counter == 1:
+                xPos = 2.0 # x coordinate of dig
+                yPos = 1.0 # y coordinate of dig
+                self.counter += 1
+
+            elif self.counter == 2:
+                xPos = 2.0 # x coordinate of dig
+                yPos = 2.0 # y coordinate of dig
+                self.counter += 1
+          
+            # run move_base client, which will autonomously send our robot to given coordinates
+            rospy.loginfo("Current robot_process value before move_base function call: %d", message.data)  
+            self.movebase_client(message, xPos, yPos)
 
         elif message.data == 17: # if 'begin navigation to deposit mode' true:
             xPos = 3.0 # x coordinate of deposit
             yPos = 1.0 # y coordinate of deposit
-            self.pub.publish(19) # Publish 'navigating to deposit zone'
+            # run move_base client, which will autonomously send our robot to given coordinates
+            rospy.loginfo("Current robot_process value before move_base function call: %d", message.data)  
+            self.movebase_client(message, xPos, yPos)
 
         else:
             rospy.loginfo("No move_base coordinates given: ")
