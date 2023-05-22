@@ -4,6 +4,7 @@
 
 #include <gen2bot/semi_auto_trencher_class.h>
 
+<<<<<<< HEAD
 semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) 
 	: 
 		base_trencher_class(nh),
@@ -16,6 +17,12 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 		bScrewSpeed(10),
 		scoopsSpeed(.5)
 		{speedUpdate(nh);}
+=======
+
+
+
+semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_trencher_class(nh), mBuffer(10){}
+>>>>>>> ee1280a9d49d8fcc9ac8e14c03effc6e92f0d461
 
 	// Makes sure the linear actuators of linAct and bucket aren't moving when they are misaligned.
 	void semi_auto_trencher_class::isSafe(int& p_cmd)
@@ -453,12 +460,19 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 	{
 		double newPos = calculateDistanceWheels();
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+<<<<<<< HEAD
 		ConfigMotionMagic(&leftWheel, 10, 5,newPos + leftWheel.GetSelectedSensorPosition());
 		ConfigMotionMagic(&rightWheel, 10, 5,newPos + rightWheel.GetSelectedSensorPosition());
 		
 	}
 
 	void semi_auto_trencher_class::spinAround(int& p_cmd)
+=======
+		leftWheel.Set(ControlMode::Position, (newPos + leftWheel.GetSelectedSensorPosition()));
+		rightWheel.Set(ControlMode::Position, (newPos + leftWheel.GetSelectedSensorPosition()));
+	}
+	void semi_auto_trencher_class::spinAround()
+>>>>>>> ee1280a9d49d8fcc9ac8e14c03effc6e92f0d461
 	{
 		rightWheel.SetInverted(true);
 		std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
@@ -469,11 +483,22 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 			if(exitFunction(p_cmd)) return;
 			while (std::chrono::steady_clock::now() - startTime < duration)
 			{
+<<<<<<< HEAD
 				leftWheel.Set(ControlMode::PercentOutput, .20);
 				rightWheel.Set(ControlMode::PercentOutput, -.15);
+=======
+				leftWheel.Set(ControlMode::PercentOutput, 20)
+				rightWheel.Set(ControlMode::PercentOutput, -15)
+>>>>>>> ee1280a9d49d8fcc9ac8e14c03effc6e92f0d461
 			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 			x += 1;
 		}
 	}
+<<<<<<< HEAD
 		
+=======
+		
+		
+		
+>>>>>>> ee1280a9d49d8fcc9ac8e14c03effc6e92f0d461
