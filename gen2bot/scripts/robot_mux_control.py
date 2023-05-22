@@ -166,6 +166,10 @@ class JoystickPublisher:
                                 Int8 = 24
                                 rospy.loginfo("zero")
                                 self.pub.publish(Int8)
+                        elif(message.buttons[1] == 1 and message.buttons[4] == 1): # B + Y button
+                                Int8 = 29
+                                rospy.loginfo("Spin Around")
+                                self.pub.publish(Int8)
 
                 if(message.axes[7] == -1.0): # Down Dpad
                         Int8 = 50 #kill function
