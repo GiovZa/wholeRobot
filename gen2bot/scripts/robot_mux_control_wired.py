@@ -81,13 +81,19 @@ class JoystickPublisher:
 
                         elif(message.buttons[3] == 1.0): # Y button
                                 Int8 = 11
-                                rospy.loginfo("Spinning scoops")
+                                rospy.loginfo("Spinning scoops in mux")
+                                self.pub.publish(Int8)
+
+                        elif(message.buttons[1] == 1.0): # B button
+                                Int8 = 40
+                                rospy.loginfo("Spinning scoops back in mux")
                                 self.pub.publish(Int8)
 
                         elif(message.buttons[7] == 1.0): # Start button
                                 Int8 = 12
                                 rospy.loginfo("Spinning scoops and bScrew")
                                 self.pub.publish(Int8)
+
                         else:
                                 Int8 = 0
                                 rospy.loginfo("publishing nothing")
@@ -125,6 +131,11 @@ class JoystickPublisher:
                                 rospy.loginfo("both buckets Back")
                                 self.pub.publish(Int8)
 
+                        elif(message.buttons[8] == 1.0): # Xbox button
+                                Int8 = 41
+                                rospy.loginfo("Spinning buckets and scoops")
+                                self.pub.publish(Int8)
+
                         else:
                                 Int8 = 0 #nothing
                                 rospy.loginfo("publishing nothing")
@@ -147,6 +158,11 @@ class JoystickPublisher:
                                 rospy.loginfo("publishing 'move wheels'")
                                 self.pub.publish(Int8)
 
+                        elif(message.buttons[1] == 1.0 and message.buttons[3] == 1.0): #  B + Y button
+                                Int8 = 29
+                                rospy.loginfo("publishing 'instant zero'")
+                                self.pub.publish(Int8)
+
                         elif(message.buttons[2] == 1.0 and message.buttons[3] == 1.0): # X + Y button
                                 Int8 = 23
                                 rospy.loginfo("driveMode")
@@ -165,6 +181,11 @@ class JoystickPublisher:
                         elif(message.buttons[0] == 1.0 and message.buttons[3] == 1.0): # A + Y button
                                 Int8 = 24
                                 rospy.loginfo("zero")
+                                self.pub.publish(Int8)
+
+                        elif(message.buttons[0] == 1.0 and message.buttons[8] == 1.0): # A + Xbox button
+                                Int8 = 60
+                                rospy.loginfo("toggling spin")
                                 self.pub.publish(Int8)
 
                         elif(message.buttons[2] == 1.0 and message.buttons[8] == 1.0): #  X + Xbox button

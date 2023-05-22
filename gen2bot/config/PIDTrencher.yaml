@@ -11,6 +11,12 @@
 
 mBuffer: 10
 
+wheelBuffer: 100
+
+bScrewBuffer: 10000
+
+trencherBuffer: 10000
+
 # Current PID config for wheels
 wheel_cfg:
   closedloopRamp: 1
@@ -28,6 +34,8 @@ wheel_cfg:
   motionCruiseVelocity: 20
   motionAcceleration: 10
   motionCurveStrength: 0
+
+  percentOutput: .5
 
 # Updated wheel PID for accurate encoders to record position needed for deposit autonomy
   slot0: {
@@ -54,10 +62,12 @@ bscrew_cfg:
   digPosition: 9720000
 
   # this is what is used for motion magic to control speeds
-  motionCruiseVelocity: 25000
+  motionCruiseVelocity: 10
   motionAcceleration: 100000
   motionCurveStrength: 0
   clearPositionOnLimitF: true
+
+  percentOutput: .5
 
   # PID
   slot0: {
@@ -81,9 +91,11 @@ linact_cfg:
   miliseconds: 1000
 
   # Motion magic
-  motionCruiseVelocity: 20
+  motionCruiseVelocity: 10
   motionAcceleration: 10
   motionCurveStrength: 0
+
+  percentOutput: .5
 
   # PID
   slot0: {
@@ -104,9 +116,11 @@ bucket_cfg:
   digPosition: 0
 
   # Motion magic
-  motionCruiseVelocity: 20
+  motionCruiseVelocity: 10
   motionAcceleration: 10
   motionCurveStrength: 0
+
+  percentOutput: .5
 
   # PID
   slot0: {
@@ -127,9 +141,11 @@ trencher_cfg:
   digPosition: 0 
 
   # Motion magic
-  motionCruiseVelocity: 20
+  motionCruiseVelocity: 10
   motionAcceleration: 10
   motionCurveStrength: 0
+  
+  percentOutput: .5
 
   # PID
   slot0: {

@@ -83,7 +83,7 @@ class moveBasePubClass:
         broadcaster = tf2_ros.StaticTransformBroadcaster()
         static_transformStamped = geometry_msgs.msg.TransformStamped()
         static_transformStamped.header.stamp = rospy.Time.now()
-        static_transformStamped.header.frame_id = "object_22"
+        static_transformStamped.header.frame_id = "tag_0"
         static_transformStamped.child_frame_id = "goal_tf"
         static_transformStamped.transform.translation.x = xPos
         static_transformStamped.transform.translation.y = yPos

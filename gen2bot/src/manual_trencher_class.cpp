@@ -4,7 +4,23 @@
 #include <gen2bot/manual_trencher_class.h>
 
 // This line uses the constructor from base_trencher_class to do all configurations for us
-manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher_class(nh) {}
+manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) 
+	: 
+		base_trencher_class(nh),
+	  	linActSpeed(.5),
+		bucketSpeed(.5),
+		bScrewSpeed(.5),
+		scoopsSpeed(.5)
+	   {speedUpdate(nh);}
+
+	// Updates speeds of motors
+	void manual_trencher_class::speedUpdate(ros::NodeHandle nh)
+	{	
+		nh.getParam("/linact_cfg/percentOutput", linActSpeed);
+		nh.getParam("/bucket_cfg/percentOutput", bucketSpeed);
+		nh.getParam("/bScrew_cfg/percentOutput", bScrewSpeed);
+		nh.getParam("/trencher_cfg/percentOutput", scoopsSpeed);
+	}
 
 	// end of recursion
 	void spinMotors(){}
@@ -51,7 +67,8 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		sentinel = p_cmd;
 		ROS_INFO("rightLinActBackClass");
 
-		spinMotors(linAct1, -0.5);
+		speedUpdate(nh);
+		spinMotors(linAct1, (-1 * linActSpeed));
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(linAct1, 0);
 		motorsStoppedSpinning(p_cmd, nh);
@@ -62,7 +79,8 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		sentinel = p_cmd;
 		ROS_INFO("rightLinActForwardClass");
 
-		spinMotors(linAct1, 0.5);
+		speedUpdate(nh);
+		spinMotors(linAct1, linActSpeed);
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(linAct1, 0);
 		motorsStoppedSpinning(p_cmd, nh);
@@ -74,7 +92,8 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		
 		ROS_INFO("rightBucketForwardClass");
 
-		spinMotors(bucket1, 0.6);
+		speedUpdate(nh);
+		spinMotors(bucket1, bucketSpeed);
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(bucket1, 0);
 		motorsStoppedSpinning(p_cmd, nh);
@@ -85,18 +104,32 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		sentinel = p_cmd;
 		ROS_INFO("rightBucketBackClass");
 
-		spinMotors(bucket1, -0.6);
+		speedUpdate(nh);
+		spinMotors(bucket1, (-1 * bucketSpeed));
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(bucket1, 0);
 		motorsStoppedSpinning(p_cmd, nh);
 	}
 
-	void manual_trencher_class::spinScoops(int& p_cmd, ros::NodeHandle nh)
+	void manual_trencher_class::scoopsForward(int& p_cmd, ros::NodeHandle nh)
 	{
 		sentinel = p_cmd;
-		ROS_INFO("spinScoopsClass");
+		ROS_INFO("spinScoopsForwardClass");
 
-		spinMotors(trencher, 0.4);
+		speedUpdate(nh);
+		spinMotors(trencher, scoopsSpeed);
+		keepSpinningMotors(p_cmd, nh);
+		spinMotors(trencher, 0);
+		motorsStoppedSpinning(p_cmd, nh);
+	}
+
+	void manual_trencher_class::scoopsBack(int& p_cmd, ros::NodeHandle nh)
+	{
+		sentinel = p_cmd;
+		ROS_INFO("spinScoopsBackClass");
+		
+		speedUpdate(nh);
+		spinMotors(trencher, (-1 * scoopsSpeed));
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(trencher, 0);
 		motorsStoppedSpinning(p_cmd, nh);
@@ -107,7 +140,8 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		sentinel = p_cmd;
 		ROS_INFO("leftLinActBackClass");
 
-		spinMotors(linAct2, -0.5);
+		speedUpdate(nh);
+		spinMotors(linAct2, (-1 * linActSpeed));
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(linAct2, 0);
 		motorsStoppedSpinning(p_cmd, nh);
@@ -118,7 +152,8 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		sentinel = p_cmd;
 		ROS_INFO("leftLinActForwardClass");
 
-		spinMotors(linAct2, 0.5);
+		speedUpdate(nh);
+		spinMotors(linAct2, linActSpeed);
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(linAct2, 0);
 		motorsStoppedSpinning(p_cmd, nh);
@@ -129,7 +164,8 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		sentinel = p_cmd;
 		ROS_INFO("leftBucketForwardClass");
 
-		spinMotors(bucket2, 0.6);
+		speedUpdate(nh);
+		spinMotors(bucket2, bucketSpeed);
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(bucket2, 0);
 		motorsStoppedSpinning(p_cmd, nh);
@@ -141,7 +177,8 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		ROS_INFO("leftBucketBackClass");
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
-		spinMotors(bucket2, -0.6);
+		speedUpdate(nh);
+		spinMotors(bucket2, (-1 * bucketSpeed));
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(bucket2, 0);
 		motorsStoppedSpinning(p_cmd, nh);
@@ -153,7 +190,8 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		ROS_INFO("ballScrewInClass");
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
-		spinMotors(bScrew, 0.4);
+		speedUpdate(nh);
+		spinMotors(bScrew, bScrewSpeed);
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(bScrew, 0);
 		motorsStoppedSpinning(p_cmd, nh);
@@ -164,7 +202,8 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		sentinel = p_cmd;
 		ROS_INFO("ballScrewOutClass");
 
-		spinMotors(bScrew, -0.6);
+		speedUpdate(nh);
+		spinMotors(bScrew, (-1 * bScrewSpeed));
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(bScrew, 0);
 		motorsStoppedSpinning(p_cmd, nh);
@@ -175,7 +214,8 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		sentinel = p_cmd;
 		ROS_INFO("scoopsBScrewClass");
 
-		spinMotors(bScrew, 0.8, trencher, 0.6);
+		speedUpdate(nh);
+		spinMotors(bScrew, bScrewSpeed, trencher, scoopsSpeed);
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(bScrew, 0, trencher, 0);
 		motorsStoppedSpinning(p_cmd, nh);
@@ -186,7 +226,13 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		sentinel = p_cmd;
 		ROS_INFO("linActsForwardClass");
 
-		spinMotors(linAct1, 0.5, linAct2, 0.5);
+		ROS_INFO("linActSpeed: %d", linActSpeed);
+
+		speedUpdate(nh);
+
+		ROS_INFO("linActSpeed: %d", linActSpeed);
+
+		spinMotors(linAct1, linActSpeed, linAct2, linActSpeed);
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(linAct1, 0, linAct2, 0);
 		motorsStoppedSpinning(p_cmd, nh);
@@ -197,7 +243,8 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		sentinel = p_cmd;
 		ROS_INFO("linActsBackClass");
 
-		spinMotors(linAct1, -0.5, linAct2, -0.5);
+		speedUpdate(nh);
+		spinMotors(linAct1, (-1 * linActSpeed), linAct2, (-1 * linActSpeed));
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(linAct1, 0, linAct2, 0);
 		motorsStoppedSpinning(p_cmd, nh);
@@ -208,7 +255,8 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		sentinel = p_cmd;
 		ROS_INFO("bucketsForwardClass");
 
-		spinMotors(bucket1, 0.4, bucket2, 0.4);
+		speedUpdate(nh);
+		spinMotors(bucket1, bucketSpeed, bucket2, bucketSpeed);
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(bucket1, 0, bucket2, 0);
 		motorsStoppedSpinning(p_cmd, nh);
@@ -219,8 +267,21 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh) : base_trencher
 		sentinel = p_cmd;
 		ROS_INFO("bucketsBackClass");
 
-		spinMotors(bucket1, -0.4, bucket2, -0.4);
+		speedUpdate(nh);
+		spinMotors(bucket1, (-1 * bucketSpeed), bucket2, (-1 * bucketSpeed));
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(bucket1, 0, bucket2, 0);
+		motorsStoppedSpinning(p_cmd, nh);
+	}
+
+		void manual_trencher_class::bucketsTrencher(int& p_cmd, ros::NodeHandle nh)
+	{
+		sentinel = p_cmd;
+		ROS_INFO("bucketsBackClass");
+
+		speedUpdate(nh);
+		spinMotors(bucket1, bucketSpeed, bucket2, bucketSpeed, trencher, scoopsSpeed);
+		keepSpinningMotors(p_cmd, nh);
+		spinMotors(bucket1, 0, bucket2, 0, trencher, 0);
 		motorsStoppedSpinning(p_cmd, nh);
 	}

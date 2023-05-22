@@ -49,11 +49,25 @@ void rightBucketBack(int &p_cmd, ros::NodeHandle nh, manual_trencher_class& manu
 	manual_trencher.rightBucketBack(p_cmd, nh);
 }
 
-void spinScoops(int &p_cmd, ros::NodeHandle nh, manual_trencher_class& manual_trencher)
+void scoopsForward(int &p_cmd, ros::NodeHandle nh, manual_trencher_class& manual_trencher)
 {
 	int sentinel = p_cmd;
-	ROS_INFO("spinScoops");
-	manual_trencher.spinScoops(p_cmd, nh);
+	ROS_INFO("spinScoopsForward");
+	manual_trencher.scoopsForward(p_cmd, nh);
+}
+
+void scoopsBack(int &p_cmd, ros::NodeHandle nh, manual_trencher_class& manual_trencher)
+{
+	int sentinel = p_cmd;
+	ROS_INFO("spinScoopsBack");
+	manual_trencher.scoopsBack(p_cmd, nh);
+}
+
+void scoopsBucket(int &p_cmd, ros::NodeHandle nh, manual_trencher_class& manual_trencher)
+{
+	int sentinel = p_cmd;
+	ROS_INFO("spinScoopsBucket");
+	manual_trencher.bucketsTrencher(p_cmd, nh);
 }
 
 void leftLinActBack(int &p_cmd, ros::NodeHandle nh, manual_trencher_class& manual_trencher)
@@ -148,6 +162,13 @@ void zero(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class& semi_auto_tr
 	semi_auto_trencher.zero(p_cmd, nh);
 }
 
+void instantZero(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class& semi_auto_trencher)
+{
+	int sentinel = p_cmd;
+	ROS_INFO("calling semi_auto_trencher.zeroStart(p_cmd, nh)");
+	semi_auto_trencher.zeroStart(p_cmd, nh);
+}
+
 void config(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class& semi_auto_trencher)
 {
 	int sentinel = p_cmd;
@@ -176,6 +197,8 @@ void moveWheelsToSieve(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class&
 	semi_auto_trencher.moveWheelsToSieve();
 }
 
+
+
 class mux_contactor {
 private:
     ros::Publisher pub_mux;
@@ -192,6 +215,12 @@ public:
 		ROS_INFO("calling semi_auto_trencher.dig(p_cmd, nh)");
 		semi_auto_trencher.dig(p_cmd, nh);
 
+		bool isManual;
+    	nh.getParam("/manualMode", isManual);
+
+		if (isManual)
+			return;
+			
 		msg.data = 17;
 		pub_mux.publish(msg);
 	}
@@ -202,7 +231,23 @@ public:
 		ROS_INFO("calling semi_auto_trencher.deposit(p_cmd, nh)");
 		semi_auto_trencher.deposit(p_cmd, nh);
 
+		bool isManual;
+    	nh.getParam("/manualMode", isManual);
+
+		if (isManual)
+			return;
+		
 		msg.data = 18;
+		pub_mux.publish(msg);
+	}
+
+	void spinAround(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class& semi_auto_trencher)
+	{
+		int sentinel = p_cmd;
+		ROS_INFO("calling semi_auto_trencher.spinAround()");
+		semi_auto_trencher.spinAround(p_cmd);
+
+		msg.data = 18; // move_base_client.py does stuff with this
 		pub_mux.publish(msg);
 	}
 };
@@ -294,8 +339,18 @@ int main(int argc, char **argv)
 			p_cmd = 0;
 			break;
 		case 11:
-			std::cout << "Spinning scoops" << std::endl;
-			spinScoops(p_cmd, nh, manual_trencher);
+			std::cout << "Spinning scoops back" << std::endl;
+			scoopsBack(p_cmd, nh, manual_trencher);
+			p_cmd = 0;
+			break;
+		case 40:
+			std::cout << "Spinning scoops forward" << std::endl;
+			scoopsForward(p_cmd, nh, manual_trencher);
+			p_cmd = 0;
+			break;
+		case 41:
+			std::cout << "Spinning scoops and buckets" << std::endl;
+			scoopsBucket(p_cmd, nh, manual_trencher);
 			p_cmd = 0;
 			break;
 		case 12:
@@ -361,6 +416,16 @@ int main(int argc, char **argv)
 		case 28:
 			std::cout << "Moving wheels" << std::endl;
 			moveWheelsToSieve(p_cmd, nh, semi_auto_trencher);
+			p_cmd = 0;
+			break;
+		case 29:
+			std::cout << "Instant zero" << std::endl;
+			instantZero(p_cmd, nh, semi_auto_trencher);
+			p_cmd = 0;
+			break;
+		case 60:
+			std::cout << "Spinning" << std::endl;
+			mux.spinAround(p_cmd, nh, semi_auto_trencher);
 			p_cmd = 0;
 			break;
 		default:
