@@ -2,7 +2,7 @@
 # This being the common costmap makes it so both global and local have the same parameters set here
 
 # Set dimensions of robot here in meters along with padding to cushion more space
-footprint: [[0.0, 0.60], [0.0, 0.0], [-1.10, 0.60], [-1.10, 0.0]]
+footprint: [[0.10, 0.50], [0.10, -0.10], [-1.0, 0.50], [-1.0, -0.10]]
 footprint_padding: 0.03
 
 # The tf that should be at ground level and at center of robot
@@ -67,7 +67,7 @@ obstacle_layer:
 
     # Set to count things (craters) underneath ground level as obstacles, .8 to .9 meters away in -Z direction from camera frame
     min_obstacle_height: -0.9,
-    max_obstacle_height: -0.8
+    max_obstacle_height: -0.7
   }
 
 # Takes in the costmap_2d::InflationLayer plugin that local and global costmap calls on. 

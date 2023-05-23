@@ -59,8 +59,6 @@ void base_trencher_class::config(ros::NodeHandle nh)
     nh.getParam("/bscrew_cfg/motionAcceleration", bScrewMM.motionAcceleration);
     nh.getParam("/bscrew_cfg/motionCurveStrength", bScrewMM.motionCurveStrength);
 
-    nh.getParam("/bscrew_cfg/clearPositionOnLimitF", bScrewMM.clearPositionOnLimitF);
-
     nh.getParam("/bscrew_cfg/slot0/kP", bScrewMM.slot0.kP);
     nh.getParam("/bscrew_cfg/slot0/kI", bScrewMM.slot0.kI);
     nh.getParam("/bscrew_cfg/slot0/kD", bScrewMM.slot0.kD);
@@ -156,6 +154,7 @@ void base_trencher_class::config(ros::NodeHandle nh)
     bucket2.SetSensorPhase(true);
     leftWheel.SetSensorPhase(true);
 	rightWheel.SetSensorPhase(true);
+	//bScrew.SetSensorPhase(true);
 
     linAct1.SetInverted(true);
     linAct2.SetInverted(true);
@@ -186,6 +185,8 @@ void base_trencher_class::stopMotors()
 
 	leftWheel.Set(ControlMode::PercentOutput, 0);
 	rightWheel.Set(ControlMode::PercentOutput, 0);
+
+	std::cout << "Stopping all motors" << std::endl;
 }
 
 // a function that checks to see if ProcessManager has changed modes, and if so, kills motors and exit current function
@@ -196,7 +197,12 @@ bool base_trencher_class::exitFunction(int& p_cmd)
 	{
 		stopMotors();
 		return true;
+
+		std::cout << "ProcessorManager changed nodes. Exiting current function" << std::endl;
 	}
+
+	std::cout << "ProcessorManager is same. Continuing function" << std::endl;
+
 	return false;
 }
 

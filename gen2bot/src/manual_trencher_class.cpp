@@ -18,7 +18,7 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh)
 	{	
 		nh.getParam("/linact_cfg/percentOutput", linActSpeed);
 		nh.getParam("/bucket_cfg/percentOutput", bucketSpeed);
-		nh.getParam("/bScrew_cfg/percentOutput", bScrewSpeed);
+		nh.getParam("/bscrew_cfg/percentOutput", bScrewSpeed);
 		nh.getParam("/trencher_cfg/percentOutput", scoopsSpeed);
 	}
 

@@ -31,7 +31,7 @@ wheel_cfg:
   positionDifference: 500
 
   # Motion magic
-  motionCruiseVelocity: 20
+  motionCruiseVelocity: 5
   motionAcceleration: 10
   motionCurveStrength: 0
 
@@ -62,17 +62,16 @@ bscrew_cfg:
   digPosition: 9720000
 
   # this is what is used for motion magic to control speeds
-  motionCruiseVelocity: 10
+  motionCruiseVelocity: 25000
   motionAcceleration: 100000
-  motionCurveStrength: 0
-  clearPositionOnLimitF: true
+  motionCurveStrength: 8
 
   percentOutput: .5
 
   # PID
   slot0: {
-    kP: 0.5,
-    kI: 0.00000,
+    kP: .05,
+    kI: 0.0000,
     kD: 0.0
   }
 
@@ -84,10 +83,10 @@ linact_cfg:
   drivePosition: 0
 
   # trencher is all the way extended
-  depositPosition: 650 
+  depositPosition: 710 
 
   # trencher is mostly extended
-  digPosition: 550 
+  digPosition: 650 
   miliseconds: 1000
 
   # Motion magic
@@ -107,16 +106,16 @@ linact_cfg:
 # Deposits gravel by moving bucket, full contraction is 0 and default, while extension is deposit position
 bucket_cfg:
   # bucket is slightly extended
-  drivePosition: 30
+  drivePosition: 60
 
   # bucket is fully extended
-  depositPosition: 840
+  depositPosition: 810
 
   # bucket is fully contracted
   digPosition: 0
 
   # Motion magic
-  motionCruiseVelocity: 10
+  motionCruiseVelocity: 8
   motionAcceleration: 10
   motionCurveStrength: 0
 
@@ -141,11 +140,11 @@ trencher_cfg:
   digPosition: 0 
 
   # Motion magic
-  motionCruiseVelocity: 10
+  motionCruiseVelocity: 5
   motionAcceleration: 10
   motionCurveStrength: 0
   
-  percentOutput: .5
+  percentOutput: .3
 
   # PID
   slot0: {

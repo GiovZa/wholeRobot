@@ -1,0 +1,69 @@
+<launch>
+<!-- Learn about launch files in ros here: http://wiki.ros.org/roslaunch/XML -->
+
+<!-- This launch file tests components of autonomy based on what needs debugging-->
+
+<!-- Launches depth camera with the following parameters: 
+  https://github.com/IntelRealSense/realsense-ros/tree/ros1-legacy -->
+
+  <!-- This group ns tag merges all nodes and parameters contained within the tag into: depth_camera-->
+  <group ns="depth_camera">
+
+  <!--This file can be found in Other Locations/opt/ros/melodic/share/launch/includes on the jetson-->
+    <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
+
+  <!-- Some of these parameters are in default settings, meaning we don't need to declare them, but leave
+  for now as we might need to change these for our next object recognition script-->
+      <arg name="depth_width"       value="640"/>
+      <arg name="depth_height"      value="480"/>
+      <arg name="depth_fps"         value="30"/>
+      <arg name="color_width"       value="640"/>
+      <arg name="color_height"      value="480"/>
+      <arg name="color_fps"         value="30"/>
+      <arg name="enable_fisheye"    value="false"/>
+      <arg name="enable_pointcloud" value="false"/>
+      <arg name="enable_sync"       value="true"/>
+      <arg name="enable_gyro"       value="false"/>
+      <arg name="enable_accel"      value="false"/>
+      <arg name="tf_prefix"         value="camera"/>
+      <arg name="align_depth"       value="true"/>
+    </include>
+
+<!-- Remaps pointcloud so that it subscribes to a topic possible for jetson to visualize, without 
+this node, jetson won't publish pointcloud, which navigation and qr code relies on -->
+    <node pkg="nodelet" type="nodelet" name="points_xyzrgb_hw_registered"
+      args="load depth_image_proc/point_cloud_xyzrgb realsense2_camera_manager false" respawn="false">
+     
+      <!-- Need these to make a pointcloud-->
+      <remap from="rgb/image_rect_color"        to="color/image_rect_color" />
+      <remap from="rgb/camera_info"             to="color/camera_info" />
+      <remap from="depth_registered/image_rect" to="aligned_depth_to_color/image_raw" />
+      <remap from="depth_registered/points"     to="/depth_camera/depth/color/points" />
+    </node>
+  </group>
+
+  <node pkg="gen2bot" type="permanentGoal.py" name="goalSetUp" output="screen"/>
+
+  <!-- apriltag_ros continuous detection node -->
+  <node pkg="apriltag_ros" type="apriltag_ros_continuous_node" name="apriltag_ros_continuous_node" clear_params="false" output="screen" launch-prefix="">
+    <!-- Remap topics from those used in code to those on the ROS network -->
+    <remap from="image_rect" to="/depth_camera/color/image_raw" />
+    <remap from="camera_info" to="/depth_camera/color/camera_info" />
+
+    <param name="publish_tag_detections_image" type="bool" value="true" /><!-- default: false -->
+    <param name="queue_size" type="int" value="1" />
+
+    <!-- load parameters (incl. tag family, tags, etc.) -->
+    <rosparam command="load" file="$(find apriltag_ros)/config/settings.yaml"/>
+    <rosparam command="load" file="$(find apriltag_ros)/config/tags.yaml"/>
+  </node>
+
+  <!-- Node that contains all motor functions that don't relate to driving -->
+  <node pkg="gen2bot" type="flexRobot" name="ALLMOTORSSSS" output="screen">
+    <param name="wheel_multiplier" value="1.1" type="double"/>
+  </node>
+
+
+
+
+</launch>

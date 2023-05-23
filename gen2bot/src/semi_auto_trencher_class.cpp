@@ -4,7 +4,6 @@
 
 #include <gen2bot/semi_auto_trencher_class.h>
 
-<<<<<<< HEAD
 semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) 
 	: 
 		base_trencher_class(nh),
@@ -17,12 +16,6 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 		bScrewSpeed(10),
 		scoopsSpeed(.5)
 		{speedUpdate(nh);}
-=======
-
-
-
-semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_trencher_class(nh), mBuffer(10){}
->>>>>>> ee1280a9d49d8fcc9ac8e14c03effc6e92f0d461
 
 	// Makes sure the linear actuators of linAct and bucket aren't moving when they are misaligned.
 	void semi_auto_trencher_class::isSafe(int& p_cmd)
@@ -31,7 +24,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 
 		if (!(isNear(linAct1.GetSelectedSensorPosition(), linAct2.GetSelectedSensorPosition(), 5)) 
 			|| !(isNear(bucket1.GetSelectedSensorPosition(), bucket2.GetSelectedSensorPosition(), 5)))
-		stopMotors();
+		base_trencher_class::stopMotors();
 	}
 
 	// Updates speeds of motors
@@ -39,7 +32,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 	{	
 		nh.getParam("/linact_cfg/motionCruiseVelocity", linActSpeed);
 		nh.getParam("/bucket_cfg/motionCruiseVelocity", bucketSpeed);
-		nh.getParam("/bScrew_cfg/motionCruiseVelocity", bScrewSpeed);
+		nh.getParam("/bscrew_cfg/motionCruiseVelocity", bScrewSpeed);
 		nh.getParam("/trencher_cfg/percentOutput", scoopsSpeed);
 	}
 
@@ -52,6 +45,15 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 		talon1->ConfigMotionCruiseVelocity(abs(vel));
 		
 		talon1->Set(ControlMode::MotionMagic, pos);
+
+		std::cout << "kP: " <<bScrewMM.slot0.kP << std::endl;
+		std::cout << "kI: " << bScrewMM.slot0.kI << std::endl;
+		std::cout << "kD: " << bScrewMM.slot0.kD << std::endl;
+		std::cout << "A TalonFX motor is moving" << std::endl;
+	    std::cout << "Desired Velocity: " << vel << std::endl;
+	    std::cout << "Desired Accleration: " << accel << std::endl;
+	    std::cout << "Desired Position: " << pos << std::endl;
+
 	}
 
 	void semi_auto_trencher_class::ConfigMotionMagic(TalonSRX* talon1, TalonSRX* talon2, int vel, int accel, int pos)
@@ -66,6 +68,9 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 
 		talon1->Set(ControlMode::MotionMagic, pos);
 		talon2->Set(ControlMode::MotionMagic, pos);
+
+	    std::cout << "A pair of TalonSRX motors are moving" << std::endl;
+
 	}
 
 	void semi_auto_trencher_class::displayData()
@@ -170,10 +175,11 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 	void semi_auto_trencher_class::zeroStart(int& p_cmd, ros::NodeHandle  nh)
 	{
 		std::cout << "Running zeroStart" << std::endl;
+		displayData();
 
 		sentinel = p_cmd;
 
-		config(nh);
+		base_trencher_class::config(nh);
 
 		linAct1.SetSelectedSensorPosition(0);
 		linAct2.SetSelectedSensorPosition(0);
@@ -182,10 +188,10 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 		bScrew.SetSelectedSensorPosition(0);
 		trencher.SetSelectedSensorPosition(0);
 
-		std::cout << "START" << std::endl;
+		std::cout << "POSITIONS ARE ZEROED:" << std::endl;
 		displayData();
 
-		stopMotors();
+		base_trencher_class::stopMotors();
 	}
 
 	// Reassigns absolute position so motors know where they are
@@ -205,14 +211,13 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 		do {
 			displayData(&linAct1, &linAct2, "linAct");
 
-			if(exitFunction(p_cmd)) return;
+			if(base_trencher_class::exitFunction(p_cmd)) return;
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
 		} while(!ReverseLimitSwitchTriggered(&linAct1, &linAct2, "linAct"));
 
 		std::cout << "Finished zeroing the linAct" << std::endl;
-		
 		// Move the linAct to dig position so that the bScrew and bucket can be zeroed
 		while (!TargetPositionReached(&linAct1, &linAct2, laDigPosition, "linAct")){
 			std::cout << "Moving to dig position: " << laDigPosition << std::endl;
@@ -221,7 +226,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 
 			displayData(&linAct1, &linAct2, "linAct");
 
-			if(exitFunction(p_cmd)) return;
+			if(base_trencher_class::exitFunction(p_cmd)) return;
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
@@ -238,7 +243,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 		{
 			displayData(&bucket1, &bucket2, "bucket");
 
-			if(exitFunction(p_cmd)) return;
+			if(base_trencher_class::exitFunction(p_cmd)) return;
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
@@ -252,7 +257,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 
 			displayData(&bucket1, &bucket2, "bucket");
 
-			if(exitFunction(p_cmd)) return;
+			if(base_trencher_class::exitFunction(p_cmd)) return;
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
@@ -270,7 +275,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 		{	
 			displayData(&bScrew, "bScrew");
 
-			if(exitFunction(p_cmd)) return;
+			if(base_trencher_class::exitFunction(p_cmd)) return;
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		
@@ -287,7 +292,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 
 			displayData(&linAct1, &linAct2, "linAct");
 
-			if(exitFunction(p_cmd)) return;
+			if(base_trencher_class::exitFunction(p_cmd)) return;
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
@@ -295,56 +300,65 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 		std::cout << "LINACT FINAL: " << std::endl;
 		displayData(&linAct1, &linAct2, "linAct");
 
-		stopMotors();
+		base_trencher_class::stopMotors();
 	}
 
 	// trencher is all the way tucked in and parallel to ground
 	void semi_auto_trencher_class::driveMode(int& p_cmd, ros::NodeHandle  nh) 
-		{
-			sentinel = p_cmd;
-			
-			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-			std::cout << "Moving to driveMode: " << std::endl;
+	{
+		sentinel = p_cmd;
 		
-			trencher.Set(ControlMode::Velocity, 0);
+		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+		std::cout << "Moving to driveMode: " << std::endl;
 
-			if(exitFunction(p_cmd)) return;
+		displayData();
+	
+		trencher.Set(ControlMode::PercentOutput, 0);
 
-			// While not in drive mode,
-			while(!CheckMode(laDrivePosition, buDrivePosition, bsDrivePosition))
-			{
+		if(base_trencher_class::exitFunction(p_cmd)) return;
+
+		// While not in drive mode,
+		while(!CheckMode(laDrivePosition, buDrivePosition, bsDrivePosition))
+		{
+		
+			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+
+			trencher.Set(ControlMode::PercentOutput, 0);
+
+			// If in dig position and bScrew retracted, cycle the trencher once.
+			// if (CheckMode(laDigPosition, buDigPosition, bsDrivePosition))
+			// {	
+			// 	trencher.Set(ControlMode::Position, 10000);
+			// 	std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+			// }
 			
-				ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+			// bucket moves first
+			ConfigMotionMagic(&bucket1, &bucket2, bucketSpeed, 5, buDrivePosition);
+			if(base_trencher_class::exitFunction(p_cmd)) return;
 
-				trencher.Set(ControlMode::Velocity, 0);
+			// bScrew moves
+			ConfigMotionMagic(&bScrew, bScrewSpeed, 5, bsDrivePosition);
+			if(base_trencher_class::exitFunction(p_cmd)) return;
 
-				// If in dig position and bScrew retracted, cycle the trencher once.
-				// if (CheckMode(laDigPosition, buDigPosition, bsDrivePosition))
-				// {	
-				// 	trencher.Set(ControlMode::Position, 10000);
-				// 	std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-				// }
-				
-				// bucket moves first
-				ConfigMotionMagic(&bucket1, &bucket2, bucketSpeed, 5, buDrivePosition);
-				if(exitFunction(p_cmd)) return;
-
-				// bScrew moves
-				ConfigMotionMagic(&bScrew, bScrewSpeed, 5, bsDrivePosition);
-				if(exitFunction(p_cmd)) return;
-
-				// If the ball screw retracted and bucket in drive position, start moving the linAct
-				if (TargetPositionReached(&bScrew, bsDrivePosition, bScrewBuffer, "bScrew") && TargetPositionReached(&bucket1, &bucket2, buDrivePosition, "bucket"))
-					ConfigMotionMagic(&linAct1, &linAct2, linActSpeed, 5, laDrivePosition);
-
-				if(exitFunction(p_cmd)) return;
-
-				displayData();
-
-				std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+			// If the ball screw retracted and bucket in drive position, start moving the linAct
+			if (TargetPositionReached(&bScrew, bsDrivePosition, bScrewBuffer, "bScrew") && TargetPositionReached(&bucket1, &bucket2, buDrivePosition, "bucket"))
+			{
+				ConfigMotionMagic(&linAct1, &linAct2, linActSpeed, 5, laDrivePosition);
 			}
-			stopMotors();
+
+			if(base_trencher_class::exitFunction(p_cmd)) return;
+
+			displayData();
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
+		
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+		base_trencher_class::stopMotors();
+
+		std::cout<< "driveMode reached." << std::endl;
+	}
 
 	void semi_auto_trencher_class::deposit(int& p_cmd, ros::NodeHandle  nh)
 	{
@@ -354,7 +368,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 			
 		std::cout << "Moving to depositMode: " << std::endl;
 
-		displayData(&bucket1, &bucket2, "bucket");
+		displayData();
 
 		// If robot is in drive position, go to deposit position.
 		if(CheckMode(laDrivePosition, buDrivePosition, bsDrivePosition))
@@ -364,16 +378,20 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 			{
 				// Move the linAct first
 				ConfigMotionMagic(&linAct1, &linAct2, linActSpeed, 5, laDepositPosition);
-				if(exitFunction(p_cmd)) return;
+				if(base_trencher_class::exitFunction(p_cmd)) return;
 
 				// Move the bucket when the linAct has reached deposit position
 				if (TargetPositionReached(&linAct1, &linAct2, laDepositPosition, "linAct"))
+				{
 					trencher.Set(ControlMode::PercentOutput, scoopsSpeed);
 					ConfigMotionMagic(&bucket1, &bucket2, bucketSpeed, 5, buDepositPosition);
+				}
 
-				if(exitFunction(p_cmd)) return;
+				if(base_trencher_class::exitFunction(p_cmd)) return;
 
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+				displayData();
 			}
 
 			trencher.Set(ControlMode::PercentOutput, 0);
@@ -383,16 +401,16 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 			// Move back to drive position
 			driveMode(p_cmd, nh);
 
-			if(exitFunction(p_cmd)) return;
+			if(base_trencher_class::exitFunction(p_cmd)) return;
 
 			displayData();
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 		}
-		stopMotors();
+		base_trencher_class::stopMotors();
 
-		// a parameter that lets robot_mux_control.py know to tell move_base_client.py to send robot to dig
-		nh.setParam("ongoingDepositPhase", true);
+		std::cout<< "depositMode reached." << std::endl;
+
 	}
 
 	void semi_auto_trencher_class::dig(int& p_cmd, ros::NodeHandle  nh)
@@ -409,39 +427,40 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 				{
 					// Move the linAct first
 					ConfigMotionMagic(&linAct1, &linAct2, linActSpeed, 5, laDigPosition);
-					if(exitFunction(p_cmd)) return;
+					if(base_trencher_class::exitFunction(p_cmd)) return;
 					
 					// Move the bucket
 					ConfigMotionMagic(&bucket1, &bucket2, bucketSpeed, 5, buDigPosition);
-					if(exitFunction(p_cmd)) return;
+					if(base_trencher_class::exitFunction(p_cmd)) return;
 					
 					// Move the ball screw after the linAct has rotated past a certain point
 					if (TargetPositionReached(&linAct1, &linAct2, laDigPosition, "linAct"))
 					{
 						ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
-						ConfigMotionMagic(&bScrew, bScrewSpeed, 5, bsDigPosition);
+						bScrew.Set(ControlMode::Velocity, bScrewSpeed);
+						//ConfigMotionMagic(&bScrew, bScrewSpeed, 100000, bsDigPosition);
 						// Turn the trencher on
-						trencher.Set(ControlMode::PercentOutput, scoopsSpeed);
+						trencher.Set(ControlMode::PercentOutput, (-1.0 * scoopsSpeed));
 					}
 
 					displayData();
-					if(exitFunction(p_cmd)) return;
+					if(base_trencher_class::exitFunction(p_cmd)) return;
 					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 				}
 
 				// Move back to drive position
 				driveMode(p_cmd, nh);
 
-				if(exitFunction(p_cmd)) return;
+				if(base_trencher_class::exitFunction(p_cmd)) return;
 
 				displayData(); 
 				std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 			}	
-		stopMotors();
+		base_trencher_class::stopMotors();
 
-		// a parameter that lets robot_mux_control.py know to tell move_base_client.py to send robot to deposit
-		nh.setParam("ongoingDigPhase", true);
+		std::cout<< "digMode reached." << std::endl;
+
 	}
 
 	double semi_auto_trencher_class::calculateDistanceWheels()
@@ -460,19 +479,11 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 	{
 		double newPos = calculateDistanceWheels();
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
-<<<<<<< HEAD
 		ConfigMotionMagic(&leftWheel, 10, 5,newPos + leftWheel.GetSelectedSensorPosition());
 		ConfigMotionMagic(&rightWheel, 10, 5,newPos + rightWheel.GetSelectedSensorPosition());
-		
 	}
 
 	void semi_auto_trencher_class::spinAround(int& p_cmd)
-=======
-		leftWheel.Set(ControlMode::Position, (newPos + leftWheel.GetSelectedSensorPosition()));
-		rightWheel.Set(ControlMode::Position, (newPos + leftWheel.GetSelectedSensorPosition()));
-	}
-	void semi_auto_trencher_class::spinAround()
->>>>>>> ee1280a9d49d8fcc9ac8e14c03effc6e92f0d461
 	{
 		rightWheel.SetInverted(true);
 		std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
@@ -480,25 +491,13 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh) : base_tr
 		int x = 0;
 		while (x <= 5)
 		{
-			if(exitFunction(p_cmd)) return;
+			if(base_trencher_class::exitFunction(p_cmd)) return;
 			while (std::chrono::steady_clock::now() - startTime < duration)
 			{
-<<<<<<< HEAD
 				leftWheel.Set(ControlMode::PercentOutput, .20);
 				rightWheel.Set(ControlMode::PercentOutput, -.15);
-=======
-				leftWheel.Set(ControlMode::PercentOutput, 20)
-				rightWheel.Set(ControlMode::PercentOutput, -15)
->>>>>>> ee1280a9d49d8fcc9ac8e14c03effc6e92f0d461
 			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 			x += 1;
 		}
 	}
-<<<<<<< HEAD
-		
-=======
-		
-		
-		
->>>>>>> ee1280a9d49d8fcc9ac8e14c03effc6e92f0d461

@@ -4,10 +4,10 @@
 
  <!-- Launches node that converts xbox controller inputs into ROS; 
   http://wiki.ros.org/joy          http://wiki.ros.org/joy/Tutorials/ConfiguringALinuxJoystick -->
-  <node name="joy2" pkg="joy" type="joy_node" output="screen">
+<!--   <node name="joy2" pkg="joy" type="joy_node" output="screen">
     <param name="dev" value="/dev/input/js0"/>
     <param name="default_trig_val" value="true"/>
-  </node>
+  </node> -->
 
   <!-- Node that takes ROS inputs of joystick to move motors in wheels, auger, ballscrew, and linear actuator-->
   <node name="manual_motor_control" pkg="gen2bot" type="robot_mux_control_wired.py" output="screen"/>
