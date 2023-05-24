@@ -10,7 +10,11 @@ Manual: 1 = leftLABack, 2 = rightLABack, 3 = leftLAForward, 4 = rightLAForward, 
 6 = rightBuBack, 7 = leftBuForward, 8 = leftBuBack, 9 = bsIn, 10 = bsOut, 11 = spinScoops,
 12 = spinScoopsBScrew, 13 = LAsForward, 14 = LAsBack, 15 = BUsForward, 16 = BUsBack
 '''
-
+'''
+Drive with the right joystick
+down dpad - mine
+B for the bucket to zero
+'''
 # Imports a pure Python client library for ROS
 import rospy
 
@@ -31,6 +35,7 @@ class JoystickPublisher:
         # function checks for controller inputs and runs a motor function based on which button is pressed
         def callback(self, message):
                 Int8 = 0
+
                 if(message.buttons[4] == 1 and message.buttons[5] == 1 and message.axes[7] == 1.0): # bumpers and up-DPad
                         if(message.buttons[0] == 1.0): # A button
                                 Int8 = 1
@@ -200,6 +205,60 @@ class JoystickPublisher:
                         Int8 = 50 #kill function
                         rospy.loginfo("publishing nothing")
                         self.pub.publish(Int8)
+                
+                # Zachs's controller mapping [Comment out Lines 213 - 255]
+                # @todo: Check to see if we can combine depth up(up dpad) and depth down(down dpad) with
+                # @todo: reverse mining(back button) and digging(start button):
+
+                # if(message.buttons[1] == 1.0): # B button -- Moves the bucket down/Forward
+                #         Int8 = 15
+                #         rospy.loginfo("both buckets Forward")
+                #         self.pub.publish(Int8)
+                # elif(message.buttons[3] == 1.0): # Y button -- Moves the bucket up/backwards
+                #         Int8 = 16
+                #         rospy.loginfo("both buckets Back")
+                #         self.pub.publish(Int8)
+                
+                # elif(message.buttons[2] == 1.0): # X button -- Moves the linear actuators(Pitch) up/forwards
+                #         Int8 = 13
+                #         rospy.loginfo("both lin acts Forward")
+                #         self.pub.publish(Int8)
+
+                # elif(message.buttons[0] == 1.0): # A button -- Moves the linear actuators(Pitch down/back)
+                #         Int8 = 14
+                #         rospy.loginfo("both lin acts Back")
+                #         self.pub.publish(Int8)
+
+                # elif(message.axes[7] == -1.0): # Down Dpad -- Moves the ballscrew/depth down 
+                #         Int8 = 10
+                #         rospy.loginfo("ballscrew out")
+                #         self.pub.publish(Int8)
+                
+                # elif(message.axes[7] == 1.0): # Up Dpad -- Moves the ballscrew/depth up
+                #         Int8 = 9
+                #         rospy.loginfo("ballscrew in")
+                #         self.pub.publish(Int8)
+                
+                # elif(message.buttons[6] == 1.0): # Back button -- Moves the scoops in reverse
+                #         Int8 = 40
+                #         rospy.loginfo("Spinning scoops back in mux")
+                #         self.pub.publish(Int8)
+                        
+                # elif(message.buttons[7] == 1.0): # Start button -- Moves the scoops for mining
+                #         Int8 = 11
+                #         rospy.loginfo("Spinning scoops in mux")
+                #         self.pub.publish(Int8)
+
+                # elif(message.buttons[8] == 1.0): # Xbox button -- Stops all the functions
+                #         Int8 = 50 #kill function
+                #         rospy.loginfo("publishing nothing")
+                #         self.pub.publish(Int8)
+                
+                
+
+                
+                
+                
 
         def combineLTRT(self, message):#Hey listen its maxwell here please help I got trapped in the code 
                 ''' 
