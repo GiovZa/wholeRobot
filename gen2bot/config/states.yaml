@@ -1,4 +1,8 @@
 # This file tells ROS what state/phase the robot is currently on using parameters
 manualMode: true
+zachMode: false #This is going to tell if we are using the Zach layout
+gioMode: false #This is goingn to tell if we are using gio's code layout 
 
 bscrewPO: false
+
+movingWheels: false

@@ -237,7 +237,8 @@ class JoystickPublisher:
                 # Angular speed is controlled by right joystick's horizontal axis (-1 to 1)
                 twist.angular.z = message.axes[3]
                 if (rospy.get_param("/manualMode")):
-                        self.pub.publish(twist)
+                        self.pub.publish(twist)                  
+                
 
         def callbackAuto(self, message):   
         

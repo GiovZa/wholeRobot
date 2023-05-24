@@ -274,7 +274,7 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh)
 		motorsStoppedSpinning(p_cmd, nh);
 	}
 
-		void manual_trencher_class::bucketsTrencher(int& p_cmd, ros::NodeHandle nh)
+	void manual_trencher_class::bucketsTrencher(int& p_cmd, ros::NodeHandle nh)
 	{
 		sentinel = p_cmd;
 		ROS_INFO("bucketsBackClass");

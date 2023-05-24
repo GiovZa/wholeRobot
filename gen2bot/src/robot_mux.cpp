@@ -177,25 +177,18 @@ void config(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class& semi_auto_
 	semi_auto_trencher.config(nh);
 }
 
-void returnInitialWheelPosition(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class& semi_auto_trencher)
+void returnInitialWheelPosition(int &p_cmd, ros::NodeHandle nh, wheel_trencher_class& wheel_trencher)
 {
 	int sentinel = p_cmd;
 	ROS_INFO("calling semi_auto_trencher.returnInitialWheelPosition()");
-	semi_auto_trencher.returnInitialWheelPosition();
+	wheel_trencher.returnInitialWheelPosition();
 }
 
-void returnDesiredWheelPosition(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class& semi_auto_trencher)
+void returnDesiredWheelPosition(int &p_cmd, ros::NodeHandle nh, wheel_trencher_class& wheel_trencher)
 {
 	int sentinel = p_cmd;
 	ROS_INFO("calling semi_auto_trencher.returnDesiredWheelPosition()");
-	semi_auto_trencher.returnDesiredWheelPosition();
-}
-
-void moveWheelsToSieve(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class& semi_auto_trencher)
-{
-	int sentinel = p_cmd;
-	ROS_INFO("calling semi_auto_trencher.moveWheelsToSieve()");
-	semi_auto_trencher.moveWheelsToSieve();
+	wheel_trencher.returnDesiredWheelPosition();
 }
 
 
@@ -251,6 +244,13 @@ public:
 		msg.data = 18; // move_base_client.py does stuff with this
 		pub_mux.publish(msg);
 	}
+
+	void moveWheelsToSieve(int &p_cmd, ros::NodeHandle nh, wheel_trencher_class& wheel_trencher)
+	{
+		int sentinel = p_cmd;
+		ROS_INFO("calling semi_auto_trencher.moveWheelsToSieve()");
+		wheel_trencher.moveWheelsToSieve(nh);
+	}
 };
 
 int main(int argc, char **argv)
@@ -279,7 +279,7 @@ int main(int argc, char **argv)
 	// use the & to allow us to use this-> key word for pointers
 
  	// ros::Subscriber ballScrewVariance = nh.subscribe("ball_screw_process", 0, &ball_screw_trencher_class::chatterCallback, &ball_screw);
- 	ros::Subscriber wheelManual = nh.subscribe("manual_wheel_inputs", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher);
+ 	//ros::Subscriber wheelManual = nh.subscribe("manual_wheel_inputs", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher);
 /* 	ros::Subscriber wheelAuto = nh.subscribe("cmd_vel", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher); 
  */
 	ros::AsyncSpinner spinner(0);
@@ -409,17 +409,17 @@ int main(int argc, char **argv)
 			break;
 		case 26:
 			std::cout << "Save initial value" << std::endl;
-			returnInitialWheelPosition(p_cmd, nh, semi_auto_trencher);
+			returnInitialWheelPosition(p_cmd, nh, wheel_trencher);
 			p_cmd = 0;
 			break;
 		case 27:
 			std::cout << "Save desired value" << std::endl;
-			returnDesiredWheelPosition(p_cmd, nh, semi_auto_trencher);
+			returnDesiredWheelPosition(p_cmd, nh, wheel_trencher);
 			p_cmd = 0;
 			break;
 		case 28:
 			std::cout << "Moving wheels" << std::endl;
-			moveWheelsToSieve(p_cmd, nh, semi_auto_trencher);
+			mux.moveWheelsToSieve(p_cmd, nh, wheel_trencher);
 			p_cmd = 0;
 			break;
 		case 29:

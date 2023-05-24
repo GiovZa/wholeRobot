@@ -15,7 +15,7 @@ wheelBuffer: 100
 
 bScrewBuffer: 200000
 
-trencherBuffer: 50000
+trencherBuffer: 10000
 
 # Current PID config for wheels
 wheel_cfg:
@@ -59,10 +59,11 @@ bscrew_cfg:
   depositPosition: 0
 
   # ballscrew is fully extended
-  digPosition: -4250000
+  digPosition: -7000000
 
   # this is what is used for motion magic to control speeds
   motionCruiseVelocity: -40000
+  motionCruiseVelocityDown: -10000
   motionAcceleration: 100000
   motionCurveStrength: 8
 
@@ -80,7 +81,7 @@ bscrew_cfg:
 linact_cfg:
 
   # trencher is fully contracted
-  drivePosition: 0
+  drivePosition: 400
 
   # trencher is all the way extended
   depositPosition: 710 
@@ -109,7 +110,7 @@ bucket_cfg:
   drivePosition: 60
 
   # bucket is fully extended
-  depositPosition: 810
+  depositPosition: 850
 
   # bucket is fully contracted
   digPosition: 0
@@ -144,7 +145,7 @@ trencher_cfg:
   motionAcceleration: 10
   motionCurveStrength: 0
   
-  percentOutput: .3
+  percentOutput: .35
 
   cycle: 736000
 

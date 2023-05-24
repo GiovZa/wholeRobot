@@ -13,11 +13,7 @@ public:
     void ConfigMotionMagic(TalonFX* talon1, int vel, int accel, int pos);
     void ConfigMotionMagic(TalonSRX* talon1, TalonSRX* talon2, int vel, int accel, int pos);
 
-    // wheel deposit
-    double calculateDistanceWheels();
-    void returnInitialWheelPosition();
-    void returnDesiredWheelPosition();
-    void moveWheelsToSieve();
+
 
     void displayData();
     void displayData(TalonFX* talon1, std::string name);
@@ -54,6 +50,7 @@ public:
     double linActSpeed;
     double bucketSpeed;
     double bScrewSpeed;
+    double bScrewSpeedDown;
     double scoopsSpeed;
     double bScrewPercent;
 };
