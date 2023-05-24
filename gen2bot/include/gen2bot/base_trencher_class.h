@@ -85,6 +85,7 @@ public:
 	double buDigPosition;
 
 	double trencherZeroPosition;
+	int trencherCycle;
 
 	// wheel positions
 	double initialWheelPosition;

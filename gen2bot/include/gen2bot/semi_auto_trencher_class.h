@@ -55,4 +55,5 @@ public:
     double bucketSpeed;
     double bScrewSpeed;
     double scoopsSpeed;
+    double bScrewPercent;
 };

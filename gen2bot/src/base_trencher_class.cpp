@@ -45,7 +45,9 @@ base_trencher_class::base_trencher_class(ros::NodeHandle nh)
 	  trencherZeroPosition(0),
 	  initialWheelPosition(0),
 	  desiredWheelPosition(500),
-	  wheelPositionDifference(500)
+	  wheelPositionDifference(500),
+
+	  trencherCycle(736000)
 {	
 	config(nh);
 }
@@ -103,6 +105,7 @@ void base_trencher_class::config(ros::NodeHandle nh)
     nh.getParam("/trencher_cfg/slot0/kD", trencherMM.slot0.kD);
 
 	nh.getParam("/trencher_cfg/drivePosition", trencherZeroPosition);
+	nh.getParam("/trencher_cfg/cycle", trencherCycle);
 
 	// wheel parameters
  	nh.getParam("/wheel_cfg/motionCruiseVelocity", wheelMM.motionCruiseVelocity);
@@ -154,12 +157,13 @@ void base_trencher_class::config(ros::NodeHandle nh)
     bucket2.SetSensorPhase(true);
     leftWheel.SetSensorPhase(true);
 	rightWheel.SetSensorPhase(true);
-	//bScrew.SetSensorPhase(true);
+	bScrew.SetSensorPhase(true);
 
     linAct1.SetInverted(true);
     linAct2.SetInverted(true);
     bucket1.SetInverted(true);
     bucket2.SetInverted(true);
+	//bScrew.SetInverted(true);
 	//leftWheel.SetInverted(true);
     //rightWheel.SetInverted(true);
 	

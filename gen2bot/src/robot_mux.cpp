@@ -5,7 +5,8 @@
 #include <gen2bot/manual_trencher_class.h>
 #include <gen2bot/semi_auto_trencher_class.h>
 #include <gen2bot/wheel_trencher_class.h>
-
+/* #include <gen2bot/ball_screw_trencher_class.h>
+ */
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -260,6 +261,7 @@ int main(int argc, char **argv)
 	manual_trencher_class manual_trencher(nh);
 	semi_auto_trencher_class semi_auto_trencher(nh);
     wheel_trencher_class wheel_trencher(nh);
+	// ball_screw_trencher_class ball_screw(nh);
 
 	mux_contactor mux(nh);
 
@@ -275,6 +277,8 @@ int main(int argc, char **argv)
 	ros::Subscriber sub = nh.subscribe("robot_process", 0, &processManagerClass::callback, &processManager);
 
 	// use the & to allow us to use this-> key word for pointers
+
+ 	// ros::Subscriber ballScrewVariance = nh.subscribe("ball_screw_process", 0, &ball_screw_trencher_class::chatterCallback, &ball_screw);
  	ros::Subscriber wheelManual = nh.subscribe("manual_wheel_inputs", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher);
 /* 	ros::Subscriber wheelAuto = nh.subscribe("cmd_vel", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher); 
  */

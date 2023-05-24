@@ -77,6 +77,7 @@ include/gen2bot/manual_trencher_class.h
 src/base_trencher_class.cpp 
 include/gen2bot/base_trencher_class.h
 include/gen2bot/wheel_trencher_class.h
+#include/gen2bot/ball_screw_trencher_class.h
 
 )
 target_link_libraries(flexRobot

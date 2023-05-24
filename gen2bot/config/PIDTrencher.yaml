@@ -13,9 +13,9 @@ mBuffer: 10
 
 wheelBuffer: 100
 
-bScrewBuffer: 10000
+bScrewBuffer: 200000
 
-trencherBuffer: 10000
+trencherBuffer: 50000
 
 # Current PID config for wheels
 wheel_cfg:
@@ -39,8 +39,8 @@ wheel_cfg:
 
 # Updated wheel PID for accurate encoders to record position needed for deposit autonomy
   slot0: {
-    kP: 0.052,
-    kI: 0.000001,
+    kP: 0.05,
+    kI: 0.00000,
     kD: 0.0,
     kF: 0.0,
 
@@ -59,14 +59,14 @@ bscrew_cfg:
   depositPosition: 0
 
   # ballscrew is fully extended
-  digPosition: 9720000
+  digPosition: -4250000
 
   # this is what is used for motion magic to control speeds
-  motionCruiseVelocity: 25000
+  motionCruiseVelocity: -40000
   motionAcceleration: 100000
   motionCurveStrength: 8
 
-  percentOutput: .5
+  percentOutput: -.15
 
   # PID
   slot0: {
@@ -146,9 +146,11 @@ trencher_cfg:
   
   percentOutput: .3
 
+  cycle: 736000
+
   # PID
   slot0: {
-    kP: 42, 
-    kI: 0.0008,
+    kP: .05, 
+    kI: 0.000,
     kD: 0.0
   }

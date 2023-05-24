@@ -20,6 +20,8 @@ from geometry_msgs.msg import Twist
 # the smallest integer type in ROS (Range: -128 to 128), topic type for message that initiates all motor functions
 from std_msgs.msg import Int8
 
+from std_msgs.msg import Float64
+
 # Reports the state of a joysticks axes and buttons. (Controller package)
 from sensor_msgs.msg import Joy
 
@@ -141,7 +143,7 @@ class JoystickPublisher:
                                 rospy.loginfo("publishing nothing")
                                 self.pub.publish(Int8)
 
-                if(message.buttons[4] == 1 and message.buttons[5] == 1 and message.buttons[9] == 1.0): # bumpers and left joystick press
+                if(message.buttons[4] == 1 and message.buttons[5] == 1 and message.buttons[10] == 1.0): # bumpers and right joystick press
 
                         if(message.buttons[6] == 1.0 and message.buttons[8] == 1.0): # Back button + Xbox button
                                 Int8 = 26
@@ -155,6 +157,7 @@ class JoystickPublisher:
 
                         elif(message.buttons[1] == 1.0 and message.buttons[2] == 1.0): #  B + X button
                                 Int8 = 28
+
                                 rospy.loginfo("publishing 'move wheels'")
                                 self.pub.publish(Int8)
 
@@ -213,6 +216,13 @@ class JoystickPublisher:
                 LT = -(message.axes[2] + 1.0) / 2
                 RT = -(message.axes[5] + 1.0) / 2
                 return (RT - LT)
+        
+        #def joystickPO(self, message):
+        #        if (message.axes[1] > .2 or message.axes[1] < -.2):
+        #                Float64 = message.axes[1]
+        #                rospy.loginfo("publishing bs po: %f", Float64)        
+        #                self.pub.publish(Float64)
+
 
         # Function that keeps getting called on by publisher
         def callbackWheel(self, message):
@@ -226,7 +236,8 @@ class JoystickPublisher:
 
                 # Angular speed is controlled by right joystick's horizontal axis (-1 to 1)
                 twist.angular.z = message.axes[3]
-                self.pub.publish(twist)
+                if (rospy.get_param("/manualMode")):
+                        self.pub.publish(twist)
 
         def callbackAuto(self, message):   
         
@@ -250,6 +261,10 @@ if __name__ == '__main__':
         joystick = JoystickPublisher(pub)
         # subscribed to joystick inputs on topic "joy"
         rospy.Subscriber("joy", Joy, joystick.callback)
+
+        #pubBallScrew = rospy.Publisher('ball_screw_process', Float64, queue_size=5)
+        #joystickBallScrew = JoystickPublisher(pubBallScrew)
+        #rospy.Subscriber("joy", Joy, joystickBallScrew.joystickPO)
 
         # Publishes to chatter topic using twist messages to control wheels manually. The matching subscriber is wheelDrive.cpp
         pubWheels = rospy.Publisher('manual_wheel_inputs', Twist, queue_size=5)
