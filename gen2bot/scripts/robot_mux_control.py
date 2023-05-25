@@ -4,13 +4,6 @@
 #This script subscribes to joystick publisher and then creates 2 publishers. 1 
 # for mining operations and 1 for wheels, miningOperations ... .cpp and manualDrive.cpp are linked with this file
 
-'''
-robot modes and functions based on robot_process topic
-Manual: 1 = leftLABack, 2 = rightLABack, 3 = leftLAForward, 4 = rightLAForward, 5 = rightBuForward, 
-6 = rightBuBack, 7 = leftBuForward, 8 = leftBuBack, 9 = bsIn, 10 = bsOut, 11 = spinScoops,
-12 = spinScoopsBScrew, 13 = LAsForward, 14 = LAsBack, 15 = BUsForward, 16 = BUsBack
-'''
-
 
 # Imports a pure Python client library for ROS
 import rospy
@@ -311,14 +304,7 @@ class JoystickPublisher:
                                         
 
         def combineLTRT(self, message):#Hey listen its maxwell here please help I got trapped in the code 
-                ''' 
-                LT is left trigger, message.axes[5] (from Joy package) 
-                takes input from left trigger of controller from value -1 to 1.
-                Without pressing down on the trigger, you get a default value of -1
-                so you need to add 1.0 in the parenthesis to get a default value of 0
-                when you are not pressing the trigger. Divide by 2 because 
-                motorPercentOutput can accept a maximum value of 1. RT is right trigger.
-                '''
+
                 LT = -(message.axes[2] + 1.0) / 2
                 RT = -(message.axes[5] + 1.0) / 2
                 return (RT - LT)

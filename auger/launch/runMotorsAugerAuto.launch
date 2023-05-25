@@ -23,11 +23,11 @@
 <!-- Launches rviz using the rgbd.launch file which, somehow, allows pointcloud to work. pointcloud is what camera publishes to get
   positional values of all objects and points in space it can calculate relative to camera's frame-->
 <!--     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find realsense2_camera)/rviz/pointcloud.rviz" required="true" />
-      <include file="$(find gen2bot)/launch/rgbd.launch">
+ -->      <include file="$(find gen2bot)/launch/rgbd.launch">
         <arg name="manager"                       value="realsense2_camera_manager" />
         <arg name="respawn"                       value="false" />      
         <arg name="rgb"                           value="color" />
-      </include> -->
+      </include>
 
 <!-- Remaps pointcloud so that it subscribes to a topic possible for jetson to visualize, without 
 this node, jetson won't publish pointcloud, which navigation and qr code relies on -->

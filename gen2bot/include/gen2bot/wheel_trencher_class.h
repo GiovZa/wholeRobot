@@ -7,8 +7,10 @@
 #include "geometry_msgs/Twist.h"
 
 class wheel_trencher_class : public base_trencher_class {
+
+	ros::NodeHandle node;
 public:
-    wheel_trencher_class(ros::NodeHandle nh) : base_trencher_class(nh) {}
+    wheel_trencher_class(ros::NodeHandle nh) : base_trencher_class(nh), node(nh) {}
 
     void chatterCallback(const geometry_msgs::Twist::ConstPtr& msg)
     {
@@ -20,12 +22,13 @@ public:
         // Must flip right motor because it is facing the other way
         rightWheel.SetInverted(true);
 
+		double maxSpeed;
+		node.getParam("/wheelMaxSpeed", maxSpeed);
+
         // Set each motor to spin at a percent of max speed relative to triggers' linear speed
         // and left stick horizontal axis' turning speed
-        rightWheel.Set(ControlMode::PercentOutput, (-x + z)*.3 );
-        leftWheel.Set(ControlMode::PercentOutput, (-x - z)*.3 );
-
-        //std::cout << "Wheels moving: " << std::endl;
+        rightWheel.Set(ControlMode::PercentOutput, (-x + z)*maxSpeed);
+        leftWheel.Set(ControlMode::PercentOutput, (-x - z)*maxSpeed);
     }
 
 	void displayData(TalonFX* talon1, std::string name)

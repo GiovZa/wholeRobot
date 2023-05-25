@@ -2,7 +2,7 @@
 # This being the common costmap makes it so both global and local have the same parameters set here
 
 # Set dimensions of robot here in meters along with padding to cushion more space
-footprint: [[0.10, 0.50], [0.10, -0.10], [-1.0, 0.50], [-1.0, -0.10]]
+footprint: [[0.10, 0.50], [-1.0, 0.50], [0.10, -0.10],  [-1.0, -0.10]]
 footprint_padding: 0.03
 
 # The tf that should be at ground level and at center of robot

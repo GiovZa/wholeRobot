@@ -280,7 +280,7 @@ int main(int argc, char **argv)
 	// use the & to allow us to use this-> key word for pointers
 
  	// ros::Subscriber ballScrewVariance = nh.subscribe("ball_screw_process", 0, &ball_screw_trencher_class::chatterCallback, &ball_screw);
- 	ros::Subscriber wheelManual = nh.subscribe("manual_wheel_inputs", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher);
+ 	//ros::Subscriber wheelManual = nh.subscribe("manual_wheel_inputs", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher);
 /* 	ros::Subscriber wheelAuto = nh.subscribe("cmd_vel", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher); 
  */
 	ros::AsyncSpinner spinner(0);

@@ -6,3 +6,5 @@ gioMode: false #This is goingn to tell if we are using gio's code layout
 bscrewPO: false
 
 movingWheels: false
+
+maxWheelSpeed: .3

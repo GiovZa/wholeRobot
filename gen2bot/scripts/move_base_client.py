@@ -203,8 +203,8 @@ class moveBasePubClass:
     def callback(self, message): 
         if message.data == 18: # if 'begin navigation to dig mode' true:
             if self.counter == 0:
-                xPos = 1.0 # x coordinate of dig
-                yPos = 0.0 # y coordinate of dig
+                xPos = 0.0 # x coordinate of dig
+                yPos = 1.0 # y coordinate of dig
                 self.counter += 1
 
             elif self.counter == 1:

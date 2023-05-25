@@ -20,6 +20,12 @@
       <arg name="align_depth"       value="true"/>
     </include>
 
+    <include file="$(find gen2bot)/launch/rgbd.launch">
+        <arg name="manager"                       value="realsense2_camera_manager" />
+        <arg name="respawn"                       value="false" />      
+        <arg name="rgb"                           value="color" />
+      </include>
+
 <!-- Remaps pointcloud so that it subscribes to a topic possible for jetson to visualize, without 
 this node, jetson won't publish pointcloud, which navigation and qr code relies on -->
     <node pkg="nodelet" type="nodelet" name="points_xyzrgb_hw_registered"
