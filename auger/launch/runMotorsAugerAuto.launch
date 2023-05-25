@@ -22,12 +22,12 @@
 
 <!-- Launches rviz using the rgbd.launch file which, somehow, allows pointcloud to work. pointcloud is what camera publishes to get
   positional values of all objects and points in space it can calculate relative to camera's frame-->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find realsense2_camera)/rviz/pointcloud.rviz" required="true" />
+<!--     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find realsense2_camera)/rviz/pointcloud.rviz" required="true" />
       <include file="$(find gen2bot)/launch/rgbd.launch">
         <arg name="manager"                       value="realsense2_camera_manager" />
         <arg name="respawn"                       value="false" />      
         <arg name="rgb"                           value="color" />
-      </include>
+      </include> -->
 
 <!-- Remaps pointcloud so that it subscribes to a topic possible for jetson to visualize, without 
 this node, jetson won't publish pointcloud, which navigation and qr code relies on -->
@@ -126,10 +126,10 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
 
  <!-- Launches node that converts xbox controller inputs into ROS; 
   http://wiki.ros.org/joy          http://wiki.ros.org/joy/Tutorials/ConfiguringALinuxJoystick -->
-  <node name="joy2" pkg="joy" type="joy_node" output="screen">
+<!--  <node name="joy2" pkg="joy" type="joy_node" output="screen">
     <param name="dev" value="/dev/input/js0"/>
     <param name="default_trig_val" value="true"/>
-  </node>
+  </node> -->
 
   <!-- Node that takes ROS inputs of joystick to move motors in wheels, auger, ballscrew, and linear actuator-->
   <node name="manual_motor_control" pkg="auger" type="robot_mux_auto.py" output="screen"/>
@@ -138,6 +138,8 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
 
   <!-- Node that takes ROS inputs of joystick to move motors in wheels-->
   <node name="manual_wheels" pkg="auger" type="manualDrive" output="screen"/>
+
+  <node name="auto_wheels" pkg="auger" type="autoDrive" output="screen"/>
 
   <rosparam file="$(find gen2bot)/config/states.yaml" command="load"/> 
 

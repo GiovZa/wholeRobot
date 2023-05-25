@@ -81,6 +81,35 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 
 	}
 
+	void semi_auto_trencher_class::Jitter(TalonSRX* talon1, TalonSRX* talon2, int num, std::string name, int& p_cmd, ros::NodeHandle  nh)
+	{
+		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+
+		std::cout << name << " are JITTERING " << num << " times" << std::endl;
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+		for (int i = 0; i < num; i++)
+		{
+			talon1->Set(ControlMode::PercentOutput, 0.5); 
+			talon2->Set(ControlMode::PercentOutput, 0.5); 
+			if(base_trencher_class::exitFunction(p_cmd)) return;
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(150));
+
+			talon2->Set(ControlMode::PercentOutput, -0.5); 
+			talon1->Set(ControlMode::PercentOutput, -0.5); 
+			if(base_trencher_class::exitFunction(p_cmd)) return;
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+			if(base_trencher_class::exitFunction(p_cmd)) return;
+
+		}
+
+
+	}
+
 	void semi_auto_trencher_class::displayData()
 	{
 		displayData(&bucket1, &bucket2, "bucket");
@@ -443,7 +472,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 		std::cout << std::endl << std::endl << std::endl << std::endl;
 	}
 
-	void semi_auto_trencher_class::deposit(int& p_cmd, ros::NodeHandle  nh)
+	/* void semi_auto_trencher_class::deposit(int& p_cmd, ros::NodeHandle  nh)
 	{
 		sentinel = p_cmd;
 		speedUpdate(nh);
@@ -454,6 +483,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 		std::cout << "Moving to depositMode: " << std::endl;
 
 		displayData();
+
 		
 		// while not in deposit position.
 		while(!CheckMode(laDepositPosition, buDepositPosition, bsDepositPosition))
@@ -496,7 +526,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 
 		std::cout << std::endl << std::endl << std::endl << std::endl;
 
-	}
+	} */
 
 	void semi_auto_trencher_class::dig(int& p_cmd, ros::NodeHandle  nh)
 	{
@@ -612,4 +642,83 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 			std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 			x += 1;
 		}
+	}
+
+	void semi_auto_trencher_class::deposit(int& p_cmd, ros::NodeHandle  nh)
+	{
+		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+		linAct1.Set(ControlMode::PercentOutput, 1);
+		linAct2.Set(ControlMode::PercentOutput, 1);
+
+		for(int i = 0; i < 10; i++)
+		{
+			if(base_trencher_class::exitFunction(p_cmd)) return;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+
+		linAct1.Set(ControlMode::PercentOutput, 0);
+		linAct2.Set(ControlMode::PercentOutput, 0);
+
+		bScrew.Set(ControlMode::PercentOutput, -1);
+
+		for(int i = 0; i < 10; i++)
+		{
+			if(base_trencher_class::exitFunction(p_cmd)) return;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+
+
+		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+
+		bScrew.Set(ControlMode::PercentOutput, 0);
+
+		bucket1.Set(ControlMode::PercentOutput, 1);
+		bucket2.Set(ControlMode::PercentOutput, 1);		
+
+		for(int i = 0; i < 10; i++)
+		{
+			if(base_trencher_class::exitFunction(p_cmd)) return;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+
+		Jitter(&bucket1, &bucket2, 5, "buckets", p_cmd, nh);
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+
+		bucket1.Set(ControlMode::PercentOutput, -1);
+		bucket2.Set(ControlMode::PercentOutput, -1);	
+
+		for(int i = 0; i < 10; i++)
+		{
+			if(base_trencher_class::exitFunction(p_cmd)) return;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+
+		bucket1.Set(ControlMode::PercentOutput, 0);
+		bucket2.Set(ControlMode::PercentOutput, 0);	
+
+		bScrew.Set(ControlMode::PercentOutput, 1);
+
+		for(int i = 0; i < 10; i++)
+		{
+			if(base_trencher_class::exitFunction(p_cmd)) return;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+
+		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
+
+		bScrew.Set(ControlMode::PercentOutput, 0);
+
+		linAct1.Set(ControlMode::PercentOutput, -1);
+		linAct2.Set(ControlMode::PercentOutput, -1);
+
+		for(int i = 0; i < 10; i++)
+		{
+			if(base_trencher_class::exitFunction(p_cmd)) return;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+
+		linAct1.Set(ControlMode::PercentOutput, 0);
+		linAct2.Set(ControlMode::PercentOutput, 0);
 	}

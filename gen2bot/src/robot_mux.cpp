@@ -245,11 +245,12 @@ public:
 		pub_mux.publish(msg);
 	}
 
-	void moveWheelsToSieve(int &p_cmd, ros::NodeHandle nh, wheel_trencher_class& wheel_trencher)
+	void moveWheelsToSieve(int &p_cmd, ros::NodeHandle nh, wheel_trencher_class& wheel_trencher, semi_auto_trencher_class& semi_auto_trencher)
 	{
 		int sentinel = p_cmd;
 		ROS_INFO("calling semi_auto_trencher.moveWheelsToSieve()");
 		wheel_trencher.moveWheelsToSieve(nh);
+		semi_auto_trencher.deposit(p_cmd, nh);
 	}
 };
 
@@ -279,7 +280,7 @@ int main(int argc, char **argv)
 	// use the & to allow us to use this-> key word for pointers
 
  	// ros::Subscriber ballScrewVariance = nh.subscribe("ball_screw_process", 0, &ball_screw_trencher_class::chatterCallback, &ball_screw);
- 	//ros::Subscriber wheelManual = nh.subscribe("manual_wheel_inputs", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher);
+ 	ros::Subscriber wheelManual = nh.subscribe("manual_wheel_inputs", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher);
 /* 	ros::Subscriber wheelAuto = nh.subscribe("cmd_vel", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher); 
  */
 	ros::AsyncSpinner spinner(0);
@@ -419,7 +420,7 @@ int main(int argc, char **argv)
 			break;
 		case 28:
 			std::cout << "Moving wheels" << std::endl;
-			mux.moveWheelsToSieve(p_cmd, nh, wheel_trencher);
+			mux.moveWheelsToSieve(p_cmd, nh, wheel_trencher, semi_auto_trencher);
 			p_cmd = 0;
 			break;
 		case 29:

@@ -215,7 +215,7 @@ manual_trencher_class::manual_trencher_class(ros::NodeHandle nh)
 		ROS_INFO("scoopsBScrewClass");
 
 		speedUpdate(nh);
-		spinMotors(bScrew, bScrewSpeed, trencher, (-1 *scoopsSpeed));
+		spinMotors(bScrew, (-1 * bScrewSpeed), trencher, scoopsSpeed);
 		keepSpinningMotors(p_cmd, nh);
 		spinMotors(bScrew, 0, trencher, 0);
 		motorsStoppedSpinning(p_cmd, nh);

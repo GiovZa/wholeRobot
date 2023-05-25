@@ -13,7 +13,7 @@ public:
     void ConfigMotionMagic(TalonFX* talon1, int vel, int accel, int pos);
     void ConfigMotionMagic(TalonSRX* talon1, TalonSRX* talon2, int vel, int accel, int pos);
 
-
+    void Jitter(TalonSRX* talon1, TalonSRX* talon2, int num, std::string name, int& p_cmd, ros::NodeHandle  nh);
 
     void displayData();
     void displayData(TalonFX* talon1, std::string name);

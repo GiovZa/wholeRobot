@@ -71,8 +71,8 @@ public:
 		ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
 		rightWheel.SetInverted(true);
-		leftWheel.Set(ControlMode::PercentOutput, -.10);
-		rightWheel.Set(ControlMode::PercentOutput, -.10);
+		leftWheel.Set(ControlMode::PercentOutput, -.25);
+		rightWheel.Set(ControlMode::PercentOutput, -.25);
 
 		while(true)
 		{

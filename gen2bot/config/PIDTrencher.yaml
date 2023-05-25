@@ -107,10 +107,10 @@ linact_cfg:
 # Deposits gravel by moving bucket, full contraction is 0 and default, while extension is deposit position
 bucket_cfg:
   # bucket is slightly extended
-  drivePosition: 60
+  drivePosition: 30
 
   # bucket is fully extended
-  depositPosition: 850
+  depositPosition: 840
 
   # bucket is fully contracted
   digPosition: 0
@@ -120,7 +120,7 @@ bucket_cfg:
   motionAcceleration: 10
   motionCurveStrength: 0
 
-  percentOutput: .5
+  percentOutput: 1
 
   # PID
   slot0: {
