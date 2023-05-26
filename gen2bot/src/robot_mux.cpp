@@ -256,7 +256,7 @@ public:
 	{
 		int sentinel = p_cmd;
 		ROS_INFO("calling semi_auto_trencher.moveWheelsToSieve()");
-		wheel_trencher.moveWheelsToSieve(nh);
+		wheel_trencher.moveWheelsToSieve(nh, p_cmd);
 		semi_auto_trencher.deposit(p_cmd, nh);
 	}
 };

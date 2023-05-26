@@ -125,8 +125,8 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen"> 
     
     <!-- Decrease turn velocty so robot doesn't snap into a 180 and break itself-->
-    <param name="max_vel_theta" value="1" type="double"/>
-    <param name="min_vel_theta" value="1" type="double"/>
+    <param name="max_vel_theta" value=".33" type="double"/>
+    <param name="min_vel_theta" value=".33" type="double"/>
     <param name="controller_frequency" value="6.0" type="double"/>
 
 <!-- Sets common_costmap parameters in config folder to both local and global costmaps -->

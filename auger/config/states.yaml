@@ -24,3 +24,5 @@ settingDriveModePhase: false
 ongoingDriveModePhase: false
 
 manualMode: true
+
+maxWheelSpeed: .5

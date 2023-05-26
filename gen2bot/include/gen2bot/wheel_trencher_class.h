@@ -25,10 +25,12 @@ public:
 		double maxSpeed;
 		node.getParam("/maxWheelSpeed", maxSpeed);
 
+		std::cout << "Moving wheels at: " << x << " linear and: " << z << " angular" << std::endl;
+
         // Set each motor to spin at a percent of max speed relative to triggers' linear speed
         // and left stick horizontal axis' turning speed
-        rightWheel.Set(ControlMode::PercentOutput, (-x + z)*maxSpeed);
-        leftWheel.Set(ControlMode::PercentOutput, (-x - z)*maxSpeed);
+        rightWheel.Set(ControlMode::PercentOutput, ((-x + z) * maxSpeed));
+        leftWheel.Set(ControlMode::PercentOutput, ((-x - z) * maxSpeed));
     }
 
 	void displayData(TalonFX* talon1, std::string name)
@@ -63,8 +65,9 @@ public:
 	void returnDesiredWheelPosition()
 	{desiredWheelPosition = leftWheel.GetSelectedSensorPosition();}
 
-	void moveWheelsToSieve(ros::NodeHandle  nh)
+	void moveWheelsToSieve(ros::NodeHandle  nh, int &p_cmd)
 	{
+		sentinel = p_cmd;
 		double newPos = calculateDistanceWheels();
 		leftWheel.SetSelectedSensorPosition(0);
 		rightWheel.SetSelectedSensorPosition(0);
@@ -77,7 +80,7 @@ public:
 		leftWheel.Set(ControlMode::PercentOutput, -.25);
 		rightWheel.Set(ControlMode::PercentOutput, -.25);
 
-		while(true)
+		while(sentinel == p_cmd)
 		{
 			displayData(&leftWheel, "Left Wheel");
 			displayData(&rightWheel, "Right Wheel");
@@ -87,6 +90,7 @@ public:
 				rightWheel.Set(ControlMode::PercentOutput, 0);
 				break;
 			}
+			
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
 		}

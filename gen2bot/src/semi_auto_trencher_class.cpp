@@ -95,17 +95,13 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 		{
 			talon1->Set(ControlMode::PercentOutput, 1); 
 			talon2->Set(ControlMode::PercentOutput, 1); 
-			if(base_trencher_class::exitFunction(p_cmd)) return;
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 			talon2->Set(ControlMode::PercentOutput, -1); 
 			talon1->Set(ControlMode::PercentOutput, -1); 
-			if(base_trencher_class::exitFunction(p_cmd)) return;
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(25));
-
-			if(base_trencher_class::exitFunction(p_cmd)) return;
 
 		}
 
@@ -378,28 +374,20 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 			ConfigMotionMagic(&bucket1, &bucket2, bucketSpeed, 5, buDrivePosition);
 			if(base_trencher_class::exitFunction(p_cmd)) return;
 
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
 			if (!(TargetPositionReached(&bScrew, bsDrivePosition, bScrewBuffer, "bScrew")))
 			{
-				// bScrew moves up
-				bool checkerPO;
-				nh.getParam("/bscrewPO", checkerPO);
+				std::cout << "Moving bScrew up to bsDrivePosition." << std::endl;
+				bScrew.Set(ControlMode::PercentOutput, 0.5);
+				std::cout << "po speed: " << 0.5 << std::endl;
 
-				std::cout << "checkerPO: " << checkerPO << std::endl;
-				if (checkerPO)
-				{
-					bScrew.Set(ControlMode::PercentOutput, (-1 * bScrewPercent));
-					std::cout << "po speed: " << bScrewPercent << std::endl;
-				}
-				else
-				{
-					bScrew.Set(ControlMode::Velocity, (-1 * bScrewSpeed));
-					std::cout << "vel bs speed: " << bScrewSpeed << std::endl;
-				}
 
 				if(base_trencher_class::exitFunction(p_cmd)) return;
 			}	
 			
-			
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
 
 			// If the ball screw retracted and bucket in drive position, start moving the linAct
 			if (TargetPositionReached(&bScrew, bsDrivePosition, bScrewBuffer, "bScrew") 
@@ -519,12 +507,12 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 
 			bool checkerPO;
 
-			nh.getParam("/trencher_cfg/trencherPO", checkerPO);
+			nh.getParam("/trencherPO", checkerPO);
 
 			std::cout << "checkerPO: " << checkerPO << std::endl;
 			if (checkerPO)
 			{
-				trencher.Set(ControlMode::PercentOutput, scoopsPercent);
+				trencher.Set(ControlMode::PercentOutput, (-1 * scoopsPercent));
 				std::cout << "po trencher speed: " << scoopsPercent << std::endl;
 			}
 			else
@@ -588,7 +576,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 		std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
 		std::cout << "Cycling the trencher while bScrew goes up" << std::endl;
-		while(bScrew.GetSelectedSensorPosition() < (bsDigPosition/2))
+		while(!(TargetPositionReached(&bScrew, bsDrivePosition, bScrewBuffer, "bScrew")))
 		{
 			std::cout << "bScrew going up. Trencher cycling." << std::endl;
 			
@@ -596,12 +584,12 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 
 			bool checkerPO;
 
-			nh.getParam("/trencher_cfg/trencherPO", checkerPO);
+			nh.getParam("/trencherPO", checkerPO);
 
 			std::cout << "checkerPO: " << checkerPO << std::endl;
 			if (checkerPO)
 			{
-				trencher.Set(ControlMode::PercentOutput, (scoopsPercent/2));
+				trencher.Set(ControlMode::PercentOutput, (-1 * scoopsPercent/2));
 				std::cout << "po trencher speed: " << scoopsPercent/2 << std::endl;
 			}
 			else

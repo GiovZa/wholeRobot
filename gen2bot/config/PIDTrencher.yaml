@@ -145,8 +145,7 @@ trencher_cfg:
   motionAcceleration: 100000
   motionCurveStrength: 0
   
-  percentOutput: .35
-  trencherPO: false
+  percentOutput: .45
 
   cycle: 736000
 

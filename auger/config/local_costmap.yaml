@@ -18,3 +18,4 @@ height: 3
 # Takes in obstacle_layer from common_costmap.yaml
 plugins:
   - {name: obstacle_layer,           type: "costmap_2d::ObstacleLayer"}
+  - {name: inflation_layer,           type: "costmap_2d::InflationLayer"}

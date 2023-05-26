@@ -1,0 +1,5 @@
+base_global_planner: global_planner/GlobalPlanner
+
+neutral_cost: 66
+cost_factor: 0.55
+leathal_cost: 253
