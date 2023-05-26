@@ -1,26 +1,11 @@
 # Look at: http://library.isr.ist.utl.pt/docs/roswiki/costmap_2d.html for parameter list
-
-# The global costmap gets the position of the entire arena and makes a global planner that gives an
-# initial abstract path for the robot to follow. It takes obstacles from the octomap server
-# This costmap doesn't account for craters in it's path planner.
-
-# Global frame must be a static map, which is a stagnant position in empty space and be within 
-# the same tf tree with base_link which is the tf frame of the robot, what updates the position 
-# of the robot's frame relative to the map frame are tf broadcasters that use sensors fused into
-# into the odom frame. Proper tf tree setup: map -> odom -> base_link -> sensors' frames
-# How we have it set up, the global frame uses Intel's VIO (Visual IMU Odometry) to get global to odom
-
-# TF Tree diagram:
-#                                                -> base_link -> base_footprint
-# We have camera_odom_frame -> camera_odom_frame
-#                                                -> camera_pose_frame -> all camera sensors -> object_22 (QR code)
+# Global frame must be map, which is a stagnant position in empty space
 global_frame: map
 
 # We don't want it to track unknown space because otherwise it will assume the space immediately in
 # front of the robot that the cameras can't see must contain an obstacle and immobilizes bot
 track_unknown_space: false
 
-# Plugins found in common_costmap.yaml
+# Plugin found in common_costmap.yaml
 plugins:
   - {name: static_layer,                  type: "costmap_2d::StaticLayer"}
-  - {name: inflation_layer,                  type: "costmap_2d::InflationLayer"}

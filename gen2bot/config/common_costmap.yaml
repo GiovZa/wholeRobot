@@ -2,8 +2,8 @@
 # This being the common costmap makes it so both global and local have the same parameters set here
 
 # Set dimensions of robot here in meters along with padding to cushion more space
-footprint: [[0.10, 0.50], [-1.0, 0.50], [0.10, -0.10],  [-1.0, -0.10]]
-footprint_padding: 0.03
+footprint: [[0.10, 0.50], [-1.05, 0.50], [-1.05, -0.10],  [0.10, -0.10]]
+footprint_padding: 0.05
 
 # The tf that should be at ground level and at center of robot
 robot_base_frame: base_footprint
@@ -25,7 +25,7 @@ resolution: 0.03
 # Look at: https://navigation.ros.org/configuration/packages/costmap-plugins/static.html for parameter list
 static:
 # Setting map to /camera_odom_frame because this is our current global frame in which everything would be a child tf of
-    map_topic: /map
+    map_topic: /camera_odom_frame
 
 # Takes in the costmap_2d::ObstacleLayer plugin that local costmap calls on. 
 # Look at: https://navigation.ros.org/configuration/packages/costmap-plugins/obstacle.html for parameter list
@@ -35,7 +35,7 @@ obstacle_layer:
   enabled: true
 
   # Parameter to put all the sensors that will detect obstacles, this one has rocks and craters detectors
-  observation_sources: rock_detector crater_detector
+  observation_sources: rock_detector
 
   rock_detector: {
 
@@ -50,24 +50,10 @@ obstacle_layer:
 
     # Values relative to frame of camera, which is about 0.5 meters high
     # Set to count things (rocks) above level robot_base_frame as obstacles
-    min_obstacle_height: -0.2,
+    min_obstacle_height: -0.30,
 
     # Set to not detect things above robot height (ex. mark the ceiling as an obstacle)
     max_obstacle_height: 0.0
-  }
-
-  crater_detector: {
-
-    data_type: PointCloud2,
-
-    topic: /depth_camera/depth/color/points,
-
-    # Clearing set to true removes obstacles in real time
-    clearing: true,
-
-    # Set to count things (craters) underneath ground level as obstacles, .8 to .9 meters away in -Z direction from camera frame
-    min_obstacle_height: -0.9,
-    max_obstacle_height: -0.7
   }
 
 # Takes in the costmap_2d::InflationLayer plugin that local and global costmap calls on. 

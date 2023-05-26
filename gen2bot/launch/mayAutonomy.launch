@@ -33,8 +33,8 @@
 
 <!-- Launches rviz using the rgbd.launch file which, somehow, allows pointcloud to work. pointcloud is what camera publishes to get
   positional values of all objects and points in space it can calculate relative to camera's frame-->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find realsense2_camera)/rviz/pointcloud.rviz" required="true" />
-      <include file="$(find gen2bot)/launch/rgbd.launch">
+<!--     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find realsense2_camera)/rviz/pointcloud.rviz" required="true" />
+ -->      <include file="$(find gen2bot)/launch/rgbd.launch">
         <arg name="manager"                       value="realsense2_camera_manager" />
         <arg name="respawn"                       value="false" />      
         <arg name="rgb"                           value="color" />
@@ -85,7 +85,7 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
 		<param name="base_frame_id" type="string" value="/base_footprint" />
 
   <!-- The frame where obstacles are embedded onto-->
-		<param name="frame_id" type="string" value="/map" />
+		<param name="frame_id" type="string" value="/camera_odom_frame" />
 
   <!-- The max range in which cameras can detect an obstacle-->
 		<param name="sensor_model/max_range" value="3.0" />
@@ -95,30 +95,34 @@ this node, jetson won't publish pointcloud, which navigation and qr code relies 
 		<param name="filter_ground" type="bool" value="true" />
 
   <!-- How much in meters in Z direction to segment voxels into ground plane-->
-    <param name="ground_filter/plane_distance" value="0.2" />
+    <param name="ground_filter/plane_distance" value="0.08" />
   
   <!-- The minimum and maximum range in which obstacles can be detected relative to camera-->
-		<param name="pointcloud_min_z" value="-0.90" />
-		<param name="pointcloud_max_z" value="0.10" />
+		<param name="pointcloud_min_z" value="-0.30" />
+		<param name="pointcloud_max_z" value="0.0" />
 
   <!-- Remaps subscribed topic to topic in which pointcloud is published-->
 		<remap from="cloud_in" to="/depth_camera/depth/color/points" />
 
   <!-- Remaps published topic to /map so map frame gets obstacles-->
-   	<remap from="projected_map" to="/map"/>
+   	<remap from="projected_map" to="/camera_odom_frame"/>
 	</node>
 
   <!-- Static tranform between parent and child transforms. Arguments are position for x, y, and z followed by orientation for x, y, and z -->
   <!-- These nodes just sticks a child tf to follow a parent tf a certain position and orientation away -->
-  <node pkg="tf" type="static_transform_publisher" name="base_link_to_base_footprint" args= "-0.40 0.15 -0.45 0 0 0 base_link base_footprint 100"/>
+<!--   <node pkg="tf" type="static_transform_publisher" name="base_link_to_base_footprint" args= "0 0 0 0 0 0 base_link base_footprint 100"/>
 
-  <node pkg="tf" type="static_transform_publisher" name="camera_pose_to_base_link" args= "0 0 0 3.14 3.14 3.14 camera_pose_frame base_link 100"/>
+  <node pkg="tf" type="static_transform_publisher" name="camera_pose_to_base_link" args= "-0.20 0 -0.15 3.14 3.14 3.14 camera_pose_frame base_link 100"/>
 
-  <node pkg="tf" type="static_transform_publisher" name="map_to_camera_odom" args= "0 0 0 0 0 0 map camera_odom_frame 100"/>
+  <node pkg="tf" type="static_transform_publisher" name="map_to_camera_odom" args= "0 0 0 0 0 0 map camera_odom_frame 100"/> -->
+
+  <node pkg="tf" type="static_transform_publisher" name="pose_to_base_link" args= "-0.2 0 -.15 3.14 3.14 3.14 camera_pose_frame base_link 100"/>
+
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_base_footprint" args= "0 0 0 0 0 0 base_link base_footprint 100"/>
 
   <!-- Launches move_base which spews out motor commands based on nav_goal and obstacles
     Check out: http://wiki.ros.org/move_base for parameters -->
-  <node pkg="move_base" type="move_base" respawn="true" name="move_base" output="screen"> 
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen"> 
     
     <!-- Decrease turn velocty so robot doesn't snap into a 180 and break itself-->
     <param name="max_vel_theta" value="1" type="double"/>

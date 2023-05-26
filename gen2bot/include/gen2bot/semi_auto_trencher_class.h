@@ -52,5 +52,6 @@ public:
     double bScrewSpeed;
     double bScrewSpeedDown;
     double scoopsSpeed;
+    double scoopsPercent;
     double bScrewPercent;
 };

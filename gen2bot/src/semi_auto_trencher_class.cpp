@@ -15,7 +15,8 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 		bucketSpeed(10),
 		bScrewSpeed(-40000),
 		bScrewSpeedDown(-10000),
-		scoopsSpeed(.5),
+		scoopsSpeed(100000),
+		scoopsPercent(.35),
 		bScrewPercent(-0.15)
 		{speedUpdate(nh);}
 
@@ -37,7 +38,8 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 		nh.getParam("/bscrew_cfg/motionCruiseVelocity", bScrewSpeed);
 		nh.getParam("/bscrew_cfg/motionCruiseVelocityDown", bScrewSpeedDown);
 		nh.getParam("/bscrew_cfg/percentOutput", bScrewPercent);
-		nh.getParam("/trencher_cfg/percentOutput", scoopsSpeed);
+		nh.getParam("/trencher_cfg/motionCruiseVelocity", scoopsSpeed);
+		nh.getParam("/trencher_cfg/percentOutput", scoopsPercent);
 		nh.getParam("/trencherBuffer", trencherBuffer);
 		nh.getParam("/bScrewBuffer", bScrewBuffer);
 		nh.getParam("/wheelBuffer", wheelBuffer);
@@ -91,22 +93,24 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 
 		for (int i = 0; i < num; i++)
 		{
-			talon1->Set(ControlMode::PercentOutput, 0.5); 
-			talon2->Set(ControlMode::PercentOutput, 0.5); 
+			talon1->Set(ControlMode::PercentOutput, 1); 
+			talon2->Set(ControlMode::PercentOutput, 1); 
 			if(base_trencher_class::exitFunction(p_cmd)) return;
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(150));
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-			talon2->Set(ControlMode::PercentOutput, -0.5); 
-			talon1->Set(ControlMode::PercentOutput, -0.5); 
+			talon2->Set(ControlMode::PercentOutput, -1); 
+			talon1->Set(ControlMode::PercentOutput, -1); 
 			if(base_trencher_class::exitFunction(p_cmd)) return;
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			std::this_thread::sleep_for(std::chrono::milliseconds(25));
 
 			if(base_trencher_class::exitFunction(p_cmd)) return;
 
 		}
 
+		talon2->Set(ControlMode::PercentOutput, 0); 
+		talon1->Set(ControlMode::PercentOutput, 0); 
 
 	}
 
@@ -503,12 +507,34 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 
 		}
 
+		std::cout << "linAct has reached initialDigPosition (slanted)" << std::endl;
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+
 		// When linAct has reached initialDigPosition (slanted), turn on trencher
 		if (TargetPositionReached(&linAct1, &linAct2, initialDigPosition, "linAct"))
 		{
+			std::cout << "Turning on trencher" << std::endl;
 			ctre::phoenix::unmanaged::Unmanaged::FeedEnable(100000);
 
-			//trencher.Set(ControlMode::PercentOutput, (-1.0 * scoopsSpeed));
+			bool checkerPO;
+
+			nh.getParam("/trencher_cfg/trencherPO", checkerPO);
+
+			std::cout << "checkerPO: " << checkerPO << std::endl;
+			if (checkerPO)
+			{
+				trencher.Set(ControlMode::PercentOutput, scoopsPercent);
+				std::cout << "po trencher speed: " << scoopsPercent << std::endl;
+			}
+			else
+			{
+				trencher.Set(ControlMode::Velocity, scoopsSpeed);
+				std::cout << "vel trencher speed: " << scoopsSpeed << std::endl;
+			}
+
+			displayData(&bScrew, "bScrew");
+			displayData(&trencher, "trencher");
 
 			if(base_trencher_class::exitFunction(p_cmd)) return;
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -551,6 +577,8 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 			}
 
 			displayData();
+			displayData(&bScrew, "bScrew");
+			displayData(&trencher, "trencher");
 			if(base_trencher_class::exitFunction(p_cmd)) return;
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
@@ -560,14 +588,30 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 		std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
 		std::cout << "Cycling the trencher while bScrew goes up" << std::endl;
-		while(bScrew.GetSelectedSensorPosition() < (buDepositPosition/2))
+		while(bScrew.GetSelectedSensorPosition() < (bsDigPosition/2))
 		{
 			std::cout << "bScrew going up. Trencher cycling." << std::endl;
 			
-			bScrew.Set(ControlMode::PercentOutput, bScrewSpeed);
-			//trencher.Set(ControlMode::PercentOutput, (-0.5 * scoopsSpeed));
+			bScrew.Set(ControlMode::Velocity, bScrewSpeed);
+
+			bool checkerPO;
+
+			nh.getParam("/trencher_cfg/trencherPO", checkerPO);
+
+			std::cout << "checkerPO: " << checkerPO << std::endl;
+			if (checkerPO)
+			{
+				trencher.Set(ControlMode::PercentOutput, (scoopsPercent/2));
+				std::cout << "po trencher speed: " << scoopsPercent/2 << std::endl;
+			}
+			else
+			{
+				trencher.Set(ControlMode::Velocity, (scoopsSpeed/2));
+				std::cout << "vel trencher speed: " << scoopsSpeed/2 << std::endl;
+			}
 
 			displayData(&bScrew, "bScrew");
+			displayData(&trencher, "trencher");
 
 			if(base_trencher_class::exitFunction(p_cmd)) return;
 
@@ -672,7 +716,7 @@ semi_auto_trencher_class::semi_auto_trencher_class(ros::NodeHandle nh)
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
 
-		Jitter(&bucket1, &bucket2, 5, "buckets", p_cmd, nh);
+		Jitter(&bucket1, &bucket2, 60, "buckets", p_cmd, nh);
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 

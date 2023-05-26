@@ -62,7 +62,7 @@ bscrew_cfg:
   digPosition: -7000000
 
   # this is what is used for motion magic to control speeds
-  motionCruiseVelocity: -40000
+  motionCruiseVelocity: 40000
   motionCruiseVelocityDown: -10000
   motionAcceleration: 100000
   motionCurveStrength: 8
@@ -141,11 +141,12 @@ trencher_cfg:
   digPosition: 0 
 
   # Motion magic
-  motionCruiseVelocity: 5
-  motionAcceleration: 10
+  motionCruiseVelocity: -25000
+  motionAcceleration: 100000
   motionCurveStrength: 0
   
   percentOutput: .35
+  trencherPO: false
 
   cycle: 736000
 

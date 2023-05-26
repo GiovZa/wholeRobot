@@ -23,7 +23,7 @@ public:
         rightWheel.SetInverted(true);
 
 		double maxSpeed;
-		node.getParam("/wheelMaxSpeed", maxSpeed);
+		node.getParam("/maxWheelSpeed", maxSpeed);
 
         // Set each motor to spin at a percent of max speed relative to triggers' linear speed
         // and left stick horizontal axis' turning speed
@@ -81,7 +81,7 @@ public:
 		{
 			displayData(&leftWheel, "Left Wheel");
 			displayData(&rightWheel, "Right Wheel");
-			if (isNear(leftWheel.GetSelectedSensorPosition(), newPos, 1000) && isNear(rightWheel.GetSelectedSensorPosition(), newPos, 1000))
+			if (isNear(leftWheel.GetSelectedSensorPosition(), newPos, 5000) && isNear(rightWheel.GetSelectedSensorPosition(), newPos, 5000))
 			{
 				leftWheel.Set(ControlMode::PercentOutput, 0);
 				rightWheel.Set(ControlMode::PercentOutput, 0);

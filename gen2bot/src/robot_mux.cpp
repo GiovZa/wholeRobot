@@ -191,6 +191,13 @@ void returnDesiredWheelPosition(int &p_cmd, ros::NodeHandle nh, wheel_trencher_c
 	wheel_trencher.returnDesiredWheelPosition();
 }
 
+void jitterBucket(int &p_cmd, ros::NodeHandle nh, semi_auto_trencher_class& semi_auto_trencher_class)
+{
+	int sentinel = p_cmd;
+	ROS_INFO("calling semi_auto_trencher.Jitter()");
+	semi_auto_trencher_class.Jitter(&semi_auto_trencher_class.bucket1, &semi_auto_trencher_class.bucket2, 30, "buckets", p_cmd, nh);
+}
+
 
 
 class mux_contactor {
@@ -280,9 +287,9 @@ int main(int argc, char **argv)
 	// use the & to allow us to use this-> key word for pointers
 
  	// ros::Subscriber ballScrewVariance = nh.subscribe("ball_screw_process", 0, &ball_screw_trencher_class::chatterCallback, &ball_screw);
- 	//ros::Subscriber wheelManual = nh.subscribe("manual_wheel_inputs", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher);
-/* 	ros::Subscriber wheelAuto = nh.subscribe("cmd_vel", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher); 
- */
+ 	ros::Subscriber wheelManual = nh.subscribe("manual_wheel_inputs", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher);
+	ros::Subscriber wheelAuto = nh.subscribe("cmd_vel", 0, &wheel_trencher_class::chatterCallback, &wheel_trencher); 
+
 	ros::AsyncSpinner spinner(0);
 	spinner.start();
 
@@ -431,6 +438,11 @@ int main(int argc, char **argv)
 		case 60:
 			std::cout << "Spinning" << std::endl;
 			mux.spinAround(p_cmd, nh, semi_auto_trencher);
+			p_cmd = 0;
+			break;
+		case -10:
+			std::cout << "Jittering" << std::endl;
+			jitterBucket(p_cmd, nh, semi_auto_trencher);
 			p_cmd = 0;
 			break;
 		default:

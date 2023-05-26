@@ -270,6 +270,11 @@ class JoystickPublisher:
                                         rospy.loginfo("Spinning scoops in mux")
                                         self.pub.publish(Int8)
 
+                                elif(message.buttons[9] == 1.0): # Left stick -- moves bucket really fast
+                                        Int8 = -10
+                                        rospy.loginfo("Running Jitter")
+                                        self.pub.publish(Int8)
+
 
 
                                 # elif(message.axes[7] == 1.0 and message.buttons[6] == 1.0): # Up Dpad AND Back button -- Moves the ballscrew up and reverses the mining
